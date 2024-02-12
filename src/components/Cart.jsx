@@ -122,7 +122,8 @@ const Cart = () => {
     try {
       // Add the document to the 'sales' collection
       const docRef = await addDoc(salesCollection, salesDoc);
-
+      toast.success('Sale added successfully!');
+      console.log('Receipt added to Firestore with ID:', docRef.id);
     // Implement the logic to print the formatted receipt
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
@@ -186,8 +187,7 @@ const Cart = () => {
     printWindow.document.close();
     printWindow.print();
  
-    toast.success('Sale added successfully!');
-  console.log('Receipt added to Firestore with ID:', docRef.id);
+
 } catch (error) {
   console.error('Error adding receipt to Firestore:', error);
 }
