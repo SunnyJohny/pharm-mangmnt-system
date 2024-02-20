@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdClose } from "react-icons/md";
-import { getFirestore, collection, addDoc, Timestamp, doc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, Timestamp, doc, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const AddProduct = ({ onAddProduct, onCloseModal }) => {
+const AddProduct = ({ onCloseModal }) => {
   const navigate = useNavigate();
   const [isNewProduct, setIsNewProduct] = useState(true);
   const [product, setProduct] = useState({
@@ -46,69 +46,103 @@ const AddProduct = ({ onAddProduct, onCloseModal }) => {
     setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
   };
 
+  const updateExistingProduct = async (productId, updateData) => {
+    try {
+      const productRef = doc(getFirestore(), 'products', productId);
+      await updateDoc(productRef, {
+        quantityRestocked: arrayUnion({ ...updateData, time: Timestamp.now() }),
+      });
+      console.log('Existing product updated successfully!');
+      toast.success('Existing product updated successfully!');
+      setProduct({
+        ...product,
+        existingProduct: "",
+        quantityRestocked: 0,
+      });
+    } catch (error) {
+      console.error('Error updating existing product:', error.message);
+      toast.error('Error updating existing product. Please try again.');
+      throw error; // Propagate the error to handle it in the calling function
+    }
+  };
+
+  const onAddProduct = async (newProduct) => {
+    try {
+      const productsCollection = collection(getFirestore(), 'products');
+
+      if (isNewProduct) {
+        // For new product
+        await addDoc(productsCollection, {
+          name: newProduct.name,
+          supplier: newProduct.supplier,
+          quantitySupplied: newProduct.quantitySupplied,
+          costOfSupply: newProduct.costOfSupply,
+          salesPrice: newProduct.salesPrice,
+          description: newProduct.description,
+          quantityRestocked: [], // Initial empty array for quantityRestocked
+        });
+        console.log('Product added successfully!');
+        toast.success('Product added successfully!');
+        setProduct({
+          ...product,
+          name: "",
+          supplier: "",
+          quantitySupplied: "",
+          costOfSupply: "",
+          salesPrice: "",
+          description: "",
+        });
+      } else {
+        // For existing product
+        const { existingProduct, quantityRestocked } = newProduct;
+
+        if (!existingProduct || quantityRestocked === null || isNaN(quantityRestocked)) {
+          console.error('Existing product ID or restocked quantity not provided!');
+          toast.error('Existing product ID or restocked quantity not provided. Please try again.');
+          return;
+        }
+
+        // Update the existing product
+        await updateExistingProduct(existingProduct, { quantity: quantityRestocked });
+      }
+    } catch (error) {
+      console.error('Error adding/updating product:', error.message);
+      toast.error('Error adding/updating product. Please try again.');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Validate form fields before adding the product
       if (isNewProduct) {
-        // For new product
         if (
           !product.name ||
           !product.supplier ||
           !product.quantitySupplied ||
           !product.costOfSupply ||
           !product.salesPrice ||
-          !product.description ||
-          !product.quantityRestocked
+          !product.description
         ) {
-          // Check if any required field is empty
           toast.error("Please fill in all required fields.");
           return;
         }
-        // Add additional validation logic if needed
       } else {
-        // For existing product
-        if (!product.existingProduct || !product.quantityRestocked) {
-          // Check if any required field is empty
-          toast.error("Please fill in all required fields.");
+        if (!product.existingProduct || product.quantityRestocked === null || isNaN(product.quantityRestocked)) {
+          toast.error("Please fill in all required fields with valid values.");
           return;
         }
-        // Add additional validation logic if needed
       }
 
-      // If it's an existing product, update the quantity in the main inventory
-      if (!isNewProduct) {
-        const existingProductRef = doc(getFirestore(), "products", product.existingProduct);
-        const existingProductDoc = await getDocs(existingProductRef);
-
-        if (existingProductDoc.exists()) {
-          const existingQuantity = existingProductDoc.data().quantity || 0;
-          const restockedQuantity = parseInt(product.quantityRestocked, 10) || 0;
-
-          // Update the quantity in the main inventory
-          await existingProductRef.update({
-            quantity: existingQuantity + restockedQuantity,
-          });
-
-          console.log("Quantity updated successfully!");
-        }
-      }
-
-      // Pass the product to the parent component for handling
       onAddProduct(product);
-
-      // Close the modal
-      onCloseModal();
-      toast.success("Product added successfully!");
     } catch (error) {
-      console.error("Error adding product:", error.message);
-      toast.error("Error adding product. Please try again.");
+      console.error("Error handling form submission:", error.message);
+      toast.error("Error handling form submission. Please try again.");
     }
   };
 
   const handleBack = () => {
-    navigate("/inventory-page"); // Replace with the correct route
+    navigate("/inventory-page");
   };
 
   return (
@@ -161,6 +195,17 @@ const AddProduct = ({ onAddProduct, onCloseModal }) => {
                       <option key={id} value={id}>{name}</option>
                     ))}
                   </select>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Quantity Restocked</label>
+                    <input
+                      type="text"
+                      name="quantityRestocked"
+                      value={product.quantityRestocked}
+                      onChange={handleInputChange}
+                      className="border rounded-md w-full p-2"
+                      required
+                    />
+                  </div>
                 </div>
               ) : (
                 <>
@@ -230,21 +275,10 @@ const AddProduct = ({ onAddProduct, onCloseModal }) => {
                       rows="4"
                     ></textarea>
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Quantity Restocked</label>
-                    <input
-                      type="text"
-                      name="quantityRestocked"
-                      value={product.quantityRestocked}
-                      onChange={handleInputChange}
-                      className="border rounded-md w-full p-2"
-                      required
-                    />
-                  </div>
                 </>
               )}
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                Add Product
+                {isNewProduct ? "Add Product" : "Update Product"}
               </button>
             </form>
           </div>

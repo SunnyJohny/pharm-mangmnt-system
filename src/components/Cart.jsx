@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
-import { getFirestore, collection, addDoc, Timestamp } from 'firebase/firestore';
+
+import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
+
 import { useMyContext } from '../Context/MyContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -81,18 +83,55 @@ const Cart = () => {
     clearCart();
   };
 
+
+  // Create a Firestore instance
   const db = getFirestore();
+
+  // Function to update product sale information in the 'products' collection
+  const updateProductSale = async (productId, quantitySold) => {
+    try {
+      const productRef = doc(db, 'products', productId);
+  
+      // Check if the product already exists in the collection
+      const productDoc = await getDoc(productRef);
+  
+      if (productDoc.exists()) {
+        // If the product exists, update the quantitySold field
+        await updateDoc(productRef, {
+          quantitySold: arrayUnion({
+            quantitySold: quantitySold,
+            timestamp: Timestamp.now(),
+          }),
+        }, { merge: true });
+        console.log('Product sale updated successfully!');
+      } else {
+        // If the product doesn't exist, add a new document with the quantitySold field
+        await addDoc(collection(db, 'products'), {
+          productId: productId,
+          quantitySold: [{
+            quantitySold: quantitySold,
+            timestamp: Timestamp.now(),
+          }],
+        });
+        console.log('New product added to products collection!');
+      }
+    } catch (error) {
+      console.error('Error updating product sale:', error.message);
+      throw error;
+    }
+  };
+  
+  
+
+  // Function to handle the printing of the receipt
   const handlePrintReceipt = async () => {
     // Generate a unique receipt number
     const receiptNumber = Math.floor(Math.random() * 1000000);
 
     // Get the current date and time
     const transactionDateTime = new Date().toLocaleString();
-    
-    // Create a reference to the 'sales' collection in Firestore
-    const salesCollection = collection(db, 'sales');
 
-    // Create a document with the necessary fields
+    // Create a salesDoc object with dynamic values
     const salesDoc = {
       saleId: `sale_${receiptNumber}`,
       date: transactionDateTime,
@@ -119,11 +158,22 @@ const Cart = () => {
         // other staff details
       },
     };
+
     try {
       // Add the document to the 'sales' collection
-      const docRef = await addDoc(salesCollection, salesDoc);
+      const docRef = await addDoc(collection(db, 'sales'), salesDoc);
       toast.success('Sale added successfully!');
       console.log('Receipt added to Firestore with ID:', docRef.id);
+
+        // Use Promise.all to wait for all updateProductSale promises to complete
+  await Promise.all(cart.map(async (item) => {
+    await updateProductSale(item.id, item.quantity);
+  }));
+
+      // Log necessary information to the console for debugging or tracking purposes
+      console.log('Transaction Details:', salesDoc);
+      console.log('Product Sales Details:', cart.map((item) => ({ productId: item.id, quantitySold: item.quantity })));
+
     // Implement the logic to print the formatted receipt
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`

@@ -18,8 +18,132 @@ export const MyContextProvider = ({ children }) => {
     sales: [], // New array for sales data
     cart: [],
     inventoryData: [],
+    productTotals: new Map(),
+    overallTotalQuantity: 0,
+     productTotalsMap: new Map(),
+    overallTotalProductQuantity: 0,
+    firstRestockedTimeMap: new Map(), // Map to store the first restocked time for each product
   };
 
+
+  const [state, setState] = useState(initialState);
+
+  
+  const fetchProductsAndCalculateSumOfSales = async () => {
+    try {
+      const productsCollection = collection(getFirestore(), 'products');
+      const productsSnapshot = await getDocs(productsCollection);
+
+      let overallTotalProductQuantity = 0;
+      const productTotalsMap = new Map();
+
+      productsSnapshot.forEach((doc) => {
+        const { name, quantitySold } = doc.data();
+
+        // Assuming quantitySold is an array of objects with a 'quantity' property
+        if (Array.isArray(quantitySold)) {
+          const productTotal = quantitySold.reduce((sum, entry) => {
+            const quantityValue = parseInt(entry.quantitySold, 10);
+
+            // Check if quantityValue is a valid number
+            if (!isNaN(quantityValue)) {
+              return sum + quantityValue;
+            } else {
+              console.error(`Invalid quantity value for ${name}: ${entry.quantitySold}`);
+              return sum; // Exclude invalid values from the sum
+            }
+          }, 0);
+
+          productTotalsMap.set(name, productTotal);
+
+          overallTotalProductQuantity += productTotal;
+        }
+      });
+
+      console.log('Product-wise Totals:');
+      productTotalsMap.forEach((total, productName) => {
+        console.log(`${productName}: ${total}`);
+      });
+
+      console.log(`Overall Total Quantity: ${overallTotalProductQuantity}`);
+
+      setState((prevState) => ({
+        ...prevState,
+        productTotalsMap: productTotalsMap,
+        overallTotalProductQuantity: overallTotalProductQuantity,
+      }));
+    } catch (error) {
+      console.error('Error fetching products:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductsAndCalculateSumOfSales();
+  }, []); 
+
+  useEffect(() => {
+    const fetchRestockedTimeData = async () => {
+      try {
+        const productsCollection = collection(getFirestore(), 'products');
+        const productsSnapshot = await getDocs(productsCollection);
+  
+        let overallTotalQuantity = 0;
+        const productTotalsMap = new Map();
+        const firstRestockedTimeMap = new Map();
+  
+        productsSnapshot.forEach((doc) => {
+          const { name, quantityRestocked } = doc.data();
+  
+          if (Array.isArray(quantityRestocked) && quantityRestocked.length > 0) {
+            // Assuming each entry in quantityRestocked has a 'time' property
+            const firstRestockedTime = quantityRestocked[0].time;
+            firstRestockedTimeMap.set(name, firstRestockedTime);
+            console.log(`First restocked time for ${name}: ${firstRestockedTime}`);
+          }
+  
+          if (Array.isArray(quantityRestocked)) {
+            const productTotal = quantityRestocked.reduce((sum, entry) => {
+              const quantityValue = parseInt(entry.quantity, 10);
+  
+              if (!isNaN(quantityValue)) {
+                return sum + quantityValue;
+              } else {
+                console.error(`Invalid quantity value for ${name}: ${entry.quantity}`);
+                return sum;
+              }
+            }, 0);
+  
+            productTotalsMap.set(name, productTotal);
+            overallTotalQuantity += productTotal;
+          }
+        });
+  
+        console.log('Product-wise Totals:');
+        productTotalsMap.forEach((total, productName) => {
+          console.log(`${productName}: ${total}`);
+        });
+  
+        console.log(`Overall Total Quantity: ${overallTotalQuantity}`);
+  
+        setState((prevState) => ({
+          ...prevState,
+          productTotals: productTotalsMap,
+          overallTotalQuantity: overallTotalQuantity,
+          firstRestockedTimeMap: firstRestockedTimeMap,
+        }));
+      } catch (error) {
+        console.error('Error fetching products:', error.message);
+      }
+    };
+  
+    fetchRestockedTimeData();
+  }, []);
+  
+  
+  // Code outside the useEffect
+  console.log(state.firstRestockedTimeMap);
+  
+  
   const fetchSalesData = async () => {
     const db = getFirestore();
     const salesCollection = collection(db, 'sales'); // Adjust the collection name if needed
@@ -27,6 +151,8 @@ export const MyContextProvider = ({ children }) => {
     const salesData = salesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     return salesData;
   };
+
+
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -60,7 +186,6 @@ export const MyContextProvider = ({ children }) => {
     fetchProducts();
   }, []);
 
-  const [state, setState] = useState(initialState);
 
   const addToCart = (productId) => {
     const productToAdd = state.products.find((product) => product.id === productId);
@@ -115,6 +240,11 @@ export const MyContextProvider = ({ children }) => {
     increaseQuantity,
     decreaseQuantity,
   };
+ 
+
+  console.log(state.productTotalsMap)
+  console.log(state)
+
 
   return <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>;
 };

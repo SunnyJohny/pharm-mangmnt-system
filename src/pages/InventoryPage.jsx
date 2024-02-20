@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
@@ -13,6 +15,7 @@ const InventoryPage = () => {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [filteredItems, setFilteredItems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Initialize with inventory data from the context
@@ -56,13 +59,14 @@ const InventoryPage = () => {
 
   const generateSn = (index) => index + 1;
 
-
-  
-  
-
   const handleTableDateClick = (date) => {
     setFromDate(date);
     setToDate(date);
+  };
+
+  const handleRowClick = (itemId) => {
+    // Navigate to the new page with the itemId
+    navigate(`/product-details/${itemId}`);
   };
 
   const renderActionButtons = () => {
@@ -189,9 +193,7 @@ const InventoryPage = () => {
                   <th className="border">Name</th>
                   <th className="border">Date</th>
                   <th className="border">Item ID</th>
-                  <th className="border">Opening Bal</th>
-
-                  <th className="border">Qty-In</th>
+                  <th className="border">Qty Restocked</th>
                   <th className="border">Total Bal</th>
                   <th className="border">Qty Sold</th>
                   <th className="border">Qty Balance</th>
@@ -203,47 +205,38 @@ const InventoryPage = () => {
               </thead>
               <tbody>
                 {itemsToDisplay.map((item) => (
-                  <tr key={item.sn}>
-                   <td className="border">{generateSn(itemsToDisplay.indexOf(item), totalItems)}</td>
-
+                  <tr
+                    key={item.sn}
+                    onClick={() => handleRowClick(item.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td className="border">
+                      {generateSn(itemsToDisplay.indexOf(item), totalItems)}
+                    </td>
                     <td className="border">{item.name}</td>
-                    <td
-                      className="border cursor-pointer text-blue-500"
-                      onClick={() => handleTableDateClick(item.date)}
-                    >
-                      {item.date}
+                    <td className="border cursor-pointer text-blue-500" onClick={() => handleTableDateClick(item.date)}>
+                      <p>{(state.firstRestockedTimeMap.get(item.time) || 0) !== 0 ? new Date(state.firstRestockedTimeMap.get(item.time) * 1000).toLocaleString() : 'N/A'}</p>
                     </td>
                     <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
-                   
-                   {/* <td className="border">{item['Opening-Balance'] && item['Opening-Balance'].length > 0 ? item['Opening-Balance'][0] : 0}</td> */}
-                   <td className="border">
-                      {console.log("Opening-Balance", item['Opening-Balance'])}
-                      {item['Opening-Balance'] && item['Opening-Balance'].length > 0
-                        ? item['Opening-Balance'][0]
-                        : 'N/A'}
-                    </td>
-
-                    <td className="border">{item['Quantity-In'] && item['Quantity-In'].length > 0 ? item['Quantity-In'][0] : 'N/A'}</td>
                     <td className="border">
-  {console.log("Opening-Balance", item['Opening-Balance'])}
-  {console.log("Quantity-In", item['Quantity-In'])}
-  {(
-    (item['Opening-Balance'] && item['Opening-Balance'].length > 0 ? parseFloat(item['Opening-Balance'][0]) : 0) +
-    (item['Quantity-In'] && item['Quantity-In'].length > 0 ? parseFloat(item['Quantity-In'][0]) : 0)
-  ).toFixed(2)}
-</td>
-
-
-
+                      <p>{state.productTotals.get(item.name) || 0}</p>
+                    </td>
+                    <td className="border">
+                      <p>{state.productTotals.get(item.name) || 0}</p>
+                    </td>
+                    <td className="border">
+                      <p>{state.productTotalsMap.get(item.name) || 0}</p>
+                    </td>
+                    <td className="border">
+                      <p>{((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}</p>
+                    </td>
                     <td className="border">{item.value}</td>
                     <td className="border">{item.sn}</td>
                     <td className="border">{item.name}</td>
-                  
                     <td className="border">{item.price}</td>
                     <td className="border">{item.QtyOut}</td>
                     <td className="border">{item.quantity}</td>
                     <td className="border">{item.value}</td>
-                  
                   </tr>
                 ))}
               </tbody>
