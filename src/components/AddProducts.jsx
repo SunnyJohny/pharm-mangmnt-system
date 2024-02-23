@@ -11,9 +11,9 @@ const AddProduct = ({ onCloseModal }) => {
   const [product, setProduct] = useState({
     name: "",
     supplier: "",
-    quantitySupplied: "",
-    costOfSupply: "",
-    salesPrice: "",
+    quantitySupplied: 0,
+    costPrice: 0.00,
+  price: 0,
     description: "",
     existingProduct: "", // Field for existing product ID
     quantityRestocked: 0, // Field for restocking quantity
@@ -76,10 +76,10 @@ const AddProduct = ({ onCloseModal }) => {
           name: newProduct.name,
           supplier: newProduct.supplier,
           quantitySupplied: newProduct.quantitySupplied,
-          costOfSupply: newProduct.costOfSupply,
-          salesPrice: newProduct.salesPrice,
+          costPrice: newProduct.costPrice,
+          price: newProduct.price,
           description: newProduct.description,
-          quantityRestocked: [], // Initial empty array for quantityRestocked
+          quantityRestocked: 0, // Initialize quantityRestocked as a number
         });
         console.log('Product added successfully!');
         toast.success('Product added successfully!');
@@ -87,9 +87,9 @@ const AddProduct = ({ onCloseModal }) => {
           ...product,
           name: "",
           supplier: "",
-          quantitySupplied: "",
-          costOfSupply: "",
-          salesPrice: "",
+          quantitySupplied: 0,
+          costPrice: 0.00,
+          price: 0.00,
           description: "",
         });
       } else {
@@ -103,7 +103,7 @@ const AddProduct = ({ onCloseModal }) => {
         }
 
         // Update the existing product
-        await updateExistingProduct(existingProduct, { quantity: quantityRestocked });
+        await updateExistingProduct(existingProduct, { quantity: Number(quantityRestocked) });
       }
     } catch (error) {
       console.error('Error adding/updating product:', error.message);
@@ -120,8 +120,8 @@ const AddProduct = ({ onCloseModal }) => {
           !product.name ||
           !product.supplier ||
           !product.quantitySupplied ||
-          !product.costOfSupply ||
-          !product.salesPrice ||
+          !product.costPrice ||
+          !product.price ||
           !product.description
         ) {
           toast.error("Please fill in all required fields.");
@@ -147,6 +147,7 @@ const AddProduct = ({ onCloseModal }) => {
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
+      
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -198,7 +199,7 @@ const AddProduct = ({ onCloseModal }) => {
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Quantity Restocked</label>
                     <input
-                      type="text"
+                      type="number"  /* Use type "number" for quantityRestocked */
                       name="quantityRestocked"
                       value={product.quantityRestocked}
                       onChange={handleInputChange}
@@ -234,7 +235,7 @@ const AddProduct = ({ onCloseModal }) => {
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Quantity Supplied</label>
                     <input
-                      type="text"
+                      type="number"
                       name="quantitySupplied"
                       value={product.quantitySupplied}
                       onChange={handleInputChange}
@@ -245,9 +246,9 @@ const AddProduct = ({ onCloseModal }) => {
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Cost of Supply</label>
                     <input
-                      type="text"
-                      name="costOfSupply"
-                      value={product.costOfSupply}
+                      type="number"
+                      name="costPrice"
+                      value={product.costPrice}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
                       required
@@ -256,9 +257,9 @@ const AddProduct = ({ onCloseModal }) => {
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Sales Price</label>
                     <input
-                      type="text"
-                      name="salesPrice"
-                      value={product.salesPrice}
+                      type="number"
+                      name="price"
+                      value={product.price}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
                       required
@@ -285,7 +286,9 @@ const AddProduct = ({ onCloseModal }) => {
         </div>
       </div>
     </div>
-  );
+
+);
+
 };
 
 export default AddProduct;

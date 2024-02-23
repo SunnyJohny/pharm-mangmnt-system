@@ -93,6 +93,7 @@ export const MyContextProvider = ({ children }) => {
   
         productsSnapshot.forEach((doc) => {
           const { name, quantityRestocked } = doc.data();
+          
   
           if (Array.isArray(quantityRestocked) && quantityRestocked.length > 0) {
             // Assuming each entry in quantityRestocked has a 'time' property
@@ -138,10 +139,20 @@ export const MyContextProvider = ({ children }) => {
   
     fetchRestockedTimeData();
   }, []);
+ 
+
   
   
   // Code outside the useEffect
-  console.log(state.firstRestockedTimeMap);
+  useEffect(() => {
+    // Code outside the useEffect
+    if (state.firstRestockedTimeMap) {
+      state.firstRestockedTimeMap.forEach((firstRestockedTime, name) => {
+        console.log(`First restocked time for ${name}: ${firstRestockedTime}`);
+      });
+    }
+  }, [state.firstRestockedTimeMap]);
+
   
   
   const fetchSalesData = async () => {
@@ -232,8 +243,28 @@ export const MyContextProvider = ({ children }) => {
     }
   };
 
+
+  
+  const searchInventoryByKeyword = (keyword) => {
+    // Implement your search logic here
+    return state.products.filter((product) =>
+      product.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+  };
+
+  const searchByDate = (startDate, endDate) => {
+    // Implement your search logic here
+    return state.products.filter((product) => {
+      const productDate = new Date(product.date);
+      return productDate >= startDate && productDate <= endDate;
+    });
+  };
+
+
   const contextValue = {
     state,
+    searchInventoryByKeyword,
+    searchByDate,
     addToCart,
     removeFromCart,
     clearCart,
@@ -242,8 +273,6 @@ export const MyContextProvider = ({ children }) => {
   };
  
 
-  console.log(state.productTotalsMap)
-  console.log(state)
 
 
   return <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>;
