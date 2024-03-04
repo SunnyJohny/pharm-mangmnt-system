@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Profile from "./pages/Profile";
+
 import SignIn from "./pages/SignIn";
 import PrivateRoute from "./components/PrivateRoute";
 import Header from "./components/Header";
@@ -12,6 +12,9 @@ import PosScreen from "./pages/PosScreen";
 import AddProduct from "./components/AddProducts";
 import ProductDetails from "./components/ProductDetails";
 import ProductHistory from './components/ProductHistory';
+import PrintInventoryPage from './components/PrintInventoryPage';
+import SalesPage from './pages/SalesPage';
+
 
 function App() {
   return (
@@ -28,12 +31,16 @@ function App() {
           </Route>
 
           <Route path="/inventory-page" element={<InventoryPage />} />
+          <Route path="/sales" element={<SalesPage />} />
+
           <Route path="/add-product" element={<AddProduct />} />
           {/* Add a route for the product details page */}
           <Route path="/product-details/:productId" element={<ProductDetails />} />
           
           <Route path="/product-history/:productId" element={<ProductHistory />} />
+          <Route path="/print-inventory" element={<PrintInventoryPage />} />
 
+      
         </Routes>
         <Footer />
       </Router>

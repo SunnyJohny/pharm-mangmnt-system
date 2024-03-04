@@ -60,12 +60,12 @@ export const MyContextProvider = ({ children }) => {
         }
       });
 
-      console.log('Product-wise Totals:');
-      productTotalsMap.forEach((total, productName) => {
-        console.log(`${productName}: ${total}`);
-      });
+      // console.log('Product-wise Totals:');
+      // productTotalsMap.forEach((total, productName) => {
+      //   console.log(`${productName}: ${total}`);
+      // });
 
-      console.log(`Overall Total Quantity: ${overallTotalProductQuantity}`);
+      // console.log(`Overall Total Quantity: ${overallTotalProductQuantity}`);
 
       setState((prevState) => ({
         ...prevState,
@@ -119,12 +119,12 @@ export const MyContextProvider = ({ children }) => {
           }
         });
   
-        console.log('Product-wise Totals:');
-        productTotalsMap.forEach((total, productName) => {
-          console.log(`${productName}: ${total}`);
-        });
+        // console.log('Product-wise Totals:');
+        // productTotalsMap.forEach((total, productName) => {
+        //   console.log(`${productName}: ${total}`);
+        // });
   
-        console.log(`Overall Total Quantity: ${overallTotalQuantity}`);
+        // console.log(`Overall Total Quantity: ${overallTotalQuantity}`);
   
         setState((prevState) => ({
           ...prevState,
@@ -144,14 +144,14 @@ export const MyContextProvider = ({ children }) => {
   
   
   // Code outside the useEffect
-  useEffect(() => {
-    // Code outside the useEffect
-    if (state.firstRestockedTimeMap) {
-      state.firstRestockedTimeMap.forEach((firstRestockedTime, name) => {
-        console.log(`First restocked time for ${name}: ${firstRestockedTime}`);
-      });
-    }
-  }, [state.firstRestockedTimeMap]);
+  // useEffect(() => {
+  //   // Code outside the useEffect
+  //   if (state.firstRestockedTimeMap) {
+  //     state.firstRestockedTimeMap.forEach((firstRestockedTime, name) => {
+  //       console.log(`First restocked time for ${name}: ${firstRestockedTime}`);
+  //     });
+  //   }
+  // }, [state.firstRestockedTimeMap]);
 
   
   
@@ -187,7 +187,7 @@ export const MyContextProvider = ({ children }) => {
       try {
         const productsSnapshot = await getDocs(productsCollection);
         const products = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        console.error('fetching products...', products);
+        // console.error('fetching products...', products);
         setState((prevState) => ({ ...prevState, products }));
       } catch (error) {
         console.error('Error fetching products:', error);

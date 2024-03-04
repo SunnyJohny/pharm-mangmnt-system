@@ -6,11 +6,13 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
-import InventorySidePanel from '../components/InventorySidePanel';
+
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import SalesPageSidePanel from '../components/SalesPageSidePanel';
 
-const InventoryPage = () => {
+
+const SalesPage = () => {
   const { state } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
@@ -169,6 +171,22 @@ const handlePrintInventory = async () => {
     );
   };
 
+
+
+  useEffect(() => {
+    // Fetch sales data from the context
+    const salesDataFromContext = state.sales || [];
+
+    // Log sales data to console
+    console.log('Sales Data:', salesDataFromContext);
+
+    // Additional logic if needed...
+
+  }, [state.sales, state.products, state.productTotals, state.productTotalsMap]);
+
+
+
+
   useEffect(() => {
     // Initialize with inventory data from the context
     const initialItems = state.products || [];
@@ -243,6 +261,8 @@ capturePagesContent();
     );
   };
 
+
+
   const calculateTotalStoreValue = (items) => {
     const calculatedTotalStoreValue = items.reduce(
       (total, item) =>
@@ -256,33 +276,33 @@ capturePagesContent();
   return (
     <div className="container mx-auto flex">
       <div className="flex-none">
-        <InventorySidePanel />
+        <SalesPageSidePanel />
       </div>
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
-          <h2 className="text-2xl font-bold">Inventory Stats</h2>
+          <h2 className="text-2xl font-bold">Sales Stats</h2>
           <div className="flex mt-4 space-x-4">
-            {renderStatCard('Total Products', totalItems.toString(), 'blue')}
-            {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'pink')}
+            {renderStatCard('Total Revenue', 500, 'blue')}
+            {renderStatCard('Total Sales', `₦${totalStoreValue}`, 'pink')}
             {renderStatCard(
-              'Out Of Stock',
+              'Today Sales',
               filteredItems.filter(
                 (item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) === 0
               ).length.toString(),
               'red'
             )}
-            {renderStatCard('All Categories', '2', 'blue')}
+            {renderStatCard('Products Sold', '2', 'blue')}
 
 
           </div>
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Inventory Items</h2>
+          <h2 className="text-2xl font-bold mb-4">Transactions</h2>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="text-lg">Inventory by Date</div>
+              <div className="text-lg">Sales by Date</div>
               <div className="relative">
                 <DatePicker
                   selected={fromDate}
@@ -330,58 +350,48 @@ capturePagesContent();
                   <th className="border">Name</th>
                   <th className="border">Date</th>
                   <th className="border">Item ID</th>
-                  <th className="border">Qty Restocked</th>
-                  <th className="border">Total Bal</th>
+                  <th className="border">Trans ID</th>
+                  <th className="border">Customer</th>
                   <th className="border">Qty Sold</th>
-                  <th className="border">Qty Balance</th>
-                  <th className="border">CostPrice</th>
-                  <th className="border">Sales Price</th>
+                  <th className="border">Payment</th>
+                  <th className="border">Sales <br /> Price</th>
+                  
+                  <th className="border">Attendants <br /> Name</th>
+
+
                   <th className="border">Item Value</th>
-                  <th className="border">Action</th>
+                  <th className="border">Payment<br />Status</th>
                 </tr>
               </thead>
-              <tbody>
-                {itemsToDisplay.map((item) => (
-                  <tr
-                    key={item.sn}
-                    onClick={() => handleRowClick(item.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
-                    <td className="border">{item.name}</td>
-                    <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-                    <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
-                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                    <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-                    <td className="border">
-                      {(
-                        (state.productTotals.get(item.name) || 0) -
-                        (state.productTotalsMap.get(item.name) || 0)
-                      )}
-                    </td>
-                    <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-<td className="border">{Number(item.price).toFixed(2)}</td>
-
-                    <td className="border">
-                      {(
-                        item.price *
-                        ((state.productTotals.get(item.name) || 0) -
-                          (state.productTotalsMap.get(item.name) || 0))
-                      ).toFixed(2)}
-                    </td>
-                    <td className="border">
-                      <FontAwesomeIcon
-                        icon={faEdit}
-                        style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-                      />
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        style={{ cursor: 'pointer', color: 'red' }}
-                      />
-                    </td>
-                  </tr>
-                ))}
+               <tbody>
+               {state.sales.map((sale, index) => (
+      <tr onClick={() => handleRowClick(sale)} style={{ cursor: 'pointer' }}>
+      <td className="border">{generateSn(index)}</td>
+      <td className="border">
+        {sale.products.map((product, productIndex) => (
+          <span key={productIndex}>
+            {productIndex < 2 ? (
+              <span>{product.name}</span>
+            ) : (
+              productIndex === 2 && sale.products.length > 2 ? (
+                <span>...</span>
+              ) : null
+            )}
+            {productIndex < sale.products.length - 1 ? <span>, </span> : null}
+          </span>
+        ))}
+      </td>
+      <td className="border">{sale.date}</td>
+      <td className="border">{sale.id}</td>
+      <td className="border">{sale.customer.name}</td>
+      <td className="border">{sale.products.reduce((acc, product) => acc + product.quantity, 0)}</td>
+      <td className="border">{sale.payment.method}</td>
+      <td className="border">{sale.products.reduce((acc, product) => acc + product.price, 0)}</td>
+      <td className="border">{sale.staff.name}</td>
+      <td className="border">{sale.products.reduce((acc, product) => acc + product.price * product.quantity, 0)}</td>
+      <td className="border">{sale.payment.method}</td>
+    </tr>
+))}
               </tbody>
             </table>
           </div>
@@ -402,4 +412,4 @@ const renderStatCard = (title, value, color) => (
   </div>
 );
 
-export default InventoryPage;
+export default SalesPage;
