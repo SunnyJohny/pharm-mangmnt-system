@@ -198,6 +198,41 @@ export const MyContextProvider = ({ children }) => {
   }, []);
 
 
+
+
+  useEffect(() => {
+    const filterProducts = async () => {
+      try {
+        // Hardcoded date range and keyword for testing
+        const startDate = new Date('2024-03-01');
+        const endDate = new Date('2024-03-15');
+        const keyword = 'zzz';
+
+        // Filter products by keyword
+        const filteredProducts = searchByKeyword(keyword);
+
+        // Filter sales data by date range
+        const filteredSales = searchByDate(state.sales, startDate, endDate);
+
+        console.log('Filtered Products:', filteredProducts);
+        console.log('Filtered Sales:', filteredSales);
+      } catch (error) {
+        console.error('Error filtering products:', error.message);
+      }
+    };
+
+    filterProducts();
+  }, [state.products, state.sales]);
+
+
+
+
+
+
+
+
+
+
   const addToCart = (productId) => {
     const productToAdd = state.products.find((product) => product.id === productId);
 
@@ -245,25 +280,42 @@ export const MyContextProvider = ({ children }) => {
 
 
   
-  const searchInventoryByKeyword = (keyword) => {
+  const searchByKeyword = (keyword) => {
+    if (typeof keyword !== 'string') {
+      console.error('Invalid keyword:', keyword);
+      return [];
+    }
+  
     // Implement your search logic here
-    return state.products.filter((product) =>
-      product.name.toLowerCase().includes(keyword.toLowerCase())
+    return state.sales.filter((sale) =>
+      sale.products.some((product) =>
+        product.name.toLowerCase().includes(keyword.toLowerCase())
+      )
     );
   };
+  
 
-  const searchByDate = (startDate, endDate) => {
-    // Implement your search logic here
-    return state.products.filter((product) => {
-      const productDate = new Date(product.date);
-      return productDate >= startDate && productDate <= endDate;
+  const searchByDate = (items, startDate, endDate) => {
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+  
+    if (!startDate || !endDate) {
+      return items;
+    }
+  
+    return items.filter((item) => {
+      const saleDate = new Date(item.date.replace(/,/g, ''));
+      return saleDate >= startDate && saleDate <= endDate;
     });
   };
+  
+  
+  
 
 
   const contextValue = {
     state,
-    searchInventoryByKeyword,
+    searchByKeyword,
     searchByDate,
     addToCart,
     removeFromCart,

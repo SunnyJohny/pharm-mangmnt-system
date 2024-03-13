@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
 
-import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 
 import { useMyContext } from '../Context/MyContext';
 import { toast } from 'react-toastify';
@@ -194,6 +194,8 @@ const Cart = () => {
             <p>Company Address</p>
             <p>Phone: Company Phone</p>
             <p>Email: company@email.com</p>
+            <p>Attendant: John</p>
+
             <hr>
             <h3>Receipt No.: ${receiptNumber}</h3>
             <p>Date/Time: ${transactionDateTime}</p>

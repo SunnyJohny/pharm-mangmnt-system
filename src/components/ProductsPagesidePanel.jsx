@@ -22,7 +22,7 @@ const ProductsPageSidePanel = () => {
           <FaBoxes className="text-xl" />
           <p className="ml-2">Inventory</p>
         </Link>
-        <Link to="/sales-report" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+        <Link to="/sales" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaChartBar className="text-xl" />
           <p className="ml-2">Sales Report</p>
         </Link>

@@ -334,6 +334,8 @@ capturePagesContent();
                   <th className="border">Total Bal</th>
                   <th className="border">Qty Sold</th>
                   <th className="border">Qty Balance</th>
+                  <th className="border">M.Unit</th>
+
                   <th className="border">CostPrice</th>
                   <th className="border">Sales Price</th>
                   <th className="border">Item Value</th>
@@ -359,6 +361,9 @@ capturePagesContent();
                         (state.productTotals.get(item.name) || 0) -
                         (state.productTotalsMap.get(item.name) || 0)
                       )}
+                    </td>
+                    <td className="border">
+                     Piece
                     </td>
                     <td className="border">{Number(item.costPrice).toFixed(2)}</td>
 <td className="border">{Number(item.price).toFixed(2)}</td>
