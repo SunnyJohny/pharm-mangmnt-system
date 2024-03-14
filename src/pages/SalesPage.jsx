@@ -16,14 +16,12 @@ import ReceiptModal from '../components/ReceiptModal';
 
 const SalesPage = () => {
   const { state, searchByKeyword, searchByDate } = useMyContext();
-
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   // const [filteredItems, setFilteredItems] = useState([]);
   const [totalStoreValue, setTotalStoreValue] = useState(0);
-  const [firstRestockDates, setFirstRestockDates] = useState({});
   const [allPagesContent, setAllPagesContent] = useState([]);
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
   const navigate = useNavigate();
@@ -31,75 +29,7 @@ const SalesPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
-  const [, forceUpdate] = useState();
-  const forceComponentUpdate = () => forceUpdate((prev) => !prev);
-
   const [searchKeyword, setSearchKeyword] = useState('');
-
-
-
-
-
-
-
-
-
-
-
-
-  useEffect(() => {
-    // Handle changes related to date filtering
-    const filteredByDate = searchByDate(state.sales, fromDate, toDate);
-  
-    // Update filteredSales and calculate total store value based on filtered items
-    setFilteredSales(filteredByDate);
-    calculateTotalStoreValue(filteredByDate);
-  }, [state.sales, searchByDate, fromDate, toDate]);
-  
-  useEffect(() => {
-    // Handle changes related to keyword filtering
-    const filteredByKeyword = searchByKeyword(state.sales, searchKeyword);
-  
-    // Update filteredSales and calculate total store value based on filtered items
-    setFilteredSales(filteredByKeyword);
-    calculateTotalStoreValue(filteredByKeyword);
-  }, [state.sales, searchByKeyword, searchKeyword]);
-  useEffect(() => {
-    // Handle changes related to date filtering
-    const filteredByDate = searchByDate(state.sales, fromDate, toDate);
-  
-    // Update filteredSales and calculate total store value based on filtered items
-    setFilteredSales(filteredByDate);
-    calculateTotalStoreValue(filteredByDate);
-  }, [state.sales, searchByDate, fromDate, toDate]);
-  
-  useEffect(() => {
-    // Handle changes related to keyword filtering
-    const filteredByKeyword = searchByKeyword(state.sales, searchKeyword);
-  
-    // Update filteredSales and calculate total store value based on filtered items
-    setFilteredSales(filteredByKeyword);
-    calculateTotalStoreValue(filteredByKeyword);
-  }, [state.sales, searchByKeyword, searchKeyword]);
-    
-
-
-
-
-
-  // useEffect(() => {
-  //   setFilteredSales(state.sales);
-  //   console.log(filteredSales) ;   
-
-  // }, [state.sales]);
-
-
-
-  useEffect(() => {
-    if (tableRef.current) {
-      console.log('Container dimensions:', tableRef.current.offsetWidth, tableRef.current.offsetHeight);
-    }
-  }, []);
 
   const totalItems = filteredSales.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -108,22 +38,61 @@ const SalesPage = () => {
   const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
 
 
+  useEffect(() => {
+    const filteredByDate = searchByDate(state.sales, fromDate, toDate);
+    setFilteredSales(filteredByDate);
+  }, [state.sales, searchByDate, fromDate, toDate]);
 
+  useEffect(() => {
+    const filteredByKeyword = searchByKeyword(state.sales, searchKeyword);
+    setFilteredSales(filteredByKeyword);
+  }, [state.sales, searchByKeyword, searchKeyword]);
 
+  useEffect(() => {
+    calculateTotalSalesValue(filteredSales);
+  }, [filteredSales]);
 
+  const calculateTotalSalesValue = (sales) => {
+    if (!sales || sales.length === 0) {
+      setTotalSalesValue(0);
+      return;
+    }
 
-
-
+    const calculatedTotalSalesValue = sales.reduce((total, sale) => {
+      if (sale.products && Array.isArray(sale.products)) {
+        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.price || 0), 0);
+      } else {
+        console.log('Undefined products array in sale:', sale);
+        return total;
+      }
+    }, 0);
+    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
+  };
   const handleFromDateChange = (date) => {
     setFromDate(date);
-
-
+    const filteredByDate = searchByDate(state.sales, date, toDate);
+    console.log('Filtered by date:', filteredByDate);
+    setFilteredSales(filteredByDate);
+    calculateTotalSalesValue(filteredByDate);
   };
-
+  
   const handleToDateChange = (date) => {
     setToDate(date);
-
+    const filteredByDate = searchByDate(state.sales, fromDate, date);
+    console.log('Filtered by date:', filteredByDate);
+    setFilteredSales(filteredByDate);
+    calculateTotalSalesValue(filteredByDate);
   };
+  
+  useEffect(() => {
+    console.log('Filtered sales:', filteredSales);
+  }, [filteredSales]);
+  
+  useEffect(() => {
+    console.log('Total sales value:', totalSalesValue);
+  }, [totalSalesValue]);
+  
+  
 
 
   const generateSn = (index) => index + 1;
@@ -164,7 +133,7 @@ const SalesPage = () => {
               itemsPerPage,
               filteredSales,
               totalStoreValue,
-              firstRestockDates,
+           
               allPagesContent,
             },
           },
@@ -258,15 +227,15 @@ const SalesPage = () => {
     setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
   };
 
-  const calculateTotalSalesValue = () => {
-    const calculatedTotalSalesValue = state.sales.reduce(
-      (total, sale) =>
-        total +
-        sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0),
-      0
-    );
-    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
-  };
+  
+   // Calculate total sales value on mount and when sales change
+   useEffect(() => {
+    calculateTotalSalesValue();
+  }, [filteredSales]);
+  
+
+
+
 
   const calculateTodaySales = () => {
     const today = new Date().toLocaleDateString();
@@ -284,10 +253,7 @@ const SalesPage = () => {
   };
 
 
-  // Calculate total sales value on mount and when sales change
-  useEffect(() => {
-    calculateTotalSalesValue();
-  }, [state.sales]);
+ 
 
   const handleRowClick = (sale) => {
     console.log('Clicked on row with ID:', sale.id); // Log the ID to the console

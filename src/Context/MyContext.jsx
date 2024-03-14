@@ -279,15 +279,14 @@ export const MyContextProvider = ({ children }) => {
   };
 
 
-  
-  const searchByKeyword = (keyword) => {
+  const searchByKeyword = (sales, keyword) => {
     if (typeof keyword !== 'string') {
       console.error('Invalid keyword:', keyword);
       return [];
     }
   
     // Implement your search logic here
-    return state.sales.filter((sale) =>
+    return sales.filter((sale) =>
       sale.products.some((product) =>
         product.name.toLowerCase().includes(keyword.toLowerCase())
       )
