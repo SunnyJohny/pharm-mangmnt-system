@@ -31,16 +31,16 @@ const socialMediaLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white p-6">
+    <footer className="bg-gray-800 text-white ">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Contact Information */}
-          <div className="mb-8 md:mb-0">
+          {/* <div className="mb-8 md:mb-0">
             <h2 className="text-xl font-bold mb-4">Contact Us</h2>
             <p>Email:johnsunday803@gmail.com.com</p>
             <p>Phone: +234 8030611606</p>
             <p>Address: 123 Kubwa, FCT, Nigeria</p>
-          </div>
+          </div> */}
 
           {/* Quick Links
           <div className="mb-8 md:mb-0">

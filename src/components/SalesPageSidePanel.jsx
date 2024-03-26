@@ -9,7 +9,8 @@ const SalesPageSidePanel = () => {
   const { state } = useMyContext();
 
   return (
-    <div className="flex flex-col bg-gray-800 text-white p-4">
+
+    <div className="flex flex-col bg-gray-800 text-white p-4 h-full"> {/* Set height to full */}
       <UserInformation user={state.user} />
       <hr className="my-4 border-t-2 border-white" />
       {/* Tabs */}
@@ -21,6 +22,10 @@ const SalesPageSidePanel = () => {
         <Link to="/inventory-page" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaBoxes className="text-xl" />
           <p className="ml-2">Inventory</p>
+        </Link>
+        <Link to="/expenses" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+          <FaChartBar className="text-xl" />
+          <p className="ml-2">Expenses </p>
         </Link>
         <Link to="/posscreen" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaChartBar className="text-xl" />

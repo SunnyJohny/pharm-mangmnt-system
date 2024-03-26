@@ -39,9 +39,9 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
     <div className="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center">
       <div className="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
         <div className="p-4">
-          <h2 className="text-2xl font-bold text-center mb-4">Your Company Name</h2>
-          <p className="text-center">Company Address</p>
-          <p className="text-center">Phone: Company Phone</p>
+          <h2 className="text-2xl font-bold text-center mb-4">BENOKOSI PHARMACY LTD</h2>
+          <p className="text-center">No. 13...Enugu State</p>
+          <p className="text-center">Phone: 08033821417</p>
           <p className="text-center">Email: company@email.com</p>
           <p className="text-center">Attendant: John</p>
 

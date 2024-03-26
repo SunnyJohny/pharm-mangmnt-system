@@ -13,11 +13,13 @@ const AddProduct = ({ onCloseModal }) => {
     supplier: "",
     quantitySupplied: 0,
     costPrice: 0.00,
-  price: 0,
+    costPerItem: 0.00, // Renamed from itemCostPrice
+    price: 0,
     description: "",
     existingProduct: "", // Field for existing product ID
     quantityRestocked: 0, // Field for restocking quantity
   });
+
   const [existingProductNames, setExistingProductNames] = useState([]);
 
   useEffect(() => {
@@ -43,8 +45,24 @@ const AddProduct = ({ onCloseModal }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
+    if (name === "quantitySupplied" || name === "costPrice") {
+      // Update the product state with the new value
+      setProduct((prevProduct) => ({
+        ...prevProduct,
+        [name]: value,
+        // Calculate costPerItem if both costPrice and quantitySupplied are valid numbers
+        costPerItem: name === "costPrice" ? (prevProduct.quantitySupplied && parseFloat(value) !== 0 ? (parseFloat(value) / parseFloat(prevProduct.quantitySupplied)).toFixed(2) : 0) : prevProduct.costPerItem,
+        // Calculate salesPrice as twice the costPerItem
+        salesPrice: name === "costPrice" ? (parseFloat(value) !== 0 ? (parseFloat(value) / parseFloat(prevProduct.quantitySupplied) * 2).toFixed(2) : 0) : prevProduct.salesPrice
+      }));
+    } else {
+      // For other fields, just update the state normally
+      setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
+    }
   };
+
+
+
 
   const updateExistingProduct = async (productId, updateData) => {
     try {
@@ -69,7 +87,7 @@ const AddProduct = ({ onCloseModal }) => {
   const onAddProduct = async (newProduct) => {
     try {
       const productsCollection = collection(getFirestore(), 'products');
-
+  
       if (isNewProduct) {
         // For new product
         await addDoc(productsCollection, {
@@ -79,10 +97,11 @@ const AddProduct = ({ onCloseModal }) => {
           costPrice: newProduct.costPrice,
           price: newProduct.price,
           description: newProduct.description,
-          quantityRestocked: 0, // Initialize quantityRestocked as a number
+          quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }], // Initialize quantityRestocked with the entered quantity and timestamp
+          // Add current timestamp for date
+          dateAdded: Timestamp.now()
         });
         console.log('Product added successfully!');
-        toast.success('Product added successfully!');
         setProduct({
           ...product,
           name: "",
@@ -92,16 +111,18 @@ const AddProduct = ({ onCloseModal }) => {
           price: 0.00,
           description: "",
         });
+        toast.success('Product added successfully!');
+  
       } else {
         // For existing product
         const { existingProduct, quantityRestocked } = newProduct;
-
+  
         if (!existingProduct || quantityRestocked === null || isNaN(quantityRestocked)) {
           console.error('Existing product ID or restocked quantity not provided!');
           toast.error('Existing product ID or restocked quantity not provided. Please try again.');
           return;
         }
-
+  
         // Update the existing product
         await updateExistingProduct(existingProduct, { quantity: Number(quantityRestocked) });
       }
@@ -110,10 +131,10 @@ const AddProduct = ({ onCloseModal }) => {
       toast.error('Error adding/updating product. Please try again.');
     }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       if (isNewProduct) {
         if (
@@ -121,7 +142,6 @@ const AddProduct = ({ onCloseModal }) => {
           !product.supplier ||
           !product.quantitySupplied ||
           !product.costPrice ||
-          !product.price ||
           !product.description
         ) {
           toast.error("Please fill in all required fields.");
@@ -133,13 +153,30 @@ const AddProduct = ({ onCloseModal }) => {
           return;
         }
       }
-
-      onAddProduct(product);
+  
+      // Check if the price is dynamically calculated
+      if (!isNewProduct && product.price === 0) {
+        // If price is zero (not dynamically calculated), skip the validation
+        onAddProduct(product);
+      } else {
+        // If the price is not zero (dynamically calculated), proceed with validation
+        if (
+          !product.price ||
+          product.price === 0 ||
+          !product.description
+        ) {
+          toast.error("Please fill in all required fields.");
+          return;
+        }
+        onAddProduct(product);
+      }
     } catch (error) {
       console.error("Error handling form submission:", error.message);
       toast.error("Error handling form submission. Please try again.");
     }
   };
+  
+  
 
   const handleBack = () => {
     navigate("/inventory-page");
@@ -147,7 +184,7 @@ const AddProduct = ({ onCloseModal }) => {
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
-      
+
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -244,11 +281,23 @@ const AddProduct = ({ onCloseModal }) => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Cost of Supply</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Cost of Goods Supplied</label>
                     <input
                       type="number"
                       name="costPrice"
                       value={product.costPrice}
+                      onChange={handleInputChange}
+                      className="border rounded-md w-full p-2"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Cost Of Item</label>
+                    <input
+                      type="number"
+                      name="costPerItem"
+                      value={product.costPerItem}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
                       required
@@ -259,12 +308,13 @@ const AddProduct = ({ onCloseModal }) => {
                     <input
                       type="number"
                       name="price"
-                      value={product.price}
+                      value={product.salesPrice}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
                       required
                     />
                   </div>
+
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Description</label>
                     <textarea
@@ -287,7 +337,7 @@ const AddProduct = ({ onCloseModal }) => {
       </div>
     </div>
 
-);
+  );
 
 };
 

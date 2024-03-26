@@ -13,7 +13,9 @@ import AddProduct from "./components/AddProducts";
 import ProductDetails from "./components/ProductDetails";
 import ProductHistory from './components/ProductHistory';
 import PrintInventoryPage from './components/PrintInventoryPage';
-import SalesPage from './pages/SalesPage';
+import SalesPage from './pages/salesPage';
+import PrintSalesPage from './components/PrintSalesPage';
+import AddExpense from './components/AddExpenses';
 
 
 function App() {
@@ -24,6 +26,8 @@ function App() {
         <Routes>
           <Route path="/" element={<SignIn />} />
           <Route path="/posscreen" element={<PosScreen />} />
+          <Route path="/expenses" element={<AddExpense />} />
+
           
           {/* Add a PrivateRoute for the profile page */}
           <Route path="/profile" element={<PrivateRoute />}>
@@ -39,6 +43,8 @@ function App() {
           
           <Route path="/product-history/:productId" element={<ProductHistory />} />
           <Route path="/print-inventory" element={<PrintInventoryPage />} />
+          <Route path="/print-sales" element={<PrintSalesPage />} />
+
 
       
         </Routes>

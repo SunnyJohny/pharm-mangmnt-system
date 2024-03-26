@@ -53,10 +53,10 @@ const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMeth
         onChange={(e) => setSelectedPaymentMethod(e.target.value)}
       >
         <option value="Cash">Cash</option>
-        <option value="Credit">Credit</option>
-        <option value="Cheque">Cheque</option>
-        <option value="POS">POS</option>
-        <option value="App Transfer">Transfer</option>
+        <option value="Credit">Credit</option> {/*Customer DEtails*/}
+        <option value="Cheque">Cheque</option>  {/*Customer DEtails*/}
+        <option value="POS">POS</option>   {/*Transaction Ref Number*/}
+        <option value="App Transfer">Transfer</option> {/*Transaction Ref Number*/}
       </select>
     <div className="flex gap-4">
     <button className="bg-blue-500 text-white px-8 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap" onClick={onPrintReceipt}>
@@ -190,7 +190,7 @@ const Cart = () => {
         </head>
         <body>
           <div style="text-align: center;">
-            <h2>Your Company Name</h2>
+            <h2>Your BENOKOSI PHARMACY LTD</h2>
             <p>Company Address</p>
             <p>Phone: Company Phone</p>
             <p>Email: company@email.com</p>
@@ -207,14 +207,14 @@ const Cart = () => {
                 <th>Price ( &#x20A6; )</th>
               </tr>
               <!-- Include cart items here with Xprinter formatting -->
-              ${cart.map(item => `
-                <tr>
-                  <td>${item.name}</td>
-                  <td>${item.quantity}</td>
-                  <td>${item.price * item.quantity} </td> <!-- Nigerian Naira sign -->
-                  
+              ${cart.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.name || 'N/A'}</td>
+                  <td>{item.quantity || 'N/A'}</td>
+                  <td>{(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
                 </tr>
-              `).join('')}
+              ))}
+              
                
 
             </table>
