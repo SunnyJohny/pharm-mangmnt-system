@@ -16,6 +16,7 @@ export const MyContextProvider = ({ children }) => {
     },
     products: [],
     sales: [], // New array for sales data
+     expenses: [], // New array for expenses data
     cart: [],
     inventoryData: [],
     productTotals: new Map(),
@@ -27,6 +28,33 @@ export const MyContextProvider = ({ children }) => {
 
 
   const [state, setState] = useState(initialState);
+
+
+
+
+
+
+
+
+
+
+
+
+    const fetchExpenses = async () => {
+    try {
+      const expensesCollection = collection(getFirestore(), 'expenses');
+      const expensesSnapshot = await getDocs(expensesCollection);
+      const expensesData = expensesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setState((prevState) => ({ ...prevState, expenses: expensesData }));
+      console.log('Fetching expenses...', expensesData);
+    } catch (error) {
+      console.error('Error fetching expenses:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
 
   
   const fetchProductsAndCalculateSumOfSales = async () => {

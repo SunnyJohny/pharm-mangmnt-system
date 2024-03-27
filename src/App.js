@@ -16,6 +16,7 @@ import PrintInventoryPage from './components/PrintInventoryPage';
 import SalesPage from './pages/salesPage';
 import PrintSalesPage from './components/PrintSalesPage';
 import AddExpense from './components/AddExpenses';
+import ExpensePage from './pages/ExpensePage';
 
 
 function App() {
@@ -26,9 +27,11 @@ function App() {
         <Routes>
           <Route path="/" element={<SignIn />} />
           <Route path="/posscreen" element={<PosScreen />} />
-          <Route path="/expenses" element={<AddExpense />} />
+          <Route path="/add-expense" element={<AddExpense />} />
+          <Route path="/expenses" element={<ExpensePage />} />
 
-          
+
+
           {/* Add a PrivateRoute for the profile page */}
           <Route path="/profile" element={<PrivateRoute />}>
             {/* <Route path="/" element={<Profile />} /> */}
@@ -40,13 +43,11 @@ function App() {
           <Route path="/add-product" element={<AddProduct />} />
           {/* Add a route for the product details page */}
           <Route path="/product-details/:productId" element={<ProductDetails />} />
-          
+
           <Route path="/product-history/:productId" element={<ProductHistory />} />
           <Route path="/print-inventory" element={<PrintInventoryPage />} />
           <Route path="/print-sales" element={<PrintSalesPage />} />
 
-
-      
         </Routes>
         <Footer />
       </Router>

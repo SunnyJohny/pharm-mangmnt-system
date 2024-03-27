@@ -27,6 +27,10 @@ const SalesPageSidePanel = () => {
           <FaChartBar className="text-xl" />
           <p className="ml-2">Expenses </p>
         </Link>
+        <Link to="/add-expense" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+          <FaChartBar className="text-xl" />
+          <p className="ml-2">Add Expenses </p>
+        </Link>
         <Link to="/posscreen" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaChartBar className="text-xl" />
           <p className="ml-2">Pos Screen</p>

@@ -14,7 +14,7 @@ import ReceiptModal from '../components/ReceiptModal';
 
 
 
-const SalesPage = () => {
+const ExpensePage = () => {
   const { state, searchByKeyword, searchByDate } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
@@ -394,7 +394,7 @@ const SalesPage = () => {
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
-          <h2 className="text-2xl font-bold">Sales Stats</h2>
+          <h2 className="text-2xl font-bold">Expense Stats</h2>
           <div className="flex mt-4 space-x-4">
             {renderStatCard('Total Revenue', `₦${totalSalesValue}`, 'blue', faChartLine)}
             {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'pink', faShoppingCart)}
@@ -635,4 +635,4 @@ const renderStatCard = (title, value, color, icon) => (
     </div>
   </div>
 );
-export default SalesPage;
+export default ExpensePage;

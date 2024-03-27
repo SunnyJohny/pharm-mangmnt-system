@@ -65,7 +65,7 @@ const AddExpense = ({ onCloseModal }) => {
   };
 
   const handleBack = () => {
-    navigate("/dashboard"); // Navigate to the dashboard or any other desired page
+    navigate("/expenses"); // Navigate to the dashboard or any other desired page
   };
 
   return (
