@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-
+//new try
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { MdClose } from "react-icons/md";
