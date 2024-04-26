@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
+
+import { useMyContext } from '../Context/MyContext';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
-
-import { useMyContext } from '../Context/MyContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const CartItem = ({ id, name, price, quantity }) => {
-  const { increaseQuantity, decreaseQuantity, removeFromCart, clearCart } = useMyContext();
+  const { state, increaseQuantity, decreaseQuantity, removeFromCart, clearCart } = useMyContext();
 
   const handleIncreaseQuantity = () => {
     increaseQuantity(id);
@@ -47,26 +47,26 @@ const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMeth
   <div className="flex flex-col mt-4 items-end">
     <p className="text-lg font-bold mb-2   whitespace-nowrap">Total: ₦{total}</p>
     <select
-        id="paymentMethod"
-        className="bg-white border border-gray-300 mb-8 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500"
-        value={selectedPaymentMethod}
-        onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-      >
-        <option value="Cash">Cash</option>
-        <option value="Credit">Credit</option> {/*Customer DEtails*/}
-        <option value="Cheque">Cheque</option>  {/*Customer DEtails*/}
-        <option value="POS">POS</option>   {/*Transaction Ref Number*/}
-        <option value="App Transfer">Transfer</option> {/*Transaction Ref Number*/}
-      </select>
+      id="paymentMethod"
+      className="bg-white border border-gray-300 mb-8 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500"
+      value={selectedPaymentMethod}
+      onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+    >
+      <option value="Cash">Cash</option>
+      <option value="Credit">Credit</option> {/*Customer DEtails*/}
+      <option value="Cheque">Cheque</option>  {/*Customer DEtails*/}
+      <option value="POS">POS</option>   {/*Transaction Ref Number*/}
+      <option value="App Transfer">Transfer</option> {/*Transaction Ref Number*/}
+    </select>
     <div className="flex gap-4">
-    <button className="bg-blue-500 text-white px-8 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap" onClick={onPrintReceipt}>
+      <button className="bg-blue-500 text-white px-8 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap" onClick={onPrintReceipt}>
         Print Receipt
       </button>
-     
+
       <button className="bg-red-500 text-white px-8 py-2 rounded-md overflow-hidden whitespace-nowrap" onClick={onClearItems}>
         Clear
       </button>
-     
+
     </div>
   </div>
 );
@@ -91,10 +91,10 @@ const Cart = () => {
   const updateProductSale = async (productId, quantitySold) => {
     try {
       const productRef = doc(db, 'products', productId);
-  
+
       // Check if the product already exists in the collection
       const productDoc = await getDoc(productRef);
-  
+
       if (productDoc.exists()) {
         // If the product exists, update the quantitySold field
         await updateDoc(productRef, {
@@ -120,78 +120,79 @@ const Cart = () => {
       throw error;
     }
   };
-  
-  
+
+
 
   // Function to handle the printing of the receipt
- // Function to handle the printing of the receipt
-const handlePrintReceipt = async () => {
-  // Generate a unique receipt number
-  const receiptNumber = Math.floor(Math.random() * 1000000);
+  // Function to handle the printing of the receipt
+  const handlePrintReceipt = async () => {
+    // Generate a unique receipt number
+    const receiptNumber = Math.floor(Math.random() * 1000000);
 
-  // Get the current date and time
-  const transactionDateTime = new Date().toLocaleString();
+    // Get the current date and time
+    const transactionDateTime = new Date().toLocaleString();
 
-  // Create a salesDoc object with dynamic values
-  const salesDoc = {
-    saleId: `sale_${receiptNumber}`,
-    date: transactionDateTime,
-    customer: {
-      name: 'Customer Name',
-      email: 'customer@example.com',
-      // other customer details
-    },
-    products: cart.map((item) => ({
-      productId: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      price: item.price,
-      // other product details
-    })),
-    totalAmount: overallTotal,
-    payment: {
-      method: selectedPaymentMethod,
-      // other payment details
-    },
-    staff: {
-      staffId: 'staff_id_123',
-      name: 'Staff Name',
-      // other staff details
-    },
-  };
+    // Create a salesDoc object with dynamic values
+    const salesDoc = {
+      saleId: `sale_${receiptNumber}`,
+      date: transactionDateTime,
+      customer: {
+        name: 'Customer Name',
+        email: 'customer@example.com',
+        // other customer details
+      },
+      products: cart.map((item) => ({
+        productId: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        // other product details
+      })),
+      totalAmount: overallTotal,
+      payment: {
+        method: selectedPaymentMethod,
+        // other payment details
+      },
+      staff: {
+        staffId: state.user.id,
+        name: state.user.name,
+        // other staff details
+      },
+    };
 
-  try {
-    // Add the document to the 'sales' collection
-    const docRef = await addDoc(collection(db, 'sales'), salesDoc);
-    toast.success('Sale added successfully!');
-    console.log('Receipt added to Firestore with ID:', docRef.id);
+    try {
+      // Add the document to the 'sales' collection
+      const docRef = await addDoc(collection(db, 'sales'), salesDoc);
+      toast.success('Sale added successfully!');
+      console.log('Receipt added to Firestore with ID:', docRef.id);
 
-    // Use Promise.all to wait for all updateProductSale promises to complete
-    await Promise.all(cart.map(async (item) => {
-      await updateProductSale(item.id, item.quantity);
-    }));
+      // Use Promise.all to wait for all updateProductSale promises to complete
+      await Promise.all(cart.map(async (item) => {
+        await updateProductSale(item.id, item.quantity);
+      }));
 
-    // Implement the logic to print the formatted receipt
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
+      // Implement the logic to print the formatted receipt
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
       <html>
-        <head>
-          <!-- Add Xprinter ESC/POS commands for formatting -->
-          <style>
-            @media print {
-              body {
-                white-space: nowrap; /* Prevent line breaks */
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div style="text-align: center;">
-            <h2>Your BENOKOSI PHARMACY LTD</h2>
-            <p>Company Address</p>
-            <p>Phone: Company Phone</p>
-            <p>Email: company@email.com</p>
-            <p>Attendant: John</p>
+      <head>
+      <!-- Add Xprinter ESC/POS commands for formatting -->
+      <style>
+      @media print {
+        body {
+          white-space: nowrap; /* Prevent line breaks */
+        }
+      }
+      </style>
+      </head>
+      <body>
+      <div style="text-align: center;">
+      <h2>Your BENOKOSI PHARMACY LTD</h2>
+      <p>Company Address</p>
+      <p>Phone: Company Phone</p>
+      <p>Email: company@email.com</p>
+      <p>Attendant: ${state.user.name}</p>
+      
 
             <hr>
             <h3>Receipt No.: ${receiptNumber}</h3>
@@ -228,12 +229,12 @@ const handlePrintReceipt = async () => {
         </body>
       </html>
     `);
-    printWindow.document.close();
-    printWindow.print();
-  } catch (error) {
-    console.error('Error adding receipt to Firestore:', error);
-  }
-};
+      printWindow.document.close();
+      printWindow.print();
+    } catch (error) {
+      console.error('Error adding receipt to Firestore:', error);
+    }
+  };
 
 
   return (

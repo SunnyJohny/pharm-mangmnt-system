@@ -7,8 +7,10 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 import InventorySidePanel from '../components/InventorySidePanel';
+
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 
 const InventoryPage = () => {
   const { state } = useMyContext();
@@ -256,8 +258,9 @@ capturePagesContent();
   return (
     <div className="container mx-auto flex">
       <div className="flex-none">
-        <InventorySidePanel />
-      </div>
+  {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
+  {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
+</div>
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
@@ -339,7 +342,16 @@ capturePagesContent();
                   <th className="border">CostPrice</th>
                   <th className="border">Sales Price</th>
                   <th className="border">Item Value</th>
-                  <th className="border">Action</th>
+               
+
+                  <th className="border">
+                    {state.user && state.user.role === 'admin' ? (
+                      <>
+                       Action
+                      </>
+                    ) : null}
+                  </th>
+
                 </tr>
               </thead>
               <tbody>
@@ -376,15 +388,19 @@ capturePagesContent();
                       ).toFixed(2)}
                     </td>
                     <td className="border">
-                      <FontAwesomeIcon
-                        icon={faEdit}
-                        style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-                      />
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        style={{ cursor: 'pointer', color: 'red' }}
-                      />
-                    </td>
+                    {state.user && state.user.role === 'admin' ? (
+                      <>
+                        <FontAwesomeIcon
+                          icon={faEdit}
+                          style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+                        />
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          style={{ cursor: 'pointer', color: 'red' }}
+                        />
+                      </>
+                    ) : null}
+                  </td>
                   </tr>
                 ))}
               </tbody>

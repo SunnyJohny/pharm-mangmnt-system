@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useMyContext } from '../Context/MyContext';
 
-const ReceiptModal = ({ saleInfo, onClose, user  }) => {
+const ReceiptModal = ({ saleInfo, onClose, user }) => {
   const { state } = useMyContext();
   const [selectedSale, setSelectedSale] = useState(null);
-  
-
 
   useEffect(() => {
     setSelectedSale(saleInfo);
   }, [saleInfo]);
-// Log the user object to the console
-console.log('User Object:', user);
+
+  // Log the user object to the console
+  console.log('User Object:', state.user);
 
   if (!selectedSale) {
     return null; // Add a check and handle case where selectedSale is null
@@ -31,9 +30,9 @@ console.log('User Object:', user);
   const receiptNumber = id || 'N/A';
   const transactionDateTime = date || 'N/A';
   const cart = products || [];
-  const overallTotal = cart.reduce((total, item) => total + (item.price || 0), 0);
+  const overallTotal = cart.reduce((total, item) => total + ((item.price || 0) * (item.quantity || 0)), 0); // Ensure item.price and item.quantity are valid numbers
   const selectedPaymentMethod = payment ? payment.method : 'N/A';
-
+  const attendantName = staff ? staff : 'N/A';
   const handlePrint = () => {
     window.print();
     console.log('printing...');
@@ -47,7 +46,8 @@ console.log('User Object:', user);
           <p className="text-center">No. 13...Enugu State</p>
           <p className="text-center">Phone: 08033821417</p>
           <p className="text-center">Email: company@email.com</p>
-          <p className="text-center">Attendant: {user.name}</p>
+          <p className="text-center">Attendant: {attendantName.name || 'N/A'}</p>
+
 
           <hr className="my-4" />
           <h3 className="text-xl text-center mb-2">Receipt No.: {receiptNumber}</h3>
@@ -66,7 +66,7 @@ console.log('User Object:', user);
                 <tr key={index}>
                   <td>{item.name || 'N/A'}</td>
                   <td>{item.quantity || 'N/A'}</td>
-                  <td>{(item.price * item.quantity) || 0}</td>
+                  <td>{(item.price || 0) * (item.quantity || 0)}</td> {/* Ensure price and quantity are valid numbers */}
                 </tr>
               ))}
             </tbody>

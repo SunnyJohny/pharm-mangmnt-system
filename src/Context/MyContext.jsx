@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import Firebase auth methods
+import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth'; // Import Firebase auth methods
 
 const MyContext = createContext();
 
@@ -21,17 +21,11 @@ export const MyContextProvider = ({ children }) => {
     productTotalsMap: new Map(),
     overallTotalProductQuantity: 0,
     firstRestockedTimeMap: new Map(), // Map to store the first restocked time for each product
+    user: null, // Add user property to store user data
   };
 
 
   const [state, setState] = useState(initialState);
-
-
-
-
-
-
-
 
 
 
@@ -124,7 +118,7 @@ export const MyContextProvider = ({ children }) => {
             // Assuming each entry in quantityRestocked has a 'time' property
             const firstRestockedTime = quantityRestocked[0].time;
             firstRestockedTimeMap.set(name, firstRestockedTime);
-            console.log(`First restocked time for ${name}: ${firstRestockedTime}`);
+            // console.log(`First restocked time for ${name}: ${firstRestockedTime}`);
           }
 
           if (Array.isArray(quantityRestocked)) {
@@ -195,7 +189,7 @@ export const MyContextProvider = ({ children }) => {
       try {
         const salesData = await fetchSalesData();
         setState((prevState) => ({ ...prevState, sales: salesData }));
-        console.log('fetching sales...', salesData);
+        // console.log('fetching sales...', salesData);
       } catch (error) {
         console.error('Error fetching sales:', error);
       }
@@ -255,31 +249,38 @@ export const MyContextProvider = ({ children }) => {
   
   // Function to fetch users from Firestore
  
-  // Modify the fetchUsers function to filter users by ID and log additional user data
-  const fetchUsers = async (userId) => {
-    try {
-      const usersCollection = collection(getFirestore(), 'users'); // Assuming 'users' is the collection name
-      const usersSnapshot = await getDocs(usersCollection);
-      const usersData = usersSnapshot.docs
-        .filter(doc => doc.id === userId) // Filter users by ID
-        .map(doc => {
-          const userData = { id: doc.id, ...doc.data() };
-          console.log('Filtered user:', userData); // Log filtered user to console
-          return userData;
-        });
-  
-      setState(prevState => ({
-        ...prevState,
-        user: {
-          ...prevState.user,
-          ...usersData[0], // Assuming only one user is returned
-        }
-      }));
-    } catch (error) {
-      console.error('Error fetching users:', error.message);
-    }
-  };
-  
+ // Function to fetch users from Firestore
+const fetchUsers = async (userId) => {
+  try {
+    const usersCollection = collection(getFirestore(), 'users'); // Assuming 'users' is the collection name
+    const usersSnapshot = await getDocs(usersCollection);
+    const usersData = usersSnapshot.docs
+      .filter(doc => doc.id === userId) // Filter users by ID
+      .map(doc => {
+        const userData = { id: doc.id, ...doc.data() };
+        console.log('Filtered user:', userData); // Log filtered user to console
+        return userData;
+      });
+
+    setState(prevState => ({
+      ...prevState,
+      user: {
+        ...prevState.user,
+        ...usersData[0], // Assuming only one user is returned
+      }
+    }));
+  } catch (error) {
+    console.error('Error fetching users:', error.message);
+  }
+};
+
+// useEffect hook to log the user in state when it changes
+useEffect(() => {
+  console.log('Updated User in State:', state.user);
+}, [state.user]);
+
+
+
   // useEffect hook to fetch users when component mounts
   useEffect(() => {
     const auth = getAuth();
@@ -308,10 +309,7 @@ export const MyContextProvider = ({ children }) => {
   }, []);
 
  
-  // useEffect hook to fetch users when component mounts
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+
 
 
 
@@ -376,8 +374,9 @@ export const MyContextProvider = ({ children }) => {
 
 
   const searchByDate = (items, startDate, endDate) => {
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
+    // console.log('Start Date:', startDate);
+
+    // console.log('End Date:', endDate);
 
     if (!startDate || !endDate) {
       return items;
@@ -389,13 +388,22 @@ export const MyContextProvider = ({ children }) => {
     });
   };
 
-
-
-
-
+// Function to logout the user
+const logoutUser = async () => {
+  try {
+    const auth = getAuth();
+    await signOut(auth); // Sign out the user using Firebase auth's signOut method
+    setState(prevState => ({ ...prevState, user: null })); // Nullify the user in the state
+    // Redirect to home page or cancel the current route
+    // Example: history.push('/') or navigate('/')
+  } catch (error) {
+    console.error('Error logging out:', error.message);
+  }
+};
 
   const contextValue = {
     state,
+    logoutUser,
      fetchUsers,
     searchByKeyword,
     searchByDate,

@@ -3,10 +3,16 @@ import React from 'react';
 import { FaProductHunt, FaBoxes, FaChartBar, FaReceipt, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
 import UserInformation from './User';
 import { useMyContext } from '../Context/MyContext';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 
 const SalesPageSidePanel = () => {
-  const { state } = useMyContext();
+  const { state, logoutUser } = useMyContext();
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    logoutUser(); // Call logoutUser method from context
+    navigate('/'); // Navigate to home page
+};
 
   return (
 
@@ -47,7 +53,7 @@ const SalesPageSidePanel = () => {
           <FaCog className="text-xl" />
           <p className="ml-2">Settings</p>
         </Link>
-        <Link to="/" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+        <Link to="/" onClick={handleLogout} className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaSignOutAlt className="text-xl" />
           <p className="ml-2">Logout</p>
         </Link>

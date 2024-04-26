@@ -144,7 +144,7 @@ const SalesPage = () => {
 
   useEffect(() => {
     const salesDataFromContext = state.sales || [];
-    console.log('Sales Data:', salesDataFromContext);
+    // console.log('Sales Data:', salesDataFromContext);
   }, [state.sales, state.products, state.productTotals, state.productTotalsMap]);
 
   useEffect(() => {

@@ -20,6 +20,10 @@ import PrintInventoryPage from './components/PrintInventoryPage';
 import SalesPage from './pages/SalesPage';
 import PrintSalesPage from './components/PrintSalesPage';
 import AddExpense from './components/AddExpenses';
+import AdminComponent from './components/Admin';
+
+
+
 import ExpensePage from './pages/ExpensePage';
 
 
@@ -29,6 +33,9 @@ function App() {
       <Router>
         <Header />
         <Routes>
+        <Route path="/admin" element={<AdminComponent />}
+/>
+
           <Route path="/" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/company-sign-up" element={<CompanySignUp />} />
