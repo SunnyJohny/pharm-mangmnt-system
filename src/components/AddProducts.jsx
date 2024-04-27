@@ -5,7 +5,7 @@ import { getFirestore, collection, addDoc, Timestamp, doc, getDocs, updateDoc, a
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const AddProduct = ({ onCloseModal }) => {
+const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
   const navigate = useNavigate();
   const [isNewProduct, setIsNewProduct] = useState(true);
   const [product, setProduct] = useState({
@@ -13,16 +13,22 @@ const AddProduct = ({ onCloseModal }) => {
     supplier: "",
     quantitySupplied: 0,
     costPrice: 0.00,
-    costPerItem: 0.00, // Renamed from itemCostPrice
+    costPerItem: 0.00,
     price: 0,
     description: "",
-    existingProduct: "", // Field for existing product ID
-    quantityRestocked: 0, // Field for restocking quantity
+    existingProduct: "", 
+    quantityRestocked: 0,
   });
 
   const [existingProductNames, setExistingProductNames] = useState([]);
 
   useEffect(() => {
+    // If navigating from InventoryPage and row data is provided, populate the fields
+    if (fromInventoryPage && row) {
+      setProduct(row);
+      setIsNewProduct(false);
+    }
+
     const fetchExistingProductNames = async () => {
       try {
         const productsCollection = collection(getFirestore(), "products");
@@ -41,28 +47,12 @@ const AddProduct = ({ onCloseModal }) => {
     };
 
     fetchExistingProductNames();
-  }, []);
+  }, [fromInventoryPage, row]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "quantitySupplied" || name === "costPrice") {
-      // Update the product state with the new value
-      setProduct((prevProduct) => ({
-        ...prevProduct,
-        [name]: value,
-        // Calculate costPerItem if both costPrice and quantitySupplied are valid numbers
-        costPerItem: name === "costPrice" ? (prevProduct.quantitySupplied && parseFloat(value) !== 0 ? (parseFloat(value) / parseFloat(prevProduct.quantitySupplied)).toFixed(2) : 0) : prevProduct.costPerItem,
-        // Calculate salesPrice as twice the costPerItem
-        salesPrice: name === "costPrice" ? (parseFloat(value) !== 0 ? (parseFloat(value) / parseFloat(prevProduct.quantitySupplied) * 2).toFixed(2) : 0) : prevProduct.salesPrice
-      }));
-    } else {
-      // For other fields, just update the state normally
-      setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
-    }
+    setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
   };
-
-
-
 
   const updateExistingProduct = async (productId, updateData) => {
     try {
@@ -87,7 +77,7 @@ const AddProduct = ({ onCloseModal }) => {
   const onAddProduct = async (newProduct) => {
     try {
       const productsCollection = collection(getFirestore(), 'products');
-  
+
       if (isNewProduct) {
         // For new product
         await addDoc(productsCollection, {
@@ -97,8 +87,7 @@ const AddProduct = ({ onCloseModal }) => {
           costPrice: newProduct.costPrice,
           price: newProduct.price,
           description: newProduct.description,
-          quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }], // Initialize quantityRestocked with the entered quantity and timestamp
-          // Add current timestamp for date
+          quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }],
           dateAdded: Timestamp.now()
         });
         console.log('Product added successfully!');
@@ -112,17 +101,17 @@ const AddProduct = ({ onCloseModal }) => {
           description: "",
         });
         toast.success('Product added successfully!');
-  
+
       } else {
         // For existing product
         const { existingProduct, quantityRestocked } = newProduct;
-  
+
         if (!existingProduct || quantityRestocked === null || isNaN(quantityRestocked)) {
           console.error('Existing product ID or restocked quantity not provided!');
           toast.error('Existing product ID or restocked quantity not provided. Please try again.');
           return;
         }
-  
+
         // Update the existing product
         await updateExistingProduct(existingProduct, { quantity: Number(quantityRestocked) });
       }
@@ -131,10 +120,10 @@ const AddProduct = ({ onCloseModal }) => {
       toast.error('Error adding/updating product. Please try again.');
     }
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (isNewProduct) {
         if (
@@ -153,7 +142,7 @@ const AddProduct = ({ onCloseModal }) => {
           return;
         }
       }
-  
+
       // Check if the price is dynamically calculated
       if (!isNewProduct && product.price === 0) {
         // If price is zero (not dynamically calculated), skip the validation
@@ -175,8 +164,6 @@ const AddProduct = ({ onCloseModal }) => {
       toast.error("Error handling form submission. Please try again.");
     }
   };
-  
-  
 
   const handleBack = () => {
     navigate("/inventory-page");
@@ -184,7 +171,6 @@ const AddProduct = ({ onCloseModal }) => {
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
-
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -308,7 +294,7 @@ const AddProduct = ({ onCloseModal }) => {
                     <input
                       type="number"
                       name="price"
-                      value={product.salesPrice}
+                      value={product.price}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
                       required
@@ -336,9 +322,7 @@ const AddProduct = ({ onCloseModal }) => {
         </div>
       </div>
     </div>
-
   );
-
 };
 
 export default AddProduct;

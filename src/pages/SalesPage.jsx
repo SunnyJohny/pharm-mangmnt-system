@@ -11,6 +11,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ReceiptModal from '../components/ReceiptModal';
+import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 
 
 
@@ -387,10 +388,14 @@ const SalesPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex">
+    <div className="container mx-auto flex h-screen">
+     
       <div className="flex-none">
-        <SalesPageSidePanel />
-      </div>
+  {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
+  {state.user && state.user.role === 'admin' ?         <SalesPageSidePanel />
+ : <ProductsPageSidePanel />}
+</div>
+
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">

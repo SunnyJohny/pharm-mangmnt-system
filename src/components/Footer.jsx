@@ -31,8 +31,8 @@ const socialMediaLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white ">
-      <div className="container mx-auto">
+    <footer className="bg-gray-800 text-white w-full ">
+      <div className="container mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Contact Information */}
           {/* <div className="mb-8 md:mb-0">
@@ -85,11 +85,12 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="mt-8 border-t border-gray-600 pt-4 text-center">
-        <p className="text-sm">
-          &copy; {new Date().getFullYear()} PIXELFORGE TECHNOLOGIES LTD- RC : 1737619. All rights reserved.
-        </p>
-      </div>
+      <div className="mt-8 border-t border-gray-600 pt-4 text-center w-full">  {/* Added w-full class */}
+  <p className="text-sm">
+    &copy; {new Date().getFullYear()} PIXELFORGE TECHNOLOGIES LTD- RC : 1737619. All rights reserved.
+  </p>
+</div>
+
     </footer>
   );
 };

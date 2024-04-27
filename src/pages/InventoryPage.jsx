@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DatePicker from 'react-datepicker';
@@ -105,59 +106,67 @@ const InventoryPage = () => {
   };
 
   const renderActionButtons = () => {
-   // InventoryPage.jsx
-const handlePrintInventory = async () => {
-  const pdf = new jsPDF();
+    // InventoryPage.jsx
+    const handlePrintInventory = async () => {
+      const pdf = new jsPDF();
 
-  // Create a reference to the table container
-  const tableContainer = document.querySelector('.table-container');
+      // Create a reference to the table container
+      const tableContainer = document.querySelector('.table-container');
 
-  if (tableContainer) {
-    // Capture the content of the entire table container
-    const canvas = await html2canvas(tableContainer);
-    const imgData = canvas.toDataURL('image/png');
+      if (tableContainer) {
+        // Capture the content of the entire table container
+        const canvas = await html2canvas(tableContainer);
+        const imgData = canvas.toDataURL('image/png');
 
-    // Add the captured image to the PDF
-    pdf.addImage(imgData, 'PNG', 10, 10);
+        // Add the captured image to the PDF
+        pdf.addImage(imgData, 'PNG', 10, 10);
 
-    // Save the content of the first page
-    const firstPageContent = imgData;
+        // Save the content of the first page
+        const firstPageContent = imgData;
 
-    // If there are more pages, capture and append their content
-    if (allPagesContent.length > 0) {
-      for (let index = 0; index < allPagesContent.length; index++) {
-        const pageContent = allPagesContent[index];
-        pdf.addPage();
-        pdf.addImage(pageContent, 'PNG', 10, 10 + (index + 1) * tableContainer.clientHeight);
+        // If there are more pages, capture and append their content
+        if (allPagesContent.length > 0) {
+          for (let index = 0; index < allPagesContent.length; index++) {
+            const pageContent = allPagesContent[index];
+            pdf.addPage();
+            pdf.addImage(pageContent, 'PNG', 10, 10 + (index + 1) * tableContainer.clientHeight);
+          }
+        }
+
+        // Save and open the PDF
+        // pdf.save('inventory.pdf');
+
+        // Navigate to the print page with relevant data
+        navigate('/print-inventory', {
+          state: {
+            itemsToDisplay: itemsToDisplay.map((item, index) => ({
+              ...item,
+              sn: generateSn(index),
+            })),
+            // Pass other necessary data to PrintInventoryPage
+            state: {
+              itemsPerPage,
+              filteredItems,
+              totalStoreValue,
+              firstRestockDates,
+              allPagesContent,
+            },
+          },
+        });
       }
-    }
-
-    // Save and open the PDF
-    // pdf.save('inventory.pdf');
-
-    // Navigate to the print page with relevant data
-    navigate('/print-inventory', {
-      state: {
-        itemsToDisplay: itemsToDisplay.map((item, index) => ({
-          ...item,
-          sn: generateSn(index),
-        })),
-        // Pass other necessary data to PrintInventoryPage
-        state: {
-          itemsPerPage,
-          filteredItems,
-          totalStoreValue,
-          firstRestockDates,
-          allPagesContent,
-        },
-      },
-    });
-  }
-};
+    };
 
 
 
-    
+    const navigate = useNavigate();
+    const [selectedProduct, setSelectedProduct] = useState(null); // State to store selected product data
+
+    // Function to handle edit action
+    const handleEdit = (item) => {
+      // setSelectedProduct(item); // Set selected product data
+      console.log("Selected Product:", item); // Log selected product data
+    };
+
 
     return (
       <button
@@ -165,7 +174,7 @@ const handlePrintInventory = async () => {
         onClick={handlePrintInventory}
 
 
-        >
+      >
         Print Inventory
       </button>
     );
@@ -179,40 +188,40 @@ const handlePrintInventory = async () => {
     // ... (existing code)
 
     // Call calculateTotalStoreValue with the filtered items
-// Capture the content of each page
-const capturePagesContent = async () => {
-  const pagesContent = [];
-  const tableContainer = document.querySelector('.table-container');
-  const itemsPerPage = 100;
+    // Capture the content of each page
+    const capturePagesContent = async () => {
+      const pagesContent = [];
+      const tableContainer = document.querySelector('.table-container');
+      const itemsPerPage = 100;
 
-  if (tableContainer) {
-    const totalItems = filteredItems.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (tableContainer) {
+        const totalItems = filteredItems.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-    for (let page = 1; page <= totalPages; page++) {
-      const startIndex = (page - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
+        for (let page = 1; page <= totalPages; page++) {
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
 
-      setFilteredItems(itemsToDisplay); // Update filteredItems for the current page
-      calculateTotalStoreValue(itemsToDisplay);
+          setFilteredItems(itemsToDisplay); // Update filteredItems for the current page
+          calculateTotalStoreValue(itemsToDisplay);
 
-      // Wait for the container to render content
-      await new Promise((resolve) => setTimeout(resolve, 500));
+          // Wait for the container to render content
+          await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const canvas = await html2canvas(tableContainer);
-      pagesContent.push(canvas.toDataURL('image/png'));
-    }
+          const canvas = await html2canvas(tableContainer);
+          pagesContent.push(canvas.toDataURL('image/png'));
+        }
 
-    setAllPagesContent(pagesContent);
-    setFilteredItems(initialItems); // Restore original filteredItems
-    calculateTotalStoreValue(initialItems);
-  }
-};
+        setAllPagesContent(pagesContent);
+        setFilteredItems(initialItems); // Restore original filteredItems
+        calculateTotalStoreValue(initialItems);
+      }
+    };
 
-// Call the async function
-capturePagesContent();
-}, [state.products, state.productTotals, state.productTotalsMap]);
+    // Call the async function
+    capturePagesContent();
+  }, [state.products, state.productTotals, state.productTotalsMap]);
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
       setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
@@ -225,18 +234,16 @@ capturePagesContent();
     return (
       <div className="flex space-x-80">
         <button
-          className={`px-4 py-2 rounded-md ${
-            currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-          }`}
+          className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+            }`}
           onClick={handlePreviousPage}
         >
           Previous
         </button>
         {renderActionButtons()}
         <button
-          className={`px-4 py-2 rounded-md ${
-            currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-          }`}
+          className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+            }`}
           onClick={handleNextPage}
         >
           Next
@@ -258,9 +265,9 @@ capturePagesContent();
   return (
     <div className="container mx-auto flex">
       <div className="flex-none">
-  {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
-  {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
-</div>
+        {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
+        {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
+      </div>
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
@@ -324,8 +331,8 @@ capturePagesContent();
             </button>
           </div>
 
-          
-               <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '100px' }} ref={tableRef}>
+
+          <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '100px' }} ref={tableRef}>
             <table className="w-full table-auto" id="inventory-table">
               <thead>
                 <tr>
@@ -342,12 +349,12 @@ capturePagesContent();
                   <th className="border">CostPrice</th>
                   <th className="border">Sales Price</th>
                   <th className="border">Item Value</th>
-               
+
 
                   <th className="border">
                     {state.user && state.user.role === 'admin' ? (
                       <>
-                       Action
+                        Action
                       </>
                     ) : null}
                   </th>
@@ -375,10 +382,10 @@ capturePagesContent();
                       )}
                     </td>
                     <td className="border">
-                     Piece
+                      Piece
                     </td>
                     <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-<td className="border">{Number(item.price).toFixed(2)}</td>
+                    <td className="border">{Number(item.price).toFixed(2)}</td>
 
                     <td className="border">
                       {(
@@ -388,19 +395,23 @@ capturePagesContent();
                       ).toFixed(2)}
                     </td>
                     <td className="border">
-                    {state.user && state.user.role === 'admin' ? (
-                      <>
-                        <FontAwesomeIcon
-                          icon={faEdit}
-                          style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-                        />
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          style={{ cursor: 'pointer', color: 'red' }}
-                        />
-                      </>
-                    ) : null}
-                  </td>
+  {state.user && state.user.role === 'admin' ? (
+    <>
+      <Link to="/add-product" onClick={(e) => e.stopPropagation()}>
+        <FontAwesomeIcon
+          icon={faEdit}
+          style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+        />
+      </Link>
+      <FontAwesomeIcon
+        icon={faTrash}
+        style={{ cursor: 'pointer', color: 'red' }}
+      />
+    </>
+  ) : null}
+</td>
+
+
                   </tr>
                 ))}
               </tbody>

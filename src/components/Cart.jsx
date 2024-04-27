@@ -59,7 +59,7 @@ const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMeth
       <option value="App Transfer">Transfer</option> {/*Transaction Ref Number*/}
     </select>
     <div className="flex gap-4">
-      <button className="bg-blue-500 text-white px-8 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap" onClick={onPrintReceipt}>
+      <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap" onClick={onPrintReceipt}>
         Print Receipt
       </button>
 

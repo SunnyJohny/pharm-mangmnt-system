@@ -9,12 +9,12 @@ const InventorySidePanel = ({ onItemSelected }) => {
   const navigate = useNavigate();
   
   const handleLogout = () => {
-    logoutUser(); // Call logoutUser method from context
+    logoutUser(); 
     navigate('/'); // Navigate to home page
 };
 
   return (
-    <div className="flex flex-col bg-gray-800 text-white p-4">
+    <div className="flex flex-col bg-gray-800 text-white p-4 h-screen">
       <UserInformation user={state.user} />
       <hr className="my-4 border-t-2 border-white" />
       {/* Links */}
