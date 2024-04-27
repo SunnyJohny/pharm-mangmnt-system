@@ -252,6 +252,15 @@ const InventoryPage = () => {
     );
   };
 
+  
+  const [selectedProduct, setSelectedProduct] = useState(null); // State to store selected product data
+
+  // Function to handle edit action
+  const handleEdit = (item) => {
+    setSelectedProduct(item); // Set selected product data
+    navigate('/add-product'); // Navigate to the AddProduct component
+  };
+
   const calculateTotalStoreValue = (items) => {
     const calculatedTotalStoreValue = items.reduce(
       (total, item) =>
@@ -398,11 +407,12 @@ const InventoryPage = () => {
   {state.user && state.user.role === 'admin' ? (
     <>
       <Link to="/add-product" onClick={(e) => e.stopPropagation()}>
-        <FontAwesomeIcon
-          icon={faEdit}
-          style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-        />
-      </Link>
+          <FontAwesomeIcon
+            icon={faEdit}
+            style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+            onClick={() => handleEdit(item)} // Pass the item data to the handleEdit function
+          />
+        </Link>
       <FontAwesomeIcon
         icon={faTrash}
         style={{ cursor: 'pointer', color: 'red' }}
