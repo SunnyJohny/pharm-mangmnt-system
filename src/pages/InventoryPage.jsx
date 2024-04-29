@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+
 import { Link, useNavigate } from 'react-router-dom';
+
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -12,9 +14,13 @@ import InventorySidePanel from '../components/InventorySidePanel';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
+import { useEffect, useRef, useState, } from 'react';
+import EditPopup from '../components/EditPopup';
+
+
 
 const InventoryPage = () => {
-  const { state } = useMyContext();
+  const { state, fetchProduct } = useMyContext(); // Destructure fetchProduct from the context
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -23,6 +29,9 @@ const InventoryPage = () => {
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
   const [allPagesContent, setAllPagesContent] = useState([]);
+  
+  const [showEditPop, setShowEditPop] = useState(false); // State to control the visibility of EditPop
+  const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for editing
   const navigate = useNavigate();
   const tableRef = useRef(null);
 
@@ -158,14 +167,7 @@ const InventoryPage = () => {
 
 
 
-    const navigate = useNavigate();
-    const [selectedProduct, setSelectedProduct] = useState(null); // State to store selected product data
 
-    // Function to handle edit action
-    const handleEdit = (item) => {
-      // setSelectedProduct(item); // Set selected product data
-      console.log("Selected Product:", item); // Log selected product data
-    };
 
 
     return (
@@ -231,6 +233,11 @@ const InventoryPage = () => {
       setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
     };
 
+   
+
+
+
+
     return (
       <div className="flex space-x-80">
         <button
@@ -252,14 +259,10 @@ const InventoryPage = () => {
     );
   };
 
-  
-  const [selectedProduct, setSelectedProduct] = useState(null); // State to store selected product data
 
-  // Function to handle edit action
-  const handleEdit = (item) => {
-    setSelectedProduct(item); // Set selected product data
-    navigate('/add-product'); // Navigate to the AddProduct component
-  };
+
+  
+
 
   const calculateTotalStoreValue = (items) => {
     const calculatedTotalStoreValue = items.reduce(
@@ -270,6 +273,18 @@ const InventoryPage = () => {
     );
     setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
   };
+  const handleEditClick = (itemId, e) => {
+    // Prevent propagation to avoid triggering row click
+    e.stopPropagation();
+  
+    console.log('Edit clicked for item ID:', itemId);
+  
+    const productToEdit = filteredItems.find((product) => product.id === itemId);
+    setSelectedProduct(productToEdit);
+    setShowEditPop(true);
+  };
+  
+
 
   return (
     <div className="container mx-auto flex">
@@ -404,22 +419,22 @@ const InventoryPage = () => {
                       ).toFixed(2)}
                     </td>
                     <td className="border">
-  {state.user && state.user.role === 'admin' ? (
-    <>
-      <Link to="/add-product" onClick={(e) => e.stopPropagation()}>
-          <FontAwesomeIcon
-            icon={faEdit}
-            style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-            onClick={() => handleEdit(item)} // Pass the item data to the handleEdit function
-          />
-        </Link>
-      <FontAwesomeIcon
-        icon={faTrash}
-        style={{ cursor: 'pointer', color: 'red' }}
-      />
-    </>
-  ) : null}
-</td>
+                      {state.user && state.user.role === 'admin' ? (
+                        <>
+<FontAwesomeIcon
+  icon={faEdit}
+  style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+  onClick={(e) => handleEditClick(item.id, e)}
+/>
+
+
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            style={{ cursor: 'pointer', color: 'red' }}
+                          />
+                        </>
+                      ) : null}
+                    </td>
 
 
                   </tr>
@@ -433,6 +448,18 @@ const InventoryPage = () => {
           </div>
         </div>
       </div>
+
+       {/* EditPop Component */}
+       {showEditPop && selectedProduct && (
+        <EditPopup
+          product={selectedProduct}
+          onClose={() => setShowEditPop(false)}
+          onUpdate={(updatedProduct) => {
+            // Update logic here, e.g., call a function to update the product
+            setShowEditPop(false);
+          }}
+        />
+      )}
     </div>
   );
 };

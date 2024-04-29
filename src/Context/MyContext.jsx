@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, getDoc,doc } from 'firebase/firestore';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth'; // Import Firebase auth methods
 
 const MyContext = createContext();
@@ -37,7 +37,7 @@ export const MyContextProvider = ({ children }) => {
       const expensesSnapshot = await getDocs(expensesCollection);
       const expensesData = expensesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setState((prevState) => ({ ...prevState, expenses: expensesData }));
-      console.log('Fetching expenses...', expensesData);
+      // console.log('Fetching expenses...', expensesData);
     } catch (error) {
       console.error('Error fetching expenses:', error.message);
     }
@@ -401,8 +401,37 @@ const logoutUser = async () => {
   }
 };
 
+  // Function to fetch a single product by its ID
+const fetchProduct = async (productId) => {
+  try {
+    const productsCollection = collection(getFirestore(), 'products'); // Assuming 'products' is the collection name
+    const productDoc = await getDoc(doc(productsCollection, productId));
+    if (productDoc.exists()) {
+      const productData = { id: productDoc.id, ...productDoc.data() };
+      console.log('Fetched product:', productData);
+      return productData;
+    } else {
+      console.error('Product not found with ID:', productId);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching product:', error.message);
+    return null;
+  }
+};
+
+  // useEffect to fetch a product when component mounts
+  useEffect(() => {
+    const defaultProductId = 'TRC8Op0y5h9lEeprRqma'; // Default product ID, replace with your preferred default
+    fetchProduct(defaultProductId); // Fetch product when component mounts
+  }, []);
+
+
+
+
   const contextValue = {
     state,
+    fetchProduct, // Include fetchProduct in the context value
     logoutUser,
      fetchUsers,
     searchByKeyword,
