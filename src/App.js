@@ -25,6 +25,7 @@ import AdminComponent from './components/Admin';
 
 
 import ExpensePage from './pages/ExpensePage';
+import ProfitAndLoss from './pages/ProfitAndLoss';
 
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
 
           <Route path="/posscreen" element={<PosScreen />} />
           <Route path="/add-expense" element={<AddExpense />} />
+          <Route path="/profitandloss" element={<ProfitAndLoss />} />
           <Route path="/expenses" element={<ExpensePage />} />
 
 

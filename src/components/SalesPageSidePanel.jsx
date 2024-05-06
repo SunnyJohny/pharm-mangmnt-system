@@ -1,21 +1,19 @@
-// Panel.js
 import React from 'react';
 import { FaProductHunt, FaBoxes, FaChartBar, FaReceipt, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
 import UserInformation from './User';
 import { useMyContext } from '../Context/MyContext';
-import { Link,useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SalesPageSidePanel = () => {
   const { state, logoutUser } = useMyContext();
   const navigate = useNavigate();
-  
+
   const handleLogout = () => {
     logoutUser(); // Call logoutUser method from context
     navigate('/'); // Navigate to home page
-};
+  };
 
   return (
-
     <div className="flex flex-col bg-gray-800 text-white p-4 h-full"> {/* Set height to full */}
       <UserInformation user={state.user} />
       <hr className="my-4 border-t-2 border-white" />
@@ -41,9 +39,9 @@ const SalesPageSidePanel = () => {
           <FaChartBar className="text-xl" />
           <p className="ml-2">Pos Screen</p>
         </Link>
-        <Link to="/invoice-receipt" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+        <Link to="/profitandloss" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaReceipt className="text-xl" />
-          <p className="ml-2">Invoice/Receipt</p>
+          <p className="ml-2">Profit & Loss Statement</p>
         </Link>
         <Link to="/user-profile" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaUser className="text-xl" />

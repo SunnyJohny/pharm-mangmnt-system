@@ -46,6 +46,7 @@ export const MyContextProvider = ({ children }) => {
   useEffect(() => {
     fetchExpenses();
   }, []);
+ 
 
 
   const fetchProductsAndCalculateSumOfSales = async () => {

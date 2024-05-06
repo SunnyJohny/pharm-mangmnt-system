@@ -14,7 +14,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     quantitySupplied: 0,
     costPrice: 0.00,
     costPerItem: 0.00,
-    price: 0,
+    price: 0.00,
     description: "",
     existingProduct: "", 
     quantityRestocked: 0,
@@ -49,11 +49,20 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     fetchExistingProductNames();
   }, [fromInventoryPage, row]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
-  };
+ const handleInputChange = (e) => {
+  const { name, value } = e.target;
 
+  // Update product state based on input changes
+  setProduct((prevProduct) => ({
+    ...prevProduct,
+    [name]: value,
+    // Calculate costPerItem based on costPrice and quantitySupplied
+    costPerItem: (name === 'costPrice' && product.quantitySupplied) ? (parseFloat(value) / parseFloat(product.quantitySupplied)) : prevProduct.costPerItem,
+    // Calculate price based on costPerItem
+    price: (name === 'costPrice') ? (parseFloat(value) * 3) : prevProduct.price,
+  }));
+};
+  
   const updateExistingProduct = async (productId, updateData) => {
     try {
       const productRef = doc(getFirestore(), 'products', productId);
@@ -84,7 +93,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           name: newProduct.name,
           supplier: newProduct.supplier,
           quantitySupplied: newProduct.quantitySupplied,
-          costPrice: newProduct.costPrice,
+          costPrice: newProduct.costPerItem,
           price: newProduct.price,
           description: newProduct.description,
           quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }],
@@ -289,6 +298,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       required
                     />
                   </div>
+                 
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Sales Price</label>
                     <input

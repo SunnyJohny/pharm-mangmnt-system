@@ -29,7 +29,7 @@ const InventoryPage = () => {
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
   const [allPagesContent, setAllPagesContent] = useState([]);
-  
+
   const [showEditPop, setShowEditPop] = useState(false); // State to control the visibility of EditPop
   const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for editing
   const navigate = useNavigate();
@@ -233,7 +233,7 @@ const InventoryPage = () => {
       setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
     };
 
-   
+
 
 
 
@@ -261,7 +261,7 @@ const InventoryPage = () => {
 
 
 
-  
+
 
 
   const calculateTotalStoreValue = (items) => {
@@ -276,14 +276,14 @@ const InventoryPage = () => {
   const handleEditClick = (itemId, e) => {
     // Prevent propagation to avoid triggering row click
     e.stopPropagation();
-  
+
     console.log('Edit clicked for item ID:', itemId);
-  
+
     const productToEdit = filteredItems.find((product) => product.id === itemId);
     setSelectedProduct(productToEdit);
     setShowEditPop(true);
   };
-  
+
 
 
   return (
@@ -421,11 +421,11 @@ const InventoryPage = () => {
                     <td className="border">
                       {state.user && state.user.role === 'admin' ? (
                         <>
-<FontAwesomeIcon
-  icon={faEdit}
-  style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-  onClick={(e) => handleEditClick(item.id, e)}
-/>
+                          <FontAwesomeIcon
+                            icon={faEdit}
+                            style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+                            onClick={(e) => handleEditClick(item.id, e)}
+                          />
 
 
                           <FontAwesomeIcon
@@ -449,8 +449,8 @@ const InventoryPage = () => {
         </div>
       </div>
 
-       {/* EditPop Component */}
-       {showEditPop && selectedProduct && (
+      {/* EditPop Component */}
+      {showEditPop && selectedProduct && (
         <EditPopup
           product={selectedProduct}
           onClose={() => setShowEditPop(false)}
