@@ -49,19 +49,20 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     fetchExistingProductNames();
   }, [fromInventoryPage, row]);
 
- const handleInputChange = (e) => {
-  const { name, value } = e.target;
-
-  // Update product state based on input changes
-  setProduct((prevProduct) => ({
-    ...prevProduct,
-    [name]: value,
-    // Calculate costPerItem based on costPrice and quantitySupplied
-    costPerItem: (name === 'costPrice' && product.quantitySupplied) ? (parseFloat(value) / parseFloat(product.quantitySupplied)) : prevProduct.costPerItem,
-    // Calculate price based on costPerItem
-    price: (name === 'costPrice') ? (parseFloat(value) * 3) : prevProduct.price,
-  }));
-};
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+  
+    // Update product state based on input changes
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      [name]: value,
+      // Calculate costPerItem based on costPrice and quantitySupplied
+      costPerItem: (name === 'costPrice' && prevProduct.quantitySupplied) ? (parseFloat(value) / parseFloat(prevProduct.quantitySupplied)) : prevProduct.costPerItem,
+    }));
+  };
+  
+  
+  
   
   const updateExistingProduct = async (productId, updateData) => {
     try {

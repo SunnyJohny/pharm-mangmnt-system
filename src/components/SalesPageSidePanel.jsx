@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaProductHunt, FaBoxes, FaChartBar, FaReceipt, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaProductHunt, FaBoxes, FaChartBar, FaReceipt, FaUser, FaCog, FaSignOutAlt, FaMoneyBillWave } from 'react-icons/fa'; // Added FaMoneyBillWave icon for "Add Tax"
 import UserInformation from './User';
 import { useMyContext } from '../Context/MyContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -35,6 +35,12 @@ const SalesPageSidePanel = () => {
           <FaChartBar className="text-xl" />
           <p className="ml-2">Add Expenses </p>
         </Link>
+        {/* New Link for "Add Tax" */}
+        <Link to="/add-tax" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+          <FaMoneyBillWave className="text-xl" /> {/* Use the appropriate icon */}
+          <p className="ml-2">Add Tax </p> {/* Adjust the text as needed */}
+        </Link>
+        {/* End of New Link */}
         <Link to="/posscreen" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaChartBar className="text-xl" />
           <p className="ml-2">Pos Screen</p>

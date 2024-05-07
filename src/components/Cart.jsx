@@ -7,7 +7,7 @@ import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, updateDoc, ar
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const CartItem = ({ id, name, price, quantity }) => {
+const CartItem = ({ id, name, price, costPrice, quantity }) => {
   const { state, increaseQuantity, decreaseQuantity, removeFromCart, clearCart } = useMyContext();
 
   const handleIncreaseQuantity = () => {
@@ -145,7 +145,8 @@ const Cart = () => {
         productId: item.id,
         name: item.name,
         quantity: item.quantity,
-        price: item.price,
+        Amount: item.price*item.quantity,
+        costPrice: item.costPrice*item.quantity,
         // other product details
       })),
       totalAmount: overallTotal,

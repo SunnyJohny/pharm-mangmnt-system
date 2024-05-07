@@ -40,7 +40,6 @@ const SalesPage = () => {
   const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
 
-
   useEffect(() => {
     const filteredByDate = searchByDate(state.sales, fromDate, toDate);
     setFilteredSales(filteredByDate);
@@ -64,7 +63,7 @@ const SalesPage = () => {
 
     const calculatedTotalSalesValue = sales.reduce((total, sale) => {
       if (sale.products && Array.isArray(sale.products)) {
-        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.price || 0), 0);
+        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
       } else {
         console.log('Undefined products array in sale:', sale);
         return total;
@@ -234,13 +233,17 @@ const SalesPage = () => {
     if (!filteredSales || filteredSales.length === 0) {
       return 0;
     }
-
+  
     const totalCOGS = filteredSales.reduce((total, sale) => {
-      return total + (sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0) / 2);
+      return total + sale.products.reduce((acc, product) => {
+        const costPrice = parseFloat(product.costPrice);
+        return isNaN(costPrice) ? acc : acc + costPrice;
+      }, 0);
     }, 0);
-
+  
     return totalCOGS.toFixed(2);
   };
+  
 
 
   const calculateTodaySales = () => {
@@ -248,7 +251,7 @@ const SalesPage = () => {
 
     return state.sales
       .filter((sale) => new Date(sale.date).toLocaleDateString() === today)
-      .reduce((total, sale) => total + sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0), 0);
+      .reduce((total, sale) => total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount), 0), 0);
   };
 
   const calculateTotalProductsSold = (sales) => {
@@ -529,55 +532,57 @@ const SalesPage = () => {
               </thead>
 
               <tbody>
-                {filteredSales
-                  .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date in descending order
-                  .map((sale, index) => (
-                    <tr onClick={() => handleRowClick(sale)} title="Click To View Invoice" style={{ cursor: 'pointer' }} key={index}>
-                      <td className="border">{generateSn(index)}</td>
-                      <td className="border">
-                        {sale.products.map((product, productIndex) => (
-                          <div key={productIndex}>
-                            {product.name}
-                            {productIndex === sale.products.length - 1 ? '.' : ','} {/* Display full stop if it's the last product, otherwise display comma */}
-                            {productIndex < sale.products.length - 1 && <br />} {/* Add line break if it's not the last product */}
-                          </div>
-                        ))}
-                      </td>
+  {filteredSales
+    .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date in descending order
+    .map((sale, index) => (
+      <tr onClick={() => handleRowClick(sale)} title="Click To View Invoice" style={{ cursor: 'pointer' }} key={index}>
+        <td className="border">{generateSn(index)}</td>
+        <td className="border">
+          {sale.products.map((product, productIndex) => (
+            <div key={productIndex}>
+              {product.name}
+              {productIndex === sale.products.length - 1 ? '.' : ','} {/* Display full stop if it's the last product, otherwise display comma */}
+              {productIndex < sale.products.length - 1 && <br />} {/* Add line break if it's not the last product */}
+            </div>
+          ))}
+        </td>
+        <td className="border">{sale.date}</td>
+        <td className="border">{sale.id.substring(0, 5)}{sale.id.length > 5 ? '...' : ''}</td>
+        <td className="border">{sale.saleId}</td>
+        <td className="border">{sale.customer.name}</td>
+        <td className="border">{sale.payment.method}</td>
+        {/* COGS */}
+        <td className="border">
+          {sale.products.map((product, productIndex) => (
+            <div key={productIndex}>{product.costPrice}</div>
+          ))}
+        </td>
+        {/* Total Sale */}
+        <td className="border">
+          {sale.products.map((product, productIndex) => (
+            <div key={productIndex}>{product.Amount}</div>
+          ))}
+        </td>
+        <td className="border">{sale.staff.name}</td>
+        <td className="border">{sale.payment.method}</td>
+      </tr>
+    ))}
+  {/* Additional row for totals */}
+  <tr>
+    <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
+    <td className="border"></td> {/* Empty cell for Product Names */}
+    <td className="border"></td> {/* Empty cell for Transaction Date */}
+    <td className="border"></td> {/* Empty cell for Transaction ID */}
+    <td className="border"></td> {/* Empty cell for Receipt No */}
+    <td className="border"></td> {/* Empty cell for Customer Name */}
+    <td className="border"></td> {/* Empty cell for Payment Method */}
+    <td className="border"><strong>₦{calculateTotalCOGS()}</strong></td> {/* Total COGS */}
+    <td className="border"><strong>₦{totalSalesValue}</strong></td> {/* Total Sales */}
+    <td className="border"></td> {/* Empty cell for Attendant Name */}
+    <td className="border"></td> {/* Empty cell for Payment Status */}
+  </tr>
+</tbody>
 
-
-
-                      <td className="border">{sale.date}</td>
-                      <td className="border">{sale.id.substring(0, 5)}{sale.id.length > 5 ? '...' : ''}</td>
-                      <td className="border">{sale.saleId}</td>
-                      <td className="border">{sale.customer.name}</td>
-                      <td className="border">{sale.payment.method}</td>
-                      {/* COGS */}
-                      <td className="border">
-                        {(sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0) / 2).toFixed(2)}
-                      </td>
-                      {/* Total Sale */}
-                      <td className="border">
-                        {sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0)}
-                      </td>
-                      <td className="border">{sale.staff.name}</td>
-                      <td className="border">{sale.payment.method}</td>
-                    </tr>
-                  ))}
-                {/* Additional row for totals */}
-                <tr>
-                  <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
-                  <td className="border"></td> {/* Empty cell for Product Names */}
-                  <td className="border"></td> {/* Empty cell for Transaction Date */}
-                  <td className="border"></td> {/* Empty cell for Transaction ID */}
-                  <td className="border"></td> {/* Empty cell for Receipt No */}
-                  <td className="border"></td> {/* Empty cell for Customer Name */}
-                  <td className="border"></td> {/* Empty cell for Payment Method */}
-                  <td className="border"><strong>₦{calculateTotalCOGS()}</strong></td> {/* Total COGS */}
-                  <td className="border"><strong>₦{totalSalesValue}</strong></td> {/* Total Sales */}
-                  <td className="border"></td> {/* Empty cell for Attendant Name */}
-                  <td className="border"></td> {/* Empty cell for Payment Status */}
-                </tr>
-              </tbody>
 
               <tfoot>
                 <tr>

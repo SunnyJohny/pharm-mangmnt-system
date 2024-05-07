@@ -14,6 +14,7 @@ export const MyContextProvider = ({ children }) => {
     products: [],
     sales: [], // New array for sales data
     expenses: [], // New array for expenses data
+    taxes: [], // New array for expenses data
     cart: [],
     inventoryData: [],
     productTotals: new Map(),
@@ -42,6 +43,46 @@ export const MyContextProvider = ({ children }) => {
       console.error('Error fetching expenses:', error.message);
     }
   };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+  
+  const fetchTaxes = async () => {
+    try {
+      const taxesCollection = collection(getFirestore(), 'taxes');
+      const taxesSnapshot = await getDocs(taxesCollection);
+      const taxesData = taxesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setState((prevState) => ({ ...prevState, taxes: taxesData }));
+      console.log('Fetching taxes...', taxesData);
+    } catch (error) {
+      console.error('Error fetching taxes:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchTaxes();
+    console.log(' taxes itself', state);
+
+  }, []);
+
+  useEffect(() => {
+    console.log('Taxes array:', state.taxes);
+  }, [state.taxes]); // Log the taxes array whenever it changes
+
+  // Inside MyContextProvider component
+
+const calculateTotalAmount = () => {
+  const totalAmount = state.taxes.reduce((total, tax) => total + tax.amount, 0);
+  return totalAmount;
+};
+
+const calculateTotalPaidAmount = () => {
+  const totalPaidAmount = state.taxes.reduce((total, tax) => total + tax.paidAmount, 0);
+  return totalPaidAmount;
+};
+
+
 
   useEffect(() => {
     fetchExpenses();
@@ -434,7 +475,7 @@ const fetchProduct = async (productId) => {
     state,
     fetchProduct, // Include fetchProduct in the context value
     logoutUser,
-     fetchUsers,
+    fetchUsers,
     searchByKeyword,
     searchByDate,
     addToCart,
@@ -442,10 +483,11 @@ const fetchProduct = async (productId) => {
     clearCart,
     increaseQuantity,
     decreaseQuantity,
-   
+    calculateTotalAmount,
+    calculateTotalPaidAmount,
   };
-
-
+  
+ 
 
 
   return <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>;

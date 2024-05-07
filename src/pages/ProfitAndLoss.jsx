@@ -161,8 +161,10 @@ import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 
 
 
+
+
 const ProfitAndLoss  = () => {
-  const { state, searchByKeyword, searchByDate } = useMyContext();
+  const { state, searchByKeyword, searchByDate,calculateTotalAmount, calculateTotalPaidAmount } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -187,6 +189,15 @@ const ProfitAndLoss  = () => {
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [totalExpenseAmount, setTotalExpenseAmount] = useState(0);
+
+
+
+// Call these functions wherever you need to use the total amount and total amount paid
+const totalTaxAmount = calculateTotalAmount();
+const totalTaxPaidAmount = calculateTotalPaidAmount();
+
+
+
 
   useEffect(() => {
     if (fromDate && toDate) {
@@ -222,7 +233,7 @@ const ProfitAndLoss  = () => {
 
     const calculatedTotalSalesValue = sales.reduce((total, sale) => {
       if (sale.products && Array.isArray(sale.products)) {
-        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.price || 0), 0);
+        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount|| 0), 0);
       } else {
         console.log('Undefined products array in sale:', sale);
         return total;
@@ -392,13 +403,17 @@ const ProfitAndLoss  = () => {
     if (!filteredSales || filteredSales.length === 0) {
       return 0;
     }
-
+  
     const totalCOGS = filteredSales.reduce((total, sale) => {
-      return total + (sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0) / 2);
+      return total + sale.products.reduce((acc, product) => {
+        const costPrice = parseFloat(product.costPrice);
+        return isNaN(costPrice) ? acc : acc + costPrice;
+      }, 0);
     }, 0);
-
+  
     return totalCOGS.toFixed(2);
   };
+  
 
 
   const calculateTodaySales = () => {
@@ -415,11 +430,7 @@ const ProfitAndLoss  = () => {
     return uniqueProductNames.length;
   };
 
-  const handleRowClick = (sale) => {
-    console.log('Clicked on row with ID:', sale.id); // Log the ID to the console
-    setShowModal(true);
-    setSelectedSale(sale);
-  };
+  
 
 
   const handleCloseModal = () => {
@@ -550,7 +561,7 @@ const ProfitAndLoss  = () => {
     costOfGoodsSold: `${calculateTotalCOGS()}`,
     grossProfit: totalSalesValue-`${calculateTotalCOGS()}`,
     operatingExpenses: totalExpenseAmount,
-    taxes: 800,
+    taxes: totalTaxPaidAmount,
     netIncome: totalSalesValue-`${calculateTotalCOGS()}`-totalExpenseAmount, // Adjusted net income after taxes
   };
 
@@ -567,7 +578,7 @@ const ProfitAndLoss  = () => {
         )}
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Transactions</h2>
+          <h2 className="text-2xl text-center font-bold mb-4">Profit & Loss Statement</h2>
           <div className="flex items-center space-x-4">
             <div>
               {/* Dates label and dropdown */}
@@ -652,7 +663,7 @@ const ProfitAndLoss  = () => {
           <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '300px' }} id="sales-table" ref={tableRef}>
             {/* Header section */}
             <div className="mb-4 text-center">
-              <h2 className="text-2xl font-bold underline">Profit and Loss Statement</h2>
+              <h2 className="text-2xl font-bold underline">Income Statement</h2>
 
               <p><strong>Selected Date Period:</strong> {renderSelectedDatePeriod()}</p>
               <p>Report Printed On: {getCurrentDate()}</p>
