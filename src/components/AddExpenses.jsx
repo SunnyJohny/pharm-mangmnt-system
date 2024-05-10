@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 //new  again
@@ -73,7 +73,7 @@ export default function AddExpense({ onCloseModal }) {
         receiptFile: downloadURL,
       };
   
-      const docRef = await addDoc(collection(db, "expenses"), formData);
+      
       setLoading(false);
       toast.success("Expense added successfully");
       setExpense({
