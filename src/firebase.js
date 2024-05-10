@@ -4,13 +4,13 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
-import { REACT_APP_FIREBASE_API_KEY } from "./fakeEnv";
-import { REACT_APP_FIREBASE_AUTH_DOMAIN } from "./fakeEnv";
-import { REACT_APP_FIREBASE_STORAGE_BUCKET } from "./fakeEnv";
-import { REACT_APP_FIREBASE_MESSAGING_SENDER_ID } from "./fakeEnv";
-import { REACT_APP_FIREBASE_APP_ID } from "./fakeEnv";
-import { REACT_APP_FIREBASE_MEASUREMENT_ID } from "./fakeEnv";
-import { REACT_APP_FIREBASE_PROJECT_ID } from "./fakeEnv";
+import { REACT_APP_FIREBASE_API_KEY } from "./fakeEnvFile";
+import { REACT_APP_FIREBASE_AUTH_DOMAIN } from "./fakeEnvFile";
+import { REACT_APP_FIREBASE_STORAGE_BUCKET } from "./fakeEnvFile";
+import { REACT_APP_FIREBASE_MESSAGING_SENDER_ID } from "./fakeEnvFile";
+import { REACT_APP_FIREBASE_APP_ID } from "./fakeEnvFile";
+import { REACT_APP_FIREBASE_MEASUREMENT_ID } from "./fakeEnvFile";
+import { REACT_APP_FIREBASE_PROJECT_ID } from "./fakeEnvFile";
 
 
 
