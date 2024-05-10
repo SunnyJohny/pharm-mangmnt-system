@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -11,10 +9,6 @@ import { useMyContext } from '../Context/MyContext';
 
 const PrintInventoryPage = () => {
   const { state } = useMyContext();
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [itemsPerPage] = useState(50);
-  // const [fromDate, setFromDate] = useState(null);
-  // const [toDate, setToDate] = useState(null);
   const [filteredItems, setFilteredItems] = useState([]);
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
@@ -23,55 +17,53 @@ const PrintInventoryPage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Retrieve data from location state
-    const {
-      itemsToDisplay: initialItemsToDisplay,
-      // Add other necessary data
-    } = location.state;
+    const { itemsToDisplay: initialItemsToDisplay } = location.state;
 
-    // Set the initial items to display
     setFilteredItems(initialItemsToDisplay);
     calculateTotalStoreValue(initialItemsToDisplay);
 
-    // ... (existing code)
+   const capturePagesContent = async () => {
+  const pagesContent = [];
+  const tableContainer = document.querySelector('.table-container');
+  const itemsPerPage = 25; // Adjust the number of items per page as needed
+  
+  if (tableContainer) {
+    const totalItems = initialItemsToDisplay.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-    // Call calculateTotalStoreValue with the filtered items
-    // Capture the content of each page
-    const capturePagesContent = async () => {
-      const pagesContent = [];
-      const tableContainer = document.querySelector('.table-container');
-      const itemsPerPage = 100;
+    for (let page = 1; page <= totalPages; page++) {
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const itemsToDisplay = initialItemsToDisplay.slice(startIndex, endIndex);
 
-      if (tableContainer) {
-        const totalItems = initialItemsToDisplay.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
+      // Update filteredItems for the current page
+      setFilteredItems(itemsToDisplay);
+      
+      // Calculate total store value for the current page
+      calculateTotalStoreValue(itemsToDisplay);
 
-        for (let page = 1; page <= totalPages; page++) {
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = initialItemsToDisplay.slice(startIndex, endIndex);
+      // Wait for the container to render content
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-          setFilteredItems(itemsToDisplay); // Update filteredItems for the current page
-          calculateTotalStoreValue(itemsToDisplay);
+      // Capture the content of the table container for the current page
+      const canvas = await html2canvas(tableContainer);
+      pagesContent.push(canvas.toDataURL('image/png'));
+    }
 
-          // Wait for the container to render content
-          await new Promise((resolve) => setTimeout(resolve, 500));
+    // Set all pages content
+    setAllPagesContent(pagesContent);
 
-          const canvas = await html2canvas(tableContainer);
-          pagesContent.push(canvas.toDataURL('image/png'));
-        }
+    // Restore original filteredItems
+    setFilteredItems(initialItemsToDisplay);
+    
+    // Calculate total store value for all items
+    calculateTotalStoreValue(initialItemsToDisplay);
+  }
+};
 
-        setAllPagesContent(pagesContent);
-        setFilteredItems(initialItemsToDisplay); // Restore original filteredItems
-        calculateTotalStoreValue(initialItemsToDisplay);
-      }
-    };
 
-    // Call the async function
     capturePagesContent();
   }, [location.state, state.products, state.productTotals, state.productTotalsMap]);
-
-  // ... (existing code)
 
   const calculateTotalStoreValue = (items) => {
     const calculatedTotalStoreValue = items.reduce(
@@ -83,13 +75,6 @@ const PrintInventoryPage = () => {
     setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
   };
 
- 
- 
-
-  
-
-  
-
   const generateSn = (index) => index + 1;
 
   const handleRowClick = (itemId) => {
@@ -98,29 +83,18 @@ const PrintInventoryPage = () => {
 
   const handlePrint = async () => {
     const pdf = new jsPDF('l', 'pt', 'letter');
-  
-    // Create a reference to the table container
-    const tableContainer = document.querySelector('.table-container');
-  
-    if (tableContainer) {
-      // Capture the content of the entire table container
-      const canvas = await html2canvas(tableContainer, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-  
-      // Set PDF orientation to landscape
-      pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
-  
-      // Save and open the PDF
-      pdf.save('inventory.pdf');
-    }
+
+    allPagesContent.forEach((pageContent) => {
+      pdf.addImage(pageContent, 'PNG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
+      pdf.addPage();
+    });
+
+    pdf.save('inventory.pdf');
   };
-  
 
   return (
     <div>
-    
- {/* Back button */}
- <div className="text-left pl-4">
+      <div className="text-left pl-4">
         <FontAwesomeIcon
           icon={faArrowLeft}
           style={{ cursor: 'pointer', marginRight: '8px', color: 'green' }}
@@ -129,57 +103,53 @@ const PrintInventoryPage = () => {
         Back
       </div>
 
-{/* Display inventory items with appropriate styles for printing */}
-<div className="table-container " style={{ maxHeight: '700px' }}>
-<table className="w-full table-auto">
-  <thead>
-    <tr>
-      <th className="border">S/n</th>
-      <th className="border">Name</th>
-      <th className="border">Date</th>
-      <th className="border">Item ID</th>
-      <th className="border">Qty Restocked</th>
-      <th className="border">Total Bal</th>
-      <th className="border">Qty Sold</th>
-      <th className="border">Qty Balance</th>
-      <th className="border">CostPrice</th>
-      <th className="border">Sales Price</th>
-      <th className="border">Item Value</th>
-      <th className="border">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {filteredItems.map((item) => (
-      <tr key={item.sn} onClick={() => handleRowClick(item.id)} style={{ cursor: 'pointer' }}>
-        <td className="border">{generateSn(filteredItems.indexOf(item))}</td>
-        <td className="border">{item.name}</td>
-        <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-        <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
-        <td className="border">{state.productTotals.get(item.name) || 0}</td>
-        <td className="border">{state.productTotals.get(item.name) || 0}</td>
-        <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-        <td className="border">
-          {((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
-        </td>
-        <td className="border">{item.costPrice}</td>
-        <td className="border">{item.price}</td>
-        <td className="border">
-          {(
-            item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0))
-          ).toFixed(2)}
-        </td>
-        <td className="border">
-          <FontAwesomeIcon icon={faEdit} style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }} />
-          <FontAwesomeIcon icon={faTrash} style={{ cursor: 'pointer', color: 'red' }} />
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-</div>
-
-
-     
+      <div className="table-container" style={{ maxHeight: '700px' }}>
+        <table className="w-full table-auto">
+          <thead>
+            <tr>
+              <th className="border">S/n</th>
+              <th className="border">Name</th>
+              <th className="border">Date</th>
+              <th className="border">Item ID</th>
+              <th className="border">Qty Restocked</th>
+              <th className="border">Total Bal</th>
+              <th className="border">Qty Sold</th>
+              <th className="border">Qty Balance</th>
+              <th className="border">CostPrice</th>
+              <th className="border">Sales Price</th>
+              <th className="border">Item Value</th>
+              <th className="border">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredItems.map((item, index) => (
+              <tr key={item.sn} onClick={() => handleRowClick(item.id)} style={{ cursor: 'pointer' }}>
+                <td className="border">{generateSn(index)}</td>
+                <td className="border">{item.name}</td>
+                <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
+                <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
+                <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
+                <td className="border">
+                  {((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
+                </td>
+                <td className="border">{item.costPrice}</td>
+                <td className="border">{item.price}</td>
+                <td className="border">
+                  {(
+                    item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0))
+                  ).toFixed(2)}
+                </td>
+                <td className="border">
+                  <FontAwesomeIcon icon={faEdit} style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }} />
+                  <FontAwesomeIcon icon={faTrash} style={{ cursor: 'pointer', color: 'red' }} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Footer with total */}
       <div className="mt-4 text-right pr-4">

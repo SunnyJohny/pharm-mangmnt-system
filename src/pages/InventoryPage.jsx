@@ -16,6 +16,7 @@ import html2canvas from 'html2canvas';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import { useEffect, useRef, useState, } from 'react';
 import EditPopup from '../components/EditPopup';
+import Footer from '../components/Footer';
 
 
 
@@ -287,7 +288,8 @@ const InventoryPage = () => {
 
 
   return (
-    <div className="container mx-auto flex">
+    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+    {/* Toggle Button for Side Panel */}
       <div className="flex-none">
         {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
@@ -447,6 +449,7 @@ const InventoryPage = () => {
             {renderPaginationButtons()}
           </div>
         </div>
+     
       </div>
 
       {/* EditPop Component */}
@@ -460,6 +463,7 @@ const InventoryPage = () => {
           }}
         />
       )}
+
     </div>
   );
 };

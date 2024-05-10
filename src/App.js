@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignIn from "./pages/SignIn";
 import CompanySignUp from "./pages/CompanySignUp";
 import SignUp from "./pages/SignUp";
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 
 import PrivateRoute from "./components/PrivateRoute";

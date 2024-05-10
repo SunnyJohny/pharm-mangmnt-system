@@ -14,11 +14,11 @@ const SalesPageSidePanel = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-800 text-white p-4 h-full"> {/* Set height to full */}
+    <div className="flex flex-col bg-gray-800 text-white h-full"> {/* Set height to full */}
       <UserInformation user={state.user} />
       <hr className="my-4 border-t-2 border-white" />
       {/* Tabs */}
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col flex-grow"> {/* Use flex-grow to fill remaining space */}
         <Link to="/posscreen" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaProductHunt className="text-xl" />
           <p className="ml-2">Sales Page</p>

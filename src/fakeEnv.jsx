@@ -1,0 +1,11 @@
+
+
+
+
+export const REACT_APP_FIREBASE_API_KEY="AIzaSyCxhTI6rZLLbKCFrIU0jil6nDY2VO2Ma18"
+export const REACT_APP_FIREBASE_AUTH_DOMAIN="mydesktopapp-1bd6a.firebaseapp.com"
+export const REACT_APP_FIREBASE_PROJECT_ID="mydesktopapp-1bd6a"
+export const REACT_APP_FIREBASE_STORAGE_BUCKET="mydesktopapp-1bd6a.appspot.com"
+export const REACT_APP_FIREBASE_MESSAGING_SENDER_ID="800343128337"
+export const REACT_APP_FIREBASE_APP_ID="1:800343128337:web:2862d7d340dc1e90c1b4b0"
+export const REACT_APP_FIREBASE_MEASUREMENT_ID="G-KX2LPRWM24"

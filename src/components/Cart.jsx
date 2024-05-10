@@ -164,7 +164,6 @@ const Cart = () => {
     try {
       // Add the document to the 'sales' collection
       const docRef = await addDoc(collection(db, 'sales'), salesDoc);
-      toast.success('Sale added successfully!');
       console.log('Receipt added to Firestore with ID:', docRef.id);
 
       // Use Promise.all to wait for all updateProductSale promises to complete
@@ -230,6 +229,8 @@ const Cart = () => {
         </body>
       </html>
     `);
+    toast.success('Sale added successfully!');
+
       printWindow.document.close();
       printWindow.print();
     } catch (error) {

@@ -12,13 +12,14 @@ import html2canvas from 'html2canvas';
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ReceiptModal from '../components/ReceiptModal';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
+import Footer from '../components/Footer';
 
 
 
 const SalesPage = () => {
   const { state, searchByKeyword, searchByDate } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(100);
+  const [itemsPerPage] = useState(5);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   // const [filteredItems, setFilteredItems] = useState([]);
@@ -39,6 +40,13 @@ const SalesPage = () => {
   const endIndex = startIndex + itemsPerPage;
   const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
+  const [showSidePanel, setShowSidePanel] = useState(false);
+  
+
+  // Function to toggle side panel
+  const toggleSidePanel = () => {
+    setShowSidePanel(!showSidePanel);
+  };
 
   useEffect(() => {
     const filteredByDate = searchByDate(state.sales, fromDate, toDate);
@@ -109,32 +117,32 @@ const SalesPage = () => {
   // };
 
   const renderActionButtons = () => {
-      // Function to handle printing of the table
-      const saveAndPrintTable = () => {
-        const table = document.getElementById('sales-table');
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write('<html><head><title>Sales Table</title>');
-        // Add custom CSS for printing
-        printWindow.document.write('<style>');
-        printWindow.document.write('@media print {');
-        printWindow.document.write('.text-center { text-align: center; }');
-        printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
-        printWindow.document.write('.table-print { border-collapse: collapse; }');
-        printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
-        printWindow.document.write('}');
-        printWindow.document.write('</style>');
-        printWindow.document.write('</head><body>');
-        // printWindow.document.write('<div class="text-center mb-4">');
-        // printWindow.document.write('<h2 class="text-2xl font-bold underline">Sales Report</h2>');
-        // printWindow.document.write(`<p><strong>Selected Date Period:</strong> ${renderSelectedDatePeriod()}</p>`);
-        // printWindow.document.write(`<p>Report Printed On: ${getCurrentDate()}</p>`);
-        // printWindow.document.write('</div>');
-        printWindow.document.write(table.outerHTML);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
-        printWindow.close();
-      };
+    // Function to handle printing of the table
+    const saveAndPrintTable = () => {
+      const table = document.getElementById('sales-table');
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write('<html><head><title>Sales Table</title>');
+      // Add custom CSS for printing
+      printWindow.document.write('<style>');
+      printWindow.document.write('@media print {');
+      printWindow.document.write('.text-center { text-align: center; }');
+      printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
+      printWindow.document.write('.table-print { border-collapse: collapse; }');
+      printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
+      printWindow.document.write('}');
+      printWindow.document.write('</style>');
+      printWindow.document.write('</head><body>');
+      // printWindow.document.write('<div class="text-center mb-4">');
+      // printWindow.document.write('<h2 class="text-2xl font-bold underline">Sales Report</h2>');
+      // printWindow.document.write(`<p><strong>Selected Date Period:</strong> ${renderSelectedDatePeriod()}</p>`);
+      // printWindow.document.write(`<p>Report Printed On: ${getCurrentDate()}</p>`);
+      // printWindow.document.write('</div>');
+      printWindow.document.write(table.outerHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
+    };
     return (
       <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
         Print Sales
@@ -233,17 +241,17 @@ const SalesPage = () => {
     if (!filteredSales || filteredSales.length === 0) {
       return 0;
     }
-  
+
     const totalCOGS = filteredSales.reduce((total, sale) => {
       return total + sale.products.reduce((acc, product) => {
         const costPrice = parseFloat(product.costPrice);
         return isNaN(costPrice) ? acc : acc + costPrice;
       }, 0);
     }, 0);
-  
+
     return totalCOGS.toFixed(2);
   };
-  
+
 
 
   const calculateTodaySales = () => {
@@ -391,13 +399,22 @@ const SalesPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex h-screen">
-     
-      <div className="flex-none">
+    <div className="container mx-auto flex flex-col md:flex-row h-screen"> {/* Use flex-col for small screens and flex-row for medium and larger screens */}
+    {/* Burger menu for small screens */}
+    <div className="md:hidden">
+      <button onClick={toggleSidePanel} className="text-blue-500 p-4">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M3 12h14a1 1 0 010 2H3a1 1 0 010-2zM3 7h14a1 1 0 010 2H3a1 1 0 010-2zM3 3a1 1 0 100 2h14a1 1 0 100-2H3z" clipRule="evenodd" />
+        </svg>
+      </button>
+    </div>
+
+        {/* Side panel */}
+        <div className={`flex-none ${showSidePanel ? 'block' : 'hidden'} md:block h-full`}>
   {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
-  {state.user && state.user.role === 'admin' ?         <SalesPageSidePanel />
- : <ProductsPageSidePanel />}
+  {state.user && state.user.role === 'admin' ? <SalesPageSidePanel /> : <ProductsPageSidePanel />}
 </div>
+
 
 
       <div className="ml-8 flex-1">
@@ -532,56 +549,56 @@ const SalesPage = () => {
               </thead>
 
               <tbody>
-  {filteredSales
-    .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date in descending order
-    .map((sale, index) => (
-      <tr onClick={() => handleRowClick(sale)} title="Click To View Invoice" style={{ cursor: 'pointer' }} key={index}>
-        <td className="border">{generateSn(index)}</td>
-        <td className="border">
-          {sale.products.map((product, productIndex) => (
-            <div key={productIndex}>
-              {product.name}
-              {productIndex === sale.products.length - 1 ? '.' : ','} {/* Display full stop if it's the last product, otherwise display comma */}
-              {productIndex < sale.products.length - 1 && <br />} {/* Add line break if it's not the last product */}
-            </div>
-          ))}
-        </td>
-        <td className="border">{sale.date}</td>
-        <td className="border">{sale.id.substring(0, 5)}{sale.id.length > 5 ? '...' : ''}</td>
-        <td className="border">{sale.saleId}</td>
-        <td className="border">{sale.customer.name}</td>
-        <td className="border">{sale.payment.method}</td>
-        {/* COGS */}
-        <td className="border">
-          {sale.products.map((product, productIndex) => (
-            <div key={productIndex}>{product.costPrice}</div>
-          ))}
-        </td>
-        {/* Total Sale */}
-        <td className="border">
-          {sale.products.map((product, productIndex) => (
-            <div key={productIndex}>{product.Amount}</div>
-          ))}
-        </td>
-        <td className="border">{sale.staff.name}</td>
-        <td className="border">{sale.payment.method}</td>
-      </tr>
-    ))}
-  {/* Additional row for totals */}
-  <tr>
-    <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
-    <td className="border"></td> {/* Empty cell for Product Names */}
-    <td className="border"></td> {/* Empty cell for Transaction Date */}
-    <td className="border"></td> {/* Empty cell for Transaction ID */}
-    <td className="border"></td> {/* Empty cell for Receipt No */}
-    <td className="border"></td> {/* Empty cell for Customer Name */}
-    <td className="border"></td> {/* Empty cell for Payment Method */}
-    <td className="border"><strong>₦{calculateTotalCOGS()}</strong></td> {/* Total COGS */}
-    <td className="border"><strong>₦{totalSalesValue}</strong></td> {/* Total Sales */}
-    <td className="border"></td> {/* Empty cell for Attendant Name */}
-    <td className="border"></td> {/* Empty cell for Payment Status */}
-  </tr>
-</tbody>
+                {itemsToDisplay
+                  .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date in descending order
+                  .map((sale, index) => (
+                    <tr onClick={() => handleRowClick(sale)} title="Click To View Invoice" style={{ cursor: 'pointer' }} key={index}>
+                      <td className="border">{generateSn(index)}</td>
+                      <td className="border">
+                        {sale.products.map((product, productIndex) => (
+                          <div key={productIndex}>
+                            {product.name}
+                            {productIndex === sale.products.length - 1 ? '.' : ','} {/* Display full stop if it's the last product, otherwise display comma */}
+                            {productIndex < sale.products.length - 1 && <br />} {/* Add line break if it's not the last product */}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="border">{sale.date}</td>
+                      <td className="border">{sale.id.substring(0, 5)}{sale.id.length > 5 ? '...' : ''}</td>
+                      <td className="border">{sale.saleId}</td>
+                      <td className="border">{sale.customer.name}</td>
+                      <td className="border">{sale.payment.method}</td>
+                      {/* COGS */}
+                      <td className="border">
+                        {sale.products.map((product, productIndex) => (
+                          <div key={productIndex}>{product.costPrice}</div>
+                        ))}
+                      </td>
+                      {/* Total Sale */}
+                      <td className="border">
+                        {sale.products.map((product, productIndex) => (
+                          <div key={productIndex}>{product.Amount}</div>
+                        ))}
+                      </td>
+                      <td className="border">{sale.staff.name}</td>
+                      <td className="border">{sale.payment.method}</td>
+                    </tr>
+                  ))}
+                {/* Additional row for totals */}
+                <tr>
+                  <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
+                  <td className="border"></td> {/* Empty cell for Product Names */}
+                  <td className="border"></td> {/* Empty cell for Transaction Date */}
+                  <td className="border"></td> {/* Empty cell for Transaction ID */}
+                  <td className="border"></td> {/* Empty cell for Receipt No */}
+                  <td className="border"></td> {/* Empty cell for Customer Name */}
+                  <td className="border"></td> {/* Empty cell for Payment Method */}
+                  <td className="border"><strong>₦{calculateTotalCOGS()}</strong></td> {/* Total COGS */}
+                  <td className="border"><strong>₦{totalSalesValue}</strong></td> {/* Total Sales */}
+                  <td className="border"></td> {/* Empty cell for Attendant Name */}
+                  <td className="border"></td> {/* Empty cell for Payment Status */}
+                </tr>
+              </tbody>
 
 
               <tfoot>
@@ -625,13 +642,17 @@ const SalesPage = () => {
                 </tr>
               </tfoot>
             </table>
-          </div>
-
-          <div className="flex justify-between mt-4">
+            <div className="flex justify-between mt-2">
             {renderPaginationButtons()}
           </div>
+      
+
+          </div>
+
+         
         </div>
       </div>
+
     </div>
   );
 };
