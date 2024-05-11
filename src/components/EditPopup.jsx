@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { useMyContext } from '../Context/MyContext';
+
 
 const EditPopup = ({ product, onUpdate, onClose }) => {
-  const { state } = useMyContext();
+ 
 
   const [editedProduct, setEditedProduct] = useState(product);
   const [quantityRestock, setQuantityRestock] = useState(() => {

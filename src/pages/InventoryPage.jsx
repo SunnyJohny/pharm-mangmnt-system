@@ -1,6 +1,6 @@
 
 
-import { Link, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,7 +21,7 @@ import Footer from '../components/Footer';
 
 
 const InventoryPage = () => {
-  const { state, fetchProduct } = useMyContext(); // Destructure fetchProduct from the context
+  const { state } = useMyContext(); // Destructure fetchProduct from the context
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -449,7 +449,7 @@ const InventoryPage = () => {
             {renderPaginationButtons()}
           </div>
         </div>
-     
+ <Footer />
       </div>
 
       {/* EditPop Component */}

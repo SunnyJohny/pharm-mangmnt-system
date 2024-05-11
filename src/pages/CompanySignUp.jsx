@@ -1,100 +1,8 @@
-// import { useState } from "react";
-// import { auth, db } from "../firebase";
-// // import {
-// //   getAuth,
-// //   createUserWithEmailAndPassword,
-// //   updateProfile,
-// // } from "firebase/auth";
-
-// const CompanySignUp = () => {
-//   const [companyName, setCompanyName] = useState("");
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [address, setAddress] = useState("");
-//   const [error, setError] = useState(null);
-
-//   const handleSignUp = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const { user } = await auth.createUserWithEmailAndPassword(email, password);
-//       await db.collection("companies").doc(user.uid).set({
-//         companyName,
-//         email,
-//         address,
-//         // Add more fields as needed
-//       });
-//       // await user.sendEmailVerification();
-//     } catch (error) {
-//       setError(error.message);
-//       console.log(error);
-//     }
-//   };
-  
-  
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen">
-//       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-//         <h2 className="text-2xl font-semibold mb-4">Company Sign Up</h2>
-//         {error && <div className="text-red-500 mb-4">{error}</div>}
-//         <form onSubmit={handleSignUp}>
-//           <div className="mb-4">
-//             <label className="block text-gray-700 text-sm font-bold mb-2">Company Name</label>
-//             <input
-//               type="text"
-//               value={companyName}
-//               onChange={(e) => setCompanyName(e.target.value)}
-//               className="border rounded-md w-full p-2"
-//               required
-//             />
-//           </div>
-//           <div className="mb-4">
-//             <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-//             <input
-//               type="email"
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               className="border rounded-md w-full p-2"
-//               required
-//             />
-//           </div>
-//           <div className="mb-4">
-//             <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-//             <input
-//               type="password"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               className="border rounded-md w-full p-2"
-//               required
-//             />
-//           </div>
-//           <div className="mb-4">
-//             <label className="block text-gray-700 text-sm font-bold mb-2">Address</label>
-//             <input
-//               type="text"
-//               value={address}
-//               onChange={(e) => setAddress(e.target.value)}
-//               className="border rounded-md w-full p-2"
-//               required
-//             />
-//           </div>
-//           <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-//             Sign Up
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default CompanySignUp;
-
-
 
 
 import { useState } from "react";
-import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
-import { Link } from "react-router-dom";
+
+
 import OAuth from "../components/OAuth";
 // import { createUserWithEmailAndPassword } from "firebase/auth";
 import { db } from "../firebase";
@@ -104,7 +12,7 @@ import { toast } from "react-toastify";
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  updateProfile,
+  
 } from "firebase/auth";
 const CompanySignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -115,7 +23,7 @@ const CompanySignUp = () => {
     address: "",
   });
   const { companyName, email, password, address } = formData;
-  const navigate = useNavigate();
+
 
   const onChange = (e) => {
     setFormData({

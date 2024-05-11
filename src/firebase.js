@@ -32,7 +32,7 @@ const app = initializeApp(firebaseConfig);
 const firestoreDb = getFirestore(app);
 enableIndexedDbPersistence(firestoreDb)
   .then(() => {
-    console.log("Firestore persistence enabled.");
+   
   })
   .catch((err) => {
     if (err.code === 'failed-precondition') {

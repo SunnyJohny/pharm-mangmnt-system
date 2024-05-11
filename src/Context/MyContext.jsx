@@ -54,7 +54,7 @@ export const MyContextProvider = ({ children }) => {
       const taxesSnapshot = await getDocs(taxesCollection);
       const taxesData = taxesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setState((prevState) => ({ ...prevState, taxes: taxesData }));
-      console.log('Fetching taxes...', taxesData);
+      
     } catch (error) {
       console.error('Error fetching taxes:', error.message);
     }
@@ -62,13 +62,11 @@ export const MyContextProvider = ({ children }) => {
 
   useEffect(() => {
     fetchTaxes();
-    console.log(' taxes itself', state);
+  
 
-  }, []);
+  }, );
 
-  useEffect(() => {
-    console.log('Taxes array:', state.taxes);
-  }, [state.taxes]); // Log the taxes array whenever it changes
+ // Log the taxes array whenever it changes
 
   // Inside MyContextProvider component
 
@@ -275,8 +273,12 @@ const calculateTotalPaidAmount = () => {
         // Filter sales data by date range
         const filteredSales = searchByDate(state.sales, startDate, endDate);
 
-        console.log('Filtered Products:', filteredProducts);
-        console.log('Filtered Sales:', filteredSales);
+        if (filteredProducts || filteredSales) {
+          return 
+        } else {
+          return
+        }
+        
       } catch (error) {
         console.error('Error filtering products:', error.message);
       }
@@ -300,7 +302,7 @@ const fetchUsers = async (userId) => {
       .filter(doc => doc.id === userId) // Filter users by ID
       .map(doc => {
         const userData = { id: doc.id, ...doc.data() };
-        console.log('Filtered user:', userData); // Log filtered user to console
+        // Log filtered user to console
         return userData;
       });
 
@@ -316,10 +318,7 @@ const fetchUsers = async (userId) => {
   }
 };
 
-// useEffect hook to log the user in state when it changes
-useEffect(() => {
-  console.log('Updated User in State:', state.user);
-}, [state.user]);
+
 
 
 
@@ -450,7 +449,7 @@ const fetchProduct = async (productId) => {
     const productDoc = await getDoc(doc(productsCollection, productId));
     if (productDoc.exists()) {
       const productData = { id: productDoc.id, ...productDoc.data() };
-      console.log('Fetched product:', productData);
+     
       return productData;
     } else {
       console.error('Product not found with ID:', productId);

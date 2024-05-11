@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 
 const PrintSalesPage = ({ salesData, searchByKeyword, searchByDate }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [fromDate, setFromDate] = useState(null);
-  const [toDate, setToDate] = useState(null);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [itemsPerPage] = useState(10);
+  // const [fromDate, setFromDate] = useState(null);
+  // const [toDate, setToDate] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const navigate = useNavigate();
+  
   const tableRef = useRef(null);
 
-  // useEffect(() => {
-  //   const filteredByDate = searchByDate(salesData, fromDate, toDate);
-  //   setFilteredSales(filteredByDate);
-  // }, [salesData, searchByDate, fromDate, toDate]);
+ 
 
   useEffect(() => {
     const filteredByKeyword = searchByKeyword(salesData, searchKeyword);

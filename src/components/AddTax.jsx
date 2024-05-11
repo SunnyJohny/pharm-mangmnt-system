@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { db } from "../firebase";
 import { toast } from 'react-toastify';
-import Spinner from "../components/Spinner";
+
 import { useMyContext } from '../Context/MyContext';
 
 const AddTax = () => {
@@ -14,54 +14,19 @@ const AddTax = () => {
   const [paidAmount, setPaidAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [errorMessage, setErrorMessage] = useState('');
-  // const [taxes, setTaxes] = useState([]);
-  const [paidTax, setPaidTax] = useState(0);
-  const [owedTax, setOwedTax] = useState(0);
-  
-  
-
-  const { state: { taxes }, fetchTaxes, calculateTotalAmount, calculateTotalPaidAmount  } = useMyContext();
+ 
+  const { state: { taxes },  calculateTotalAmount, calculateTotalPaidAmount  } = useMyContext();
   
   // Call these functions wherever you need to use the total amount and total amount paid
   const totalAmount = calculateTotalAmount();
   const totalPaidAmount = calculateTotalPaidAmount();
   
-  
+console.log(setSelectedTax)
   // Possible tax names
   const possibleTaxNames = ["Company Income Tax (CIT)", "Value Added Tax (VAT)", "Withholding Tax (Rent)", "Withholding Tax (Dividends)", "Withholding Tax (Management Fees)", "Withholding Tax (Interest)"];
 
-  // useEffect(() => {
-  //   setIsLoading(true);
-  //   const fetchTaxes = async () => {
-  //     try {
-  //       const querySnapshot = await getDocs(collection(db, 'taxes'));
-  //       const taxList = [];
-  //       let totalPaid = 0;
-  //       let totalOwed = 0;
+  
 
-  //       querySnapshot.forEach((doc) => {
-  //         const tax = doc.data();
-  //         taxList.push({ id: doc.id, ...tax });
-  //         totalPaid += tax.paidAmount ? tax.paidAmount : 0;
-  //         totalOwed += tax.amount - (tax.paidAmount ? tax.paidAmount : 0);
-  //       });
-
-  //       setTaxes(taxList);
-  //       setPaidTax(totalPaid);
-  //       setOwedTax(totalOwed);
-  //     } catch (error) {
-  //       console.error('Error fetching taxes: ', error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchTaxes();
-  // }, []);
-
-  // useEffect(() => {
-  //   fetchTaxes(); // Fetch taxes from context when component mounts
-  // }, []);
 
   useEffect(() => {
     console.log('Taxes from context:', taxes);

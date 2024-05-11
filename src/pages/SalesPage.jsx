@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DatePicker from 'react-datepicker';
@@ -7,12 +7,12 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 import { faChartLine, faShoppingCart, faCalendarAlt, faBox } from '@fortawesome/free-solid-svg-icons';
-import jsPDF from 'jspdf';
+
 import html2canvas from 'html2canvas';
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ReceiptModal from '../components/ReceiptModal';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
-import Footer from '../components/Footer';
+// import Footer from '../components/Footer';
 
 
 
@@ -23,16 +23,17 @@ const SalesPage = () => {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   // const [filteredItems, setFilteredItems] = useState([]);
-  const [totalStoreValue, setTotalStoreValue] = useState(0);
-  const [allPagesContent, setAllPagesContent] = useState([]);
+
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
-  const navigate = useNavigate();
+ 
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
+  const [totalStoreValue, setTotalStoreValue] = useState(0);
+  const [allPagesContent, setAllPagesContent] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [summaryData, setSummaryData] = useState(null); // State to hold summary data
+  // const [summaryData, setSummaryData] = useState(null); // State to hold summary data
 
   const totalItems = filteredSales.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -41,6 +42,11 @@ const SalesPage = () => {
   const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   const [showSidePanel, setShowSidePanel] = useState(false);
+
+  
+  if (totalStoreValue || allPagesContent) {
+    console.warn("totalStoreValue or allPagesContent is assigned a value but never used");
+  }
   
 
   // Function to toggle side panel

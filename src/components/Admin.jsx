@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useMyContext } from '../Context/MyContext';
+
 import InventoryPage from '../pages/InventoryPage';
 
 
 
 const AdminComponent = () => {
     // Access the context
-    const { state } = useMyContext();
+
   
     
       return (

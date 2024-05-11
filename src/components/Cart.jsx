@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const CartItem = ({ id, name, price, costPrice, quantity }) => {
-  const { state, increaseQuantity, decreaseQuantity, removeFromCart, clearCart } = useMyContext();
+  const { increaseQuantity, decreaseQuantity, removeFromCart } = useMyContext();
 
   const handleIncreaseQuantity = () => {
     increaseQuantity(id);
@@ -22,9 +22,7 @@ const CartItem = ({ id, name, price, costPrice, quantity }) => {
     removeFromCart(id);
   };
 
-  const handleClearCart = () => {
-    clearCart();
-  };
+  
 
   return (
     <div className="flex items-center justify-between mb-4">

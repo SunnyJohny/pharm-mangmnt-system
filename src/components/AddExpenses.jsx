@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { addDoc, collection } from "firebase/firestore";
-import { db, storage } from "../firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
+
 //new  again
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
@@ -37,41 +36,14 @@ export default function AddExpense({ onCloseModal }) {
     }));
   };
   
-  const uploadImageAndSaveUrl = async (imageFile) => {
-    try {
-      const storageRef = ref(storage, 'receipts/' + imageFile.name);
-      const snapshot = await uploadBytesResumable(storageRef, imageFile);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      return downloadURL;
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      throw error;
-    }
-  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
   
     try {
-      const downloadURL = await uploadImageAndSaveUrl(expense.receiptFile);
+      
   
-      // Format date to the desired string format
-      const formattedDate = new Date().toLocaleString('en-US', {
-        month: 'numeric',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        hour12: true
-      });
-  
-      const formData = {
-        ...expense,
-        date: formattedDate,
-        receiptFile: downloadURL,
-      };
   
       
       setLoading(false);

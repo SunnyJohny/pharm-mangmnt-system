@@ -38,15 +38,15 @@ export default function Header() {
     className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center cursor-pointer mr-1 mb-2"
     style={{ fontStyle: 'italic', color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}
   >
-    B
+    N
   </div>
 
   <div className="text-base font-semibold text-blue-800" style={{ fontFamily: 'serif', fontSize: '1rem', marginLeft: '0.2rem' }}>
-    BENOKOSI PHARMACY LTD
+  NENYURKA NIGERIA LIMITED
   </div>
 </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Button
         <div className="lg:hidden">
           <button
             className="text-gray-500"
@@ -54,7 +54,7 @@ export default function Header() {
           >
             ☰
           </button>
-        </div>
+        </div> */}
 
         {/* Navigation Links - Desktop
         <div className="hidden lg:flex">

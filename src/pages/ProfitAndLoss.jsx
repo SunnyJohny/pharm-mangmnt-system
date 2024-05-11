@@ -1,200 +1,53 @@
-// import React, { useState } from 'react';
-// import DatePicker from 'react-datepicker';
-// import 'react-datepicker/dist/react-datepicker.css';
-// import { FaCalendar, FaPrint, FaArrowLeft } from 'react-icons/fa';
-// import { useMyContext } from '../Context/MyContext';
-
-// const ProfitAndLoss = () => {
-//   // Static data for P&L statement
-//   const profitAndLossData = {
-//     revenue: 10000,
-//     costOfGoodsSold: 6000,
-//     grossProfit: 4000,
-//     operatingExpenses: 2000,
-//     taxes: 800,
-//     netIncome: 1200, // Adjusted net income after taxes
-//   };
-
-//   const { state, searchByDate } = useMyContext();
-//   const [fromDate, setFromDate] = useState(null);
-//   const [toDate, setToDate] = useState(null);
-//   const [selectedDateOption, setSelectedDateOption] = useState('All');
-
-//   // Placeholder functions for date range selection
-//   const handleFromDateChange = (date) => {
-//     setFromDate(date);
-//     const filteredByDate = searchByDate(state.sales, date, toDate);
-//     console.log('Filtered by date:', filteredByDate);
-//     // Implement your logic for filtered sales and total value calculation here
-//   };
-
-//   const handleToDateChange = (date) => {
-//     setToDate(date);
-//     const filteredByDate = searchByDate(state.sales, fromDate, date);
-//     console.log('Filtered by date:', filteredByDate);
-//     // Implement your logic for filtered sales and total value calculation here
-//   };
-
-//   const handleDateOptionChange = (e) => {
-//     const selectedOption = e.target.value;
-//     setSelectedDateOption(selectedOption);
-
-//     let startDate = new Date();
-//     let endDate = new Date();
-
-//     switch (selectedOption) {
-//       // Add cases for each date option
-//     }
-
-//     setFromDate(startDate); 
-//     setToDate(endDate);
-//   };
-
-//   // Function to render the selected date period
-//   const renderSelectedDatePeriod = () => {
-//     if (fromDate && toDate) {
-//       return `${formatDate(fromDate)} to ${formatDate(toDate)}`;
-//     } else if (fromDate) {
-//       return `From ${formatDate(fromDate)}`;
-//     } else if (toDate) {
-//       return `To ${formatDate(toDate)}`;
-//     } else {
-//       return 'All';
-//     }
-//   };
-
-//   // Helper function to format date
-//   const formatDate = (date) => {
-//     // Implement date formatting logic here
-//   };
-
-//   return (
-//     <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-//       <div className="mb-4">
-//         <label htmlFor="dateOption" className="text-lg mr-2">
-//           Dates
-//         </label>
-//         <select
-//           id="dateOption"
-//           value={selectedDateOption}
-//           onChange={handleDateOptionChange}
-//           className="border border-gray-300 rounded-md p-2 pl-4 mr-4"
-//           style={{ width: '150px' }}
-//         >
-//           {/* Options */}
-//         </select>
-//         <DatePicker
-//           selected={fromDate}
-//           onChange={handleFromDateChange}
-//           dateFormat="MM-dd-yyyy"
-//           placeholderText="From"
-//           className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer mr-4"
-//         />
-//         <DatePicker
-//           selected={toDate}
-//           onChange={handleToDateChange}
-//           dateFormat="MM-dd-yyyy"
-//           placeholderText="To"
-//           className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer mr-4"
-//         />
-//         <FaCalendar className="inline-block text-gray-400" />
-//       </div>
-//       <h2 className="text-2xl font-semibold mb-4">Profit and Loss Statement</h2>
-//       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-//         <div className="px-4 py-5 sm:px-6">
-//           <h3 className="text-lg font-semibold leading-6 text-gray-900">Financial Summary</h3>
-//         </div>
-//         <div className="border-t border-gray-200">
-//           <dl>
-//             <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-//               <dt className="text-sm font-medium text-gray-500">Revenue</dt>
-//               <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.revenue}</dd>
-//             </div>
-//             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-//               <dt className="text-sm font-medium text-gray-500">Cost of Goods Sold</dt>
-//               <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">-₦{profitAndLossData.costOfGoodsSold}</dd>
-//             </div>
-//             <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-//               <dt className="text-sm font-medium text-gray-500">Gross Profit</dt>
-//               <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.grossProfit}</dd>
-//             </div>
-//             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-//               <dt className="text-sm font-medium text-gray-500">Operating Expenses</dt>
-//               <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">-₦{profitAndLossData.operatingExpenses}</dd>
-//             </div>
-//             <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-//               <dt className="text-sm font-medium text-gray-500">Taxes</dt>
-//               <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">-₦{profitAndLossData.taxes}</dd>
-//             </div>
-//             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-//               <dt className="text-sm font-medium text-gray-500">Net Income</dt>
-//               <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.netIncome}</dd>
-//             </div>
-//           </dl>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProfitAndLoss;
-
-
-
-
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { useNavigate } from 'react-router-dom';
+
 // import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
-import { faChartLine, faShoppingCart, faCalendarAlt, faBox } from '@fortawesome/free-solid-svg-icons';
-import jsPDF from 'jspdf';
+
 import html2canvas from 'html2canvas';
-import SalesPageSidePanel from '../components/SalesPageSidePanel';
+
 import ReceiptModal from '../components/ReceiptModal';
-import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
-
-
-
-
 
 const ProfitAndLoss  = () => {
-  const { state, searchByKeyword, searchByDate,calculateTotalAmount, calculateTotalPaidAmount } = useMyContext();
+  const { state, searchByKeyword, searchByDate,calculateTotalPaidAmount } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
-  // const [filteredItems, setFilteredItems] = useState([]);
-  const [totalStoreValue, setTotalStoreValue] = useState(0);
-  const [allPagesContent, setAllPagesContent] = useState([]);
+  
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
-  const navigate = useNavigate();
+  
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [summaryData, setSummaryData] = useState(null); // State to hold summary data
-
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
   const totalItems = filteredSales.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
+  // const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
-  const [filteredExpenses, setFilteredExpenses] = useState([]);
+  // const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [totalExpenseAmount, setTotalExpenseAmount] = useState(0);
+  const [allPagesContent, setAllPagesContent] = useState([]);
+  const [totalStoreValue, setTotalStoreValue] = useState(0);
 
+  if (filteredExpenses || endIndex || allPagesContent || totalStoreValue) {
+    console.log("Variables are present and have been logged:", filteredExpenses, endIndex, allPagesContent, setTotalStoreValue);
+  } else {
+    console.log("Variables are not present or are falsy.");
+  }
+  
 
-
-// Call these functions wherever you need to use the total amount and total amount paid
-const totalTaxAmount = calculateTotalAmount();
 const totalTaxPaidAmount = calculateTotalPaidAmount();
+
 
 
 
@@ -271,13 +124,6 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
 
 
 
-
-  const generateSn = (index) => index + 1;
-
-  // const handleRowClick = (itemId) => {
-  //   navigate(`/product-details/${itemId}`);
-  // };
-
   const renderActionButtons = () => {
       // Function to handle printing of the table
       const saveAndPrintTable = () => {
@@ -312,45 +158,6 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
     );
   };
 
-//   useEffect(() => {
-//     const salesDataFromContext = state.sales || [];
-//     // console.log('Sales Data:', salesDataFromContext);
-//   }, [state.sales, state.products, state.productTotals, state.productTotalsMap]);
-
-  useEffect(() => {
-    const initialItems = state.sales || [];
-    setFilteredSales(initialItems);
-    const capturePagesContent = async () => {
-      const pagesContent = [];
-      const tableContainer = document.querySelector('.table-container');
-      const itemsPerPage = 20;
-
-      if (tableContainer) {
-        const totalItems = filteredSales.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-        for (let page = 1; page <= totalPages; page++) {
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
-
-          setFilteredSales(itemsToDisplay);
-          calculateTotalStoreValue(itemsToDisplay);
-
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          const canvas = await html2canvas(tableContainer);
-          pagesContent.push(canvas.toDataURL('image/png'));
-        }
-
-        setAllPagesContent(pagesContent);
-        setFilteredSales(initialItems);
-        calculateTotalStoreValue(initialItems);
-      }
-    };
-
-    capturePagesContent();
-  }, [state.products, state.productTotals, state.productTotalsMap]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
@@ -381,15 +188,7 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
     );
   };
 
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  };
+
 
 
   // Calculate total sales value on mount and when sales change
@@ -416,21 +215,7 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
   
 
 
-  const calculateTodaySales = () => {
-    const today = new Date().toLocaleDateString();
-
-    return state.sales
-      .filter((sale) => new Date(sale.date).toLocaleDateString() === today)
-      .reduce((total, sale) => total + sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0), 0);
-  };
-
-  const calculateTotalProductsSold = (sales) => {
-    const productNames = sales.flatMap(sale => sale.products.map(product => product.name));
-    const uniqueProductNames = [...new Set(productNames)];
-    return uniqueProductNames.length;
-  };
-
-  
+ 
 
 
   const handleCloseModal = () => {
@@ -517,22 +302,15 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
         break;
     }
 
+
+
+
     setFromDate(new Date(startDate)); // Use new Date object to avoid reference issues
     setToDate(new Date(endDate));
   };
   // Calculate total sales for each salesperson
-  const salesBySalesperson = filteredSales.reduce((acc, sale) => {
-    const { name } = sale.staff;
-    const totalSale = sale.products.reduce((total, product) => total + parseFloat(product.price), 0);
-    acc[name] = (acc[name] || 0) + totalSale;
-    return acc;
-  }, {});
-  // Calculate total sales for each payment method
-  const paymentMethods = filteredSales.reduce((acc, sale) => {
-    const { method } = sale.payment;
-    acc[method] = (acc[method] || 0) + sale.products.reduce((total, product) => total + parseFloat(product.price), 0);
-    return acc;
-  }, {});
+
+
   // Function to format date as MM-DD-YYYY
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });

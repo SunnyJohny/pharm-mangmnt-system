@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 import { faChartLine, faShoppingCart, faCalendarAlt, faBox } from '@fortawesome/free-solid-svg-icons';
-import jsPDF from 'jspdf';
+// import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ExpenseInvoiceModal from '../components/ExpenseInvoiceModal';
@@ -21,17 +21,17 @@ const ExpensePage = () => {
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
-  const [filteredItems, setFilteredItems] = useState([]);
+  // const [filteredItems, setFilteredItems] = useState([]);
   // const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [allPagesContent, setAllPagesContent] = useState([]);
   // const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [summaryData, setSummaryData] = useState(null); // State to hold summary data
+  // const [summaryData, setSummaryData] = useState(null); // State to hold summary data
 
   const totalItems = filteredExpenses.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -40,15 +40,7 @@ const ExpensePage = () => {
   const itemsToDisplay = filteredExpenses.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
 
-  // useEffect(() => {
-  //   const initialItems = state.expenses || [];
-  //   setFilteredExpenses(initialItems);
-  // }, [state.expenses]);
 
-  //   useEffect(() => {
-  //   const  expensesDataFromContext = state.expenses || [];
-  //   console.log(' expenses Data:',  expensesDataFromContext);
-  // }, [state.expenses, state.products, state.productTotals, state.productTotalsMap]);
 
   useEffect(() => {
     const filteredByDate = searchByDate(state.expenses, fromDate, toDate);
@@ -375,20 +367,8 @@ const ExpensePage = () => {
     setToDate(new Date(endDate));
   };
 
-  // Calculate total sales for each salesperson
-  // const salesBySalesperson = filteredSales.reduce((acc, sale) => {
-  //   const { name } = sale.staff;
-  //   const totalSale = sale.products.reduce((total, product) => total + parseFloat(product.price), 0);
-  //   acc[name] = (acc[name] || 0) + totalSale;
-  //   return acc;
-  // }, {});
-  // Calculate total sales for each payment method
-  // const paymentMethods = filteredSales.reduce((acc, sale) => {
-  //   const { method } = sale.payment;
-  //   acc[method] = (acc[method] || 0) + sale.products.reduce((total, product) => total + parseFloat(product.price), 0);
-  //   return acc;
-  // }, {});
-  // Function to format date as MM-DD-YYYY
+ 
+  
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
