@@ -43,10 +43,43 @@ const SalesPage = () => {
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   const [showSidePanel, setShowSidePanel] = useState(false);
 
+if(allPagesContent){
+  console.log(allPagesContent)
+}
+
+
+  const calculateTotalStoreValue = (items) => {
+    const calculatedTotalStoreValue = items.reduce(
+      (total, item) =>
+        total +
+        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+      0
+    );
+    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+    console.log(totalStoreValue)
+  };
   
-  if (totalStoreValue || allPagesContent) {
-    console.warn("totalStoreValue or allPagesContent is assigned a value but never used");
-  }
+  useEffect(() => {
+    calculateTotalSalesValue(filteredSales);
+  }, [filteredSales, setTotalSalesValue]);
+  
+  const calculateTotalSalesValue = (sales) => {
+    if (!sales || sales.length === 0) {
+      // setTotalSalesValue(0);
+      console.log('filteredsales empty')
+      return;
+    }
+  
+    const calculatedTotalSalesValue = sales.reduce((total, sale) => {
+      if (sale.products && Array.isArray(sale.products)) {
+        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
+      } else {
+        console.log('Undefined products array in sale:', sale);
+        return total;
+      }
+    }, 0);
+    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
+  };
   
 
   // Function to toggle side panel
@@ -69,23 +102,7 @@ const SalesPage = () => {
   }, [filteredSales, setTotalSalesValue]);
   
 
-  const calculateTotalSalesValue = (sales) => {
-    if (!sales || sales.length === 0) {
-      // setTotalSalesValue(0);
-      console.log('filteredsales empty')
-      return;
-    }
-
-    const calculatedTotalSalesValue = sales.reduce((total, sale) => {
-      if (sale.products && Array.isArray(sale.products)) {
-        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
-      } else {
-        console.log('Undefined products array in sale:', sale);
-        return total;
-      }
-    }, 0);
-    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
-  };
+ 
   const handleFromDateChange = (date) => {
     setFromDate(date);
     const filteredByDate = searchByDate(state.sales, date, fromDate);
@@ -226,15 +243,7 @@ const SalesPage = () => {
     );
   };
 
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  };
+ 
 
 
   // Calculate total sales value on mount and when sales change

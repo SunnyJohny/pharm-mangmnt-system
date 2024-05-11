@@ -127,6 +127,7 @@ const ExpensePage = () => {
       0
     );
     // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+    console.log(calculatedTotalStoreValue);
   };
 
 
@@ -172,7 +173,6 @@ const ExpensePage = () => {
   };
 
 
-
   useEffect(() => {
     const initialItems = state.expenses || [];
     setFilteredExpenses(initialItems);
@@ -180,31 +180,28 @@ const ExpensePage = () => {
       const pagesContent = [];
       const tableContainer = document.querySelector('.table-container');
       const itemsPerPage = 20;
-
+  
       if (tableContainer) {
-        const totalItems = filteredExpenses.length;
+        const totalItems = initialItems.length; // Using initialItems instead of filteredExpenses
         const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+  
         for (let page = 1; page <= totalPages; page++) {
           const startIndex = (page - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = filteredExpenses.slice(startIndex, endIndex);
-
-          setFilteredExpenses(itemsToDisplay);
-          calculateTotalStoreValue(itemsToDisplay);
-
+          const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
+  
+          calculateTotalStoreValue(itemsToDisplay); // Moved the function call here
+  
           await new Promise((resolve) => setTimeout(resolve, 500));
-
+  
           const canvas = await html2canvas(tableContainer);
           pagesContent.push(canvas.toDataURL('image/png'));
         }
-
+  
         setAllPagesContent(pagesContent);
-        setFilteredExpenses(initialItems);
-        calculateTotalStoreValue(initialItems);
       }
     };
-
+  
     capturePagesContent();
   }, [state.expenses, state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue,filteredExpenses]);
 
@@ -240,51 +237,6 @@ const ExpensePage = () => {
  
 
 
-  // Calculate total sales value on mount and when sales change
-  // useEffect(() => {
-  //   calculateTotalSalesValue();
-  // }, [filteredSales]);
-
-
-
-  // const calculateTotalCOGS = () => {
-  //   if (!filteredExpenses || filteredExpenses.length === 0) {
-  //     return 0;
-  //   }
-
-  //   // const totalCOGS = filteredSales.reduce((total, sale) => {
-  //   //   return total + (sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0) / 2);
-  //   // }, 0);
-
-  //   return totalCOGS.toFixed(2);
-  // };
-
-
-  // const calculateTodaySales = () => {
-  //   const today = new Date().toLocaleDateString();
-
-  //   return state.sales
-  //     .filter((sale) => new Date(sale.date).toLocaleDateString() === today)
-  //     .reduce((total, sale) => total + sale.products.reduce((acc, product) => acc + parseFloat(product.price), 0), 0);
-  // };
-
-  // const calculateTotalProductsSold = (sales) => {
-  //   const productNames = sales.flatMap(sale => sale.products.map(product => product.name));
-  //   const uniqueProductNames = [...new Set(productNames)];
-  //   return uniqueProductNames.length;
-  // };
-
-  // const handleRowClick = (sale) => {
-  //   console.log('Clicked on row with ID:', sale.id); // Log the ID to the console
-  //   setShowModal(true);
-  //   setSelectedSale(sale);
-  // };
-
-
-  // const handleCloseModal = () => {
-  //   setShowModal(false);
-  //   setSelectedSale(null);
-  // };
 
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;

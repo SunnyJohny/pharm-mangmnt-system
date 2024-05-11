@@ -214,7 +214,7 @@ const ProfitAndLoss = () => {
   // Calculate total sales value on mount and when sales change
   useEffect(() => {
     calculateTotalSalesValue();
-  }, [filteredSales]);
+  }, [filteredSales,calculateTotalSalesValue]);
 
 
 

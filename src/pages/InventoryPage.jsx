@@ -14,7 +14,7 @@ import InventorySidePanel from '../components/InventorySidePanel';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
-import { useEffect, useRef, useState, } from 'react';
+import { useCallback, useEffect, useRef, useState, } from 'react';
 import EditPopup from '../components/EditPopup';
 import Footer from '../components/Footer';
 
@@ -35,11 +35,20 @@ const InventoryPage = () => {
   const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for editing
   const navigate = useNavigate();
   const tableRef = useRef(null);
+  const calculateTotalStoreValue = useCallback((items) => {
+    const calculatedTotalStoreValue = items.reduce(
+      (total, item) =>
+        total +
+        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+      0
+    );
+    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+  }, [state.productTotals, state.productTotalsMap]);
 
   useEffect(() => {
     const initialItems = state.products || [];
     setFilteredItems(initialItems);
-
+  
     if (initialItems.length > 0) {
       const datesMap = {};
       initialItems.forEach((product) => {
@@ -57,10 +66,10 @@ const InventoryPage = () => {
       });
       setFirstRestockDates(datesMap);
     }
-
+  
     calculateTotalStoreValue(initialItems);
-  }, [state.products, state.productTotals, state.productTotalsMap]);
-
+  }, [state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue]);
+  
   const searchItems = (e) => {
     let searchText = '';
 
@@ -265,15 +274,7 @@ const InventoryPage = () => {
 
 
 
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  };
+  
   const handleEditClick = (itemId, e) => {
     // Prevent propagation to avoid triggering row click
     e.stopPropagation();
