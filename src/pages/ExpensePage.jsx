@@ -82,7 +82,7 @@ const ExpensePage = () => {
         for (let page = 1; page <= totalPages; page++) {
           const startIndex = (page - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
+          // const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
   
   
           await new Promise((resolve) => setTimeout(resolve, 500));
@@ -187,37 +187,37 @@ const ExpensePage = () => {
   };
 
 
-  useEffect(() => {
-    const initialItems = state.expenses || [];
-    setFilteredExpenses(initialItems);
-    const capturePagesContent = async () => {
-      const pagesContent = [];
-      const tableContainer = document.querySelector('.table-container');
-      const itemsPerPage = 20;
+  // useEffect(() => {
+  //   const initialItems = state.expenses || [];
+  //   setFilteredExpenses(initialItems);
+  //   const capturePagesContent = async () => {
+  //     const pagesContent = [];
+  //     const tableContainer = document.querySelector('.table-container');
+  //     const itemsPerPage = 20;
   
-      if (tableContainer) {
-        const totalItems = initialItems.length; // Using initialItems instead of filteredExpenses
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
+  //     if (tableContainer) {
+  //       const totalItems = initialItems.length; // Using initialItems instead of filteredExpenses
+  //       const totalPages = Math.ceil(totalItems / itemsPerPage);
   
-        for (let page = 1; page <= totalPages; page++) {
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
+  //       for (let page = 1; page <= totalPages; page++) {
+  //         const startIndex = (page - 1) * itemsPerPage;
+  //         const endIndex = startIndex + itemsPerPage;
+  //         const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
   
-          // /(itemsToDisplay); // Moved the function call here
+  //         // /(itemsToDisplay); // Moved the function call here
   
-          await new Promise((resolve) => setTimeout(resolve, 500));
+  //         await new Promise((resolve) => setTimeout(resolve, 500));
   
-          const canvas = await html2canvas(tableContainer);
-          pagesContent.push(canvas.toDataURL('image/png'));
-        }
+  //         const canvas = await html2canvas(tableContainer);
+  //         pagesContent.push(canvas.toDataURL('image/png'));
+  //       }
   
-        setAllPagesContent(pagesContent);
-      }
-    };
+  //       setAllPagesContent(pagesContent);
+  //     }
+  //   };
   
-    capturePagesContent();
-  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap,filteredExpenses]);
+  //   capturePagesContent();
+  // }, [state.expenses, state.products, state.productTotals, state.productTotalsMap,filteredExpenses]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
