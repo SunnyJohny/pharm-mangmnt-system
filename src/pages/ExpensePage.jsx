@@ -80,7 +80,7 @@ const ExpensePage = () => {
         const totalPages = Math.ceil(totalItems / itemsPerPage);
   
         for (let page = 1; page <= totalPages; page++) {
-          const startIndex = (page - 1) * itemsPerPage;
+          // const startIndex = (page - 1) * itemsPerPage;
           // const endIndex = startIndex + itemsPerPage;
           // const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
   
