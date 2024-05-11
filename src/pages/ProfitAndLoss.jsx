@@ -13,15 +13,15 @@ import { useMyContext } from '../Context/MyContext';
 
 import ReceiptModal from '../components/ReceiptModal';
 
-const ProfitAndLoss  = () => {
-  const { state, searchByKeyword, searchByDate,calculateTotalPaidAmount } = useMyContext();
+const ProfitAndLoss = () => {
+  const { state, searchByKeyword, searchByDate, calculateTotalPaidAmount } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
-  
+
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
-  
+
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
@@ -40,13 +40,13 @@ const ProfitAndLoss  = () => {
   const [totalStoreValue, setTotalStoreValue] = useState(0);
 
   if (filteredExpenses || endIndex || allPagesContent || totalStoreValue) {
-    console.log("Variables are present and have been logged:",setAllPagesContent, filteredExpenses, endIndex, allPagesContent, setTotalStoreValue);
+    console.log("Variables are present and have been logged:", setAllPagesContent, filteredExpenses, endIndex, allPagesContent, setTotalStoreValue);
   } else {
     console.log("Variables are not present or are falsy.");
   }
-  
 
-const totalTaxPaidAmount = calculateTotalPaidAmount();
+
+  const totalTaxPaidAmount = calculateTotalPaidAmount();
 
 
 
@@ -74,9 +74,23 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
   }, [state.sales, searchByKeyword, searchKeyword]);
 
   useEffect(() => {
-    calculateTotalSalesValue(filteredSales);
-  }, [filteredSales]);
+    const filteredByDate = searchByDate(state.sales, fromDate, toDate);
+    setFilteredSales(filteredByDate);
+  }, [state.sales, searchByDate, fromDate, toDate]);
 
+  useEffect(() => {
+    const filteredByKeyword = searchByKeyword(state.sales, searchKeyword);
+    setFilteredSales(filteredByKeyword);
+  }, [state.sales, searchByKeyword, searchKeyword]);
+
+  useEffect(() => {
+    calculateTotalSalesValue(filteredSales);
+  }, [filteredSales, calculateTotalSalesValue]);
+
+  useEffect(() => {
+    const totalTaxPaidAmount = calculateTotalPaidAmount();
+    // Do something with totalTaxPaidAmount...
+  }, [calculateTotalPaidAmount]);
   const calculateTotalSalesValue = (sales) => {
     if (!sales || sales.length === 0) {
       // setTotalSalesValue(0);
@@ -86,7 +100,7 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
 
     const calculatedTotalSalesValue = sales.reduce((total, sale) => {
       if (sale.products && Array.isArray(sale.products)) {
-        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount|| 0), 0);
+        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
       } else {
         console.log('Undefined products array in sale:', sale);
         return total;
@@ -110,13 +124,13 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
     calculateTotalSalesValue(filteredByDate);
   };
 
-//   useEffect(() => {
-//     console.log('Filtered sales:', filteredSales);
-//   }, [filteredSales]);
+  //   useEffect(() => {
+  //     console.log('Filtered sales:', filteredSales);
+  //   }, [filteredSales]);
 
-//   useEffect(() => {
-//     console.log('Total sales value:', totalSalesValue);
-//   }, [totalSalesValue]);
+  //   useEffect(() => {
+  //     console.log('Total sales value:', totalSalesValue);
+  //   }, [totalSalesValue]);
   // useEffect(() => {
   //   // Fetch and calculate summary data
   //   fetchSummaryData();
@@ -125,32 +139,32 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
 
 
   const renderActionButtons = () => {
-      // Function to handle printing of the table
-      const saveAndPrintTable = () => {
-        const table = document.getElementById('sales-table');
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write('<html><head><title>Sales Table</title>');
-        // Add custom CSS for printing
-        printWindow.document.write('<style>');
-        printWindow.document.write('@media print {');
-        printWindow.document.write('.text-center { text-align: center; }');
-        printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
-        printWindow.document.write('.table-print { border-collapse: collapse; }');
-        printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
-        printWindow.document.write('}');
-        printWindow.document.write('</style>');
-        printWindow.document.write('</head><body>');
-        // printWindow.document.write('<div class="text-center mb-4">');
-        // printWindow.document.write('<h2 class="text-2xl font-bold underline">Sales Report</h2>');
-        // printWindow.document.write(`<p><strong>Selected Date Period:</strong> ${renderSelectedDatePeriod()}</p>`);
-        // printWindow.document.write(`<p>Report Printed On: ${getCurrentDate()}</p>`);
-        // printWindow.document.write('</div>');
-        printWindow.document.write(table.outerHTML);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
-        printWindow.close();
-      };
+    // Function to handle printing of the table
+    const saveAndPrintTable = () => {
+      const table = document.getElementById('sales-table');
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write('<html><head><title>Sales Table</title>');
+      // Add custom CSS for printing
+      printWindow.document.write('<style>');
+      printWindow.document.write('@media print {');
+      printWindow.document.write('.text-center { text-align: center; }');
+      printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
+      printWindow.document.write('.table-print { border-collapse: collapse; }');
+      printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
+      printWindow.document.write('}');
+      printWindow.document.write('</style>');
+      printWindow.document.write('</head><body>');
+      // printWindow.document.write('<div class="text-center mb-4">');
+      // printWindow.document.write('<h2 class="text-2xl font-bold underline">Sales Report</h2>');
+      // printWindow.document.write(`<p><strong>Selected Date Period:</strong> ${renderSelectedDatePeriod()}</p>`);
+      // printWindow.document.write(`<p>Report Printed On: ${getCurrentDate()}</p>`);
+      // printWindow.document.write('</div>');
+      printWindow.document.write(table.outerHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
+    };
     return (
       <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
         Print Sales
@@ -198,24 +212,25 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
 
 
 
+
   const calculateTotalCOGS = () => {
     if (!filteredSales || filteredSales.length === 0) {
       return 0;
     }
-  
+
     const totalCOGS = filteredSales.reduce((total, sale) => {
       return total + sale.products.reduce((acc, product) => {
         const costPrice = parseFloat(product.costPrice);
         return isNaN(costPrice) ? acc : acc + costPrice;
       }, 0);
     }, 0);
-  
+
     return totalCOGS.toFixed(2);
   };
-  
 
 
- 
+
+
 
 
   const handleCloseModal = () => {
@@ -337,19 +352,19 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
   const profitAndLossData = {
     revenue: totalSalesValue,
     costOfGoodsSold: `${calculateTotalCOGS()}`,
-    grossProfit: totalSalesValue-`${calculateTotalCOGS()}`,
+    grossProfit: totalSalesValue - `${calculateTotalCOGS()}`,
     operatingExpenses: totalExpenseAmount,
     taxes: totalTaxPaidAmount,
-    netIncome: totalSalesValue-`${calculateTotalCOGS()}`-totalExpenseAmount, // Adjusted net income after taxes
+    netIncome: totalSalesValue - `${calculateTotalCOGS()}` - totalExpenseAmount, // Adjusted net income after taxes
   };
 
   return (
     <div className="container mx-auto flex h-screen">
-    
+
 
 
       <div className="ml-8 flex-1">
-        
+
 
         {showModal && selectedSale && (
           <ReceiptModal saleInfo={selectedSale} onClose={handleCloseModal} />
@@ -448,39 +463,40 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
             </div>
 
             <h2 className="text-2xl font-semibold mb-4"></h2>
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg font-semibold leading-6 text-gray-900">Financial Summary</h3>
-        </div>
-        <div className="border-t border-gray-200">
-          <dl>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Revenue</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.revenue}</dd>
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-lg font-semibold leading-6 text-gray-900">Financial Summary</h3>
+              </div>
+              <div className="border-t border-gray-200">
+                <dl>
+                  <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Revenue">
+                    <dt className="text-sm font-medium text-gray-500">Revenue</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.revenue}</dd>
+                  </div>
+                  <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Cost of Goods Sold">
+                    <dt className="text-sm font-medium text-gray-500">Cost of Goods Sold</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.costOfGoodsSold}</dd>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Gross Profit">
+                    <dt className="text-sm font-medium text-gray-500">Gross Profit</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.grossProfit}</dd>
+                  </div>
+                  <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Operating Expenses">
+                    <dt className="text-sm font-medium text-gray-500">Operating Expenses</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.operatingExpenses}</dd>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Taxes">
+                    <dt className="text-sm font-medium text-gray-500">Taxes</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.taxes}</dd>
+                  </div>
+                  <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Net Income">
+                    <dt className="text-sm font-medium text-gray-500">Net Income</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.netIncome}</dd>
+                  </div>
+
+                </dl>
+              </div>
             </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Cost of Goods Sold</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.costOfGoodsSold}</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Gross Profit</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.grossProfit}</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Operating Expenses</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.operatingExpenses}</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Taxes</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.taxes}</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Net Income</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.netIncome}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
           </div>
 
           <div className="flex justify-between mt-4">
@@ -493,4 +509,4 @@ const totalTaxPaidAmount = calculateTotalPaidAmount();
 };
 
 
-export default ProfitAndLoss ;
+export default ProfitAndLoss;

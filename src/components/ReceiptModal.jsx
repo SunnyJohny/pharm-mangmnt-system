@@ -19,8 +19,8 @@ const ReceiptModal = ({ saleInfo, onClose, user }) => {
   const {
     id,
     date,
-    saleId,
-    customer,
+    // saleId,
+    // customer,
     payment,
     staff,
     products,

@@ -66,7 +66,8 @@ const SalesPage = () => {
 
   useEffect(() => {
     calculateTotalSalesValue(filteredSales);
-  }, [filteredSales]);
+  }, [filteredSales, setTotalSalesValue]);
+  
 
   const calculateTotalSalesValue = (sales) => {
     if (!sales || sales.length === 0) {

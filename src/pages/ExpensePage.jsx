@@ -198,7 +198,7 @@ const ExpensePage = () => {
     };
 
     capturePagesContent();
-  }, [state.products, state.productTotals, state.productTotalsMap]);
+  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {

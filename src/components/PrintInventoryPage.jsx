@@ -17,56 +17,6 @@ const PrintInventoryPage = () => {
   const location = useLocation();
 
 
-  console.log(setFirstRestockDates)
-  useEffect(() => {
-    const { itemsToDisplay: initialItemsToDisplay } = location.state;
-
-    setFilteredItems(initialItemsToDisplay);
-    calculateTotalStoreValue(initialItemsToDisplay);
-
-   const capturePagesContent = async () => {
-  const pagesContent = [];
-  const tableContainer = document.querySelector('.table-container');
-  const itemsPerPage = 25; // Adjust the number of items per page as needed
-  
-  if (tableContainer) {
-    const totalItems = initialItemsToDisplay.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-    for (let page = 1; page <= totalPages; page++) {
-      const startIndex = (page - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const itemsToDisplay = initialItemsToDisplay.slice(startIndex, endIndex);
-
-      // Update filteredItems for the current page
-      setFilteredItems(itemsToDisplay);
-      
-      // Calculate total store value for the current page
-      calculateTotalStoreValue(itemsToDisplay);
-
-      // Wait for the container to render content
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Capture the content of the table container for the current page
-      const canvas = await html2canvas(tableContainer);
-      pagesContent.push(canvas.toDataURL('image/png'));
-    }
-
-    // Set all pages content
-    setAllPagesContent(pagesContent);
-
-    // Restore original filteredItems
-    setFilteredItems(initialItemsToDisplay);
-    
-    // Calculate total store value for all items
-    calculateTotalStoreValue(initialItemsToDisplay);
-  }
-};
-
-
-    capturePagesContent();
-  }, [location.state, state.products, state.productTotals, state.productTotalsMap,calculateTotalStoreValue]);
-
   const calculateTotalStoreValue = (items) => {
     const calculatedTotalStoreValue = items.reduce(
       (total, item) =>
@@ -77,6 +27,55 @@ const PrintInventoryPage = () => {
     setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
   };
 
+
+  console.log(setFirstRestockDates,calculateTotalStoreValue)
+  useEffect(() => {
+    const capturePagesContent = async () => {
+      const { itemsToDisplay: initialItemsToDisplay } = location.state;
+      setFilteredItems(initialItemsToDisplay);
+  
+      const calculateTotalStoreValue = (items) => {
+        const calculatedTotalStoreValue = items.reduce(
+          (total, item) =>
+            total +
+            item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+          0
+        );
+        setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+      };
+  
+      const itemsPerPage = 25;
+      const tableContainer = document.querySelector('.table-container');
+      const pagesContent = [];
+  
+      if (tableContainer) {
+        const totalItems = initialItemsToDisplay.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+        for (let page = 1; page <= totalPages; page++) {
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const itemsToDisplay = initialItemsToDisplay.slice(startIndex, endIndex);
+  
+          setFilteredItems(itemsToDisplay);
+          calculateTotalStoreValue(itemsToDisplay);
+  
+          await new Promise((resolve) => setTimeout(resolve, 500));
+  
+          const canvas = await html2canvas(tableContainer);
+          pagesContent.push(canvas.toDataURL('image/png'));
+        }
+  
+        setAllPagesContent(pagesContent);
+        setFilteredItems(initialItemsToDisplay);
+        calculateTotalStoreValue(initialItemsToDisplay);
+      }
+    };
+  
+    capturePagesContent();
+  }, [location.state, state.productTotals, state.productTotalsMap]);
+  
+  
   const generateSn = (index) => index + 1;
 
   const handleRowClick = (itemId) => {
