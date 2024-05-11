@@ -46,70 +46,7 @@ export default function Header() {
   </div>
 </div>
 
-        {/* Mobile Menu Button
-        <div className="lg:hidden">
-          <button
-            className="text-gray-500"
-            onClick={toggleDrawer}
-          >
-            ☰
-          </button>
-        </div> */}
-
-        {/* Navigation Links - Desktop
-        <div className="hidden lg:flex">
-          <ul className="flex space-x-10">
-            <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/") && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/")}
-            >
-              Home
-            </li>
-            <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/offers") && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/offers")}
-            >
-              Inventory Page
-            </li>
-            <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/blog") && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/blog")}
-            >
-              Sales Report
-            </li>
-            <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/contact") && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/contact-page")}
-            >
-             Products  Page
-            </li>
-            <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px] border-b-transparent ${pathMatchRoute("/offers") && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/offers")}
-            >
-              Properties
-            </li>
-            <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 ${(pathMatchRoute("/sign-in") || pathMatchRoute("/profile")) && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/profile")}
-            >
-              {pageState}
-            </li>
-            {/* New Links for Services and Career */}
-            {/* <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 ${pathMatchRoute("/services") && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/services")}
-            >
-              Services
-            </li>
-            <li
-              className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 ${pathMatchRoute("/career") && "text-black border-b-red-500"}`}
-              onClick={() => navigate("/career")}
-            >
-              Career
-            </li>
-          </ul>
-        </div> */} 
+   
        <DateTimeDisplay />
 
         {/* Drawer Navigation - Mobile */}
