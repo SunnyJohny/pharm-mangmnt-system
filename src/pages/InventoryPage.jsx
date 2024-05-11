@@ -132,7 +132,7 @@ const InventoryPage = () => {
         pdf.addImage(imgData, 'PNG', 10, 10);
 
         // Save the content of the first page
-        const firstPageContent = imgData;
+        // const firstPageContent = imgData;
 
         // If there are more pages, capture and append their content
         if (allPagesContent.length > 0) {
@@ -224,7 +224,7 @@ const InventoryPage = () => {
 
     // Call the async function
     capturePagesContent();
-  }, [state.products, state.productTotals, state.productTotalsMap]);
+  }, [state.products, state.productTotals, state.productTotalsMap,calculateTotalStoreValue,filteredItems]);
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
       setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));

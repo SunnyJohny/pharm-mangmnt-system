@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,17 +15,23 @@ const PrintInventoryPage = () => {
   const [allPagesContent, setAllPagesContent] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+  
 
 
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
+  const calculateTotalStoreValue = useCallback((filteredItems) => {
+    const calculatedTotalStoreValue = filteredItems.reduce(
       (total, item) =>
         total +
         item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
       0
     );
     setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  };
+  }, [state.productTotals, state.productTotalsMap]); // Dependency array including the variables used inside the function
+
+  useEffect(() => {
+    calculateTotalStoreValue(filteredItems);
+  }, [filteredItems, calculateTotalStoreValue]); // Dependency array including the function itself and the 'items' variable
+
 
 
   console.log(setFirstRestockDates,calculateTotalStoreValue)
@@ -73,7 +79,7 @@ const PrintInventoryPage = () => {
     };
   
     capturePagesContent();
-  }, [location.state, state.productTotals, state.productTotalsMap]);
+  }, [location.state, state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue]);
   
   
   const generateSn = (index) => index + 1;

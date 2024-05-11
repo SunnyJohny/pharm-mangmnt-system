@@ -48,8 +48,29 @@ const ProfitAndLoss = () => {
 
   const totalTaxPaidAmount = calculateTotalPaidAmount();
 
+  
+  const calculateTotalSalesValue = useCallback((sales) => {
+    if (!sales || sales.length === 0) {
+      console.log('filteredsales empty');
+      return;
+    }
 
+    const calculatedTotalSalesValue = sales.reduce((total, sale) => {
+      if (sale.products && Array.isArray(sale.products)) {
+        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
+      } else {
+        console.log('Undefined products array in sale:', sale);
+        return total;
+      }
+    }, 0);
+    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
+  }, []); // Empty dependency array since the function doesn't depend on any external variables
 
+  // Other code...
+
+  useEffect(() => {
+    calculateTotalSalesValue(filteredSales);
+  }, [filteredSales, calculateTotalSalesValue]);
 
 
   useEffect(() => {
@@ -87,27 +108,11 @@ const ProfitAndLoss = () => {
     calculateTotalSalesValue(filteredSales);
   }, [filteredSales, calculateTotalSalesValue]);
 
-  useEffect(() => {
-    const totalTaxPaidAmount = calculateTotalPaidAmount();
-    // Do something with totalTaxPaidAmount...
-  }, [calculateTotalPaidAmount]);
-  const calculateTotalSalesValue = (sales) => {
-    if (!sales || sales.length === 0) {
-      // setTotalSalesValue(0);
-      console.log('filteredsales empty')
-      return;
-    }
-
-    const calculatedTotalSalesValue = sales.reduce((total, sale) => {
-      if (sale.products && Array.isArray(sale.products)) {
-        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
-      } else {
-        console.log('Undefined products array in sale:', sale);
-        return total;
-      }
-    }, 0);
-    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
-  };
+  // useEffect(() => {
+  //   const totalTaxPaidAmount = calculateTotalPaidAmount();
+  //   // Do something with totalTaxPaidAmount...
+  // }, [calculateTotalPaidAmount]);
+  
   const handleFromDateChange = (date) => {
     setFromDate(date);
     const filteredByDate = searchByDate(state.sales, date, fromDate);

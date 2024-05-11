@@ -157,10 +157,10 @@ const SalesPage = () => {
     );
   };
 
-  useEffect(() => {
-    const salesDataFromContext = state.sales || [];
-    // console.log('Sales Data:', salesDataFromContext);
-  }, [state.sales, state.products, state.productTotals, state.productTotalsMap]);
+  // useEffect(() => {
+  //   const salesDataFromContext = state.sales || [];
+  //   // console.log('Sales Data:', salesDataFromContext);
+  // }, [state.sales, state.products, state.productTotals, state.productTotalsMap]);
 
   useEffect(() => {
     const initialItems = state.sales || [];
@@ -195,7 +195,7 @@ const SalesPage = () => {
     };
 
     capturePagesContent();
-  }, [state.products, state.productTotals, state.productTotalsMap]);
+  }, [state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue, filteredSales, state.sales]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {

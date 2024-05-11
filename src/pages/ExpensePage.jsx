@@ -119,7 +119,15 @@ const ExpensePage = () => {
   //   // Fetch and calculate summary data
   //   fetchSummaryData();
   // }, []);
-
+  const calculateTotalStoreValue = (items) => {
+    const calculatedTotalStoreValue = items.reduce(
+      (total, item) =>
+        total +
+        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+      0
+    );
+    // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+  };
 
 
 
@@ -198,7 +206,7 @@ const ExpensePage = () => {
     };
 
     capturePagesContent();
-  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue]);
+  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue,filteredExpenses]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
@@ -229,15 +237,7 @@ const ExpensePage = () => {
     );
   };
 
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  };
+ 
 
 
   // Calculate total sales value on mount and when sales change
