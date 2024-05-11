@@ -55,16 +55,18 @@ const ExpensePage = () => {
   }, [state.expenses, searchByKeyword, searchKeyword]);
 
   useEffect(() => {
-    const calculateTotalStoreValue = (items) => {
-      const calculatedTotalStoreValue = items.reduce(
-        (total, item) =>
-          total +
-          item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-        0
-      );
-      // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-      console.log(calculatedTotalStoreValue);
-    };
+    // cons = (items) => {
+    //   const calculatedTotalStoreValue = items.reduce(
+    //     (total, item) =>
+    //       total +
+    //       item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+    //     0
+    //   );
+    //   // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+    //   console.log(calculatedTotalStoreValue);
+    // };
+  //  (itemsToDisplay);// Moved the function call here
+
   
     const initialItems = state.expenses || [];
     setFilteredExpenses(initialItems);
@@ -82,7 +84,6 @@ const ExpensePage = () => {
           const endIndex = startIndex + itemsPerPage;
           const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
   
-          calculateTotalStoreValue(itemsToDisplay); // Moved the function call here
   
           await new Promise((resolve) => setTimeout(resolve, 500));
   
@@ -203,7 +204,7 @@ const ExpensePage = () => {
           const endIndex = startIndex + itemsPerPage;
           const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
   
-          calculateTotalStoreValue(itemsToDisplay); // Moved the function call here
+          // /(itemsToDisplay); // Moved the function call here
   
           await new Promise((resolve) => setTimeout(resolve, 500));
   
@@ -216,7 +217,7 @@ const ExpensePage = () => {
     };
   
     capturePagesContent();
-  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue,filteredExpenses]);
+  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap,filteredExpenses]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {

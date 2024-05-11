@@ -30,7 +30,7 @@ const SalesPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
-  const [totalStoreValue, setTotalStoreValue] = useState(0);
+  // const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [allPagesContent, setAllPagesContent] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   // const [summaryData, setSummaryData] = useState(null); // State to hold summary data
@@ -82,19 +82,19 @@ if(allPagesContent){
   
           setFilteredSales(itemsToDisplay);
           
-          // Moved calculateTotalStoreValue here
-          const calculateTotalStoreValue = (items) => {
-            const calculatedTotalStoreValue = items.reduce(
-              (total, item) =>
-                total +
-                item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-              0
-            );
-            setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-            console.log(totalStoreValue);
-          };
+          // // Moved calculateTotalStoreValue here
+          // const calculateTotalStoreValue = (items) => {
+          //   const calculatedTotalStoreValue = items.reduce(
+          //     (total, item) =>
+          //       total +
+          //       item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+          //     0
+          //   );
+          //   setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+          //   console.log(totalStoreValue);
+          // };
   
-          calculateTotalStoreValue(itemsToDisplay);
+          // calculateTotalStoreValue(itemsToDisplay);
   
           await new Promise((resolve) => setTimeout(resolve, 500));
   
@@ -105,14 +105,14 @@ if(allPagesContent){
         setAllPagesContent(pagesContent);
         setFilteredSales(initialItems);
         // Moved calculateTotalStoreValue here as well
-        calculateTotalStoreValue(initialItems);
+        // calculateTotalStoreValue(initialItems);
       }
     };
   
     capturePagesContent();
   
   
-  }, [state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue, filteredSales, state.sales]);
+  }, [state.products, state.productTotals, state.productTotalsMap,  filteredSales, state.sales]);
   
   useEffect(() => {
     calculateTotalSalesValue(filteredSales);
