@@ -54,27 +54,49 @@ const ExpensePage = () => {
     setFilteredExpenses(filteredByKeyword);
   }, [state.expenses, searchByKeyword, searchKeyword]);
 
-  // useEffect(() => {
-  //   calculateTotalSalesValue(filteredSales);
-  // }, [filteredSales]);
-
-  // const calculateTotalSalesValue = (sales) => {
-  //   if (!sales || sales.length === 0) {
-  //     // setTotalSalesValue(0);
-  //     console.log('filteredsales empty')
-  //     return;
-  //   }
-
-  //   const calculatedTotalSalesValue = sales.reduce((total, sale) => {
-  //     if (sale.products && Array.isArray(sale.products)) {
-  //       return total + sale.products.reduce((acc, product) => acc + parseFloat(product.price || 0), 0);
-  //     } else {
-  //       console.log('Undefined products array in sale:', sale);
-  //       return total;
-  //     }
-  //   }, 0);
-  //   setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
-  // };
+  useEffect(() => {
+    const calculateTotalStoreValue = (items) => {
+      const calculatedTotalStoreValue = items.reduce(
+        (total, item) =>
+          total +
+          item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+        0
+      );
+      // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+      console.log(calculatedTotalStoreValue);
+    };
+  
+    const initialItems = state.expenses || [];
+    setFilteredExpenses(initialItems);
+    const capturePagesContent = async () => {
+      const pagesContent = [];
+      const tableContainer = document.querySelector('.table-container');
+      const itemsPerPage = 20;
+  
+      if (tableContainer) {
+        const totalItems = initialItems.length; // Using initialItems instead of filteredExpenses
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+        for (let page = 1; page <= totalPages; page++) {
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
+  
+          calculateTotalStoreValue(itemsToDisplay); // Moved the function call here
+  
+          await new Promise((resolve) => setTimeout(resolve, 500));
+  
+          const canvas = await html2canvas(tableContainer);
+          pagesContent.push(canvas.toDataURL('image/png'));
+        }
+  
+        setAllPagesContent(pagesContent);
+      }
+    };
+  
+    capturePagesContent();
+  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap, filteredExpenses]);
+  
 
 
    // Function to handle clicking on an expense row to open the modal
@@ -119,16 +141,7 @@ const ExpensePage = () => {
   //   // Fetch and calculate summary data
   //   fetchSummaryData();
   // }, []);
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-    console.log(calculatedTotalStoreValue);
-  };
+  
 
 
 

@@ -468,7 +468,7 @@ const ProfitAndLoss = () => {
               <p>Report Printed On: {getCurrentDate()}</p>
             </div>
 
-            <h2 className="text-2xl font-semibold mb-4"></h2>
+          
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6">
                 <h3 className="text-lg font-semibold leading-6 text-gray-900">Financial Summary</h3>

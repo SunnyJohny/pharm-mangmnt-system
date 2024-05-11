@@ -48,16 +48,71 @@ if(allPagesContent){
 }
 
 
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-    console.log(totalStoreValue)
-  };
+  // const calculateTotalStoreValue = (items) => {
+  //   const calculatedTotalStoreValue = items.reduce(
+  //     (total, item) =>
+  //       total +
+  //       item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+  //     0
+  //   );
+  //   setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+  //   console.log(totalStoreValue)
+  // };
+
+
+
+  
+  useEffect(() => {
+    const initialItems = state.sales || [];
+    setFilteredSales(initialItems);
+  
+    const capturePagesContent = async () => {
+      const pagesContent = [];
+      const tableContainer = document.querySelector('.table-container');
+      const itemsPerPage = 20;
+  
+      if (tableContainer) {
+        const totalItems = initialItems.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+        for (let page = 1; page <= totalPages; page++) {
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const itemsToDisplay = initialItems.slice(startIndex, endIndex);
+  
+          setFilteredSales(itemsToDisplay);
+          
+          // Moved calculateTotalStoreValue here
+          const calculateTotalStoreValue = (items) => {
+            const calculatedTotalStoreValue = items.reduce(
+              (total, item) =>
+                total +
+                item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+              0
+            );
+            setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+            console.log(totalStoreValue);
+          };
+  
+          calculateTotalStoreValue(itemsToDisplay);
+  
+          await new Promise((resolve) => setTimeout(resolve, 500));
+  
+          const canvas = await html2canvas(tableContainer);
+          pagesContent.push(canvas.toDataURL('image/png'));
+        }
+  
+        setAllPagesContent(pagesContent);
+        setFilteredSales(initialItems);
+        // Moved calculateTotalStoreValue here as well
+        calculateTotalStoreValue(initialItems);
+      }
+    };
+  
+    capturePagesContent();
+  
+  
+  }, [state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue, filteredSales, state.sales]);
   
   useEffect(() => {
     calculateTotalSalesValue(filteredSales);
@@ -179,40 +234,6 @@ if(allPagesContent){
   //   // console.log('Sales Data:', salesDataFromContext);
   // }, [state.sales, state.products, state.productTotals, state.productTotalsMap]);
 
-  useEffect(() => {
-    const initialItems = state.sales || [];
-    setFilteredSales(initialItems);
-    const capturePagesContent = async () => {
-      const pagesContent = [];
-      const tableContainer = document.querySelector('.table-container');
-      const itemsPerPage = 20;
-
-      if (tableContainer) {
-        const totalItems = filteredSales.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-        for (let page = 1; page <= totalPages; page++) {
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
-
-          setFilteredSales(itemsToDisplay);
-          calculateTotalStoreValue(itemsToDisplay);
-
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          const canvas = await html2canvas(tableContainer);
-          pagesContent.push(canvas.toDataURL('image/png'));
-        }
-
-        setAllPagesContent(pagesContent);
-        setFilteredSales(initialItems);
-        calculateTotalStoreValue(initialItems);
-      }
-    };
-
-    capturePagesContent();
-  }, [state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue, filteredSales, state.sales]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
