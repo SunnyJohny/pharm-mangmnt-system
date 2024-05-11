@@ -16,6 +16,8 @@ const PrintInventoryPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+
+  console.log(setFirstRestockDates)
   useEffect(() => {
     const { itemsToDisplay: initialItemsToDisplay } = location.state;
 
@@ -63,7 +65,7 @@ const PrintInventoryPage = () => {
 
 
     capturePagesContent();
-  }, [location.state, state.products, state.productTotals, state.productTotalsMap]);
+  }, [location.state, state.products, state.productTotals, state.productTotalsMap,calculateTotalStoreValue]);
 
   const calculateTotalStoreValue = (items) => {
     const calculatedTotalStoreValue = items.reduce(

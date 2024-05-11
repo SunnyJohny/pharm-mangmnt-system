@@ -10,7 +10,9 @@ const PrintSalesPage = ({ salesData, searchByKeyword, searchByDate }) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   
   const tableRef = useRef(null);
-
+if (setSearchKeyword) {
+  console.log("")
+}
  
 
   useEffect(() => {

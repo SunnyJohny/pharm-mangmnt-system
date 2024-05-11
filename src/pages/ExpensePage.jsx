@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DatePicker from 'react-datepicker';
@@ -40,7 +40,9 @@ const ExpensePage = () => {
   const itemsToDisplay = filteredExpenses.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
 
-
+  if (allPagesContent) {
+    console.log("")
+  }
 
   useEffect(() => {
     const filteredByDate = searchByDate(state.expenses, fromDate, toDate);

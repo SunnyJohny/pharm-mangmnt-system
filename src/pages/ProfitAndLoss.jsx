@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 
 import ReceiptModal from '../components/ReceiptModal';
 
@@ -40,7 +40,7 @@ const ProfitAndLoss  = () => {
   const [totalStoreValue, setTotalStoreValue] = useState(0);
 
   if (filteredExpenses || endIndex || allPagesContent || totalStoreValue) {
-    console.log("Variables are present and have been logged:", filteredExpenses, endIndex, allPagesContent, setTotalStoreValue);
+    console.log("Variables are present and have been logged:",setAllPagesContent, filteredExpenses, endIndex, allPagesContent, setTotalStoreValue);
   } else {
     console.log("Variables are not present or are falsy.");
   }
