@@ -28,6 +28,11 @@ const InventorySidePanel = ({ onItemSelected }) => {
           <FaPlus className="text-xl" />
           <p className="ml-2">Add Product</p>
         </Link>
+        <Link to="/add-asset" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+          <FaPlus className="text-xl" />
+          <p className="ml-2">Add Asset</p>
+        </Link>
+
 
         <Link to="/sales" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaListAlt className="text-xl" />

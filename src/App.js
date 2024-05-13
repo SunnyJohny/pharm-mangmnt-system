@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import SignIn from "./pages/SignIn";
-import CompanySignUp from "./pages/CompanySignUp";
+// import CompanySignUp from "./pages/CompanySignUp";
 import SignUp from "./pages/SignUp";
 // import dotenv from 'dotenv';
 // dotenv.config();
@@ -29,6 +29,7 @@ import AdminComponent from './components/Admin';
 import ExpensePage from './pages/ExpensePage';
 import ProfitAndLoss from './pages/ProfitAndLoss';
 import AddTax from './components/AddTax';
+import AddAsset from './components/AddAsset';
 
 
 function App() {
@@ -42,10 +43,11 @@ function App() {
 
           <Route path="/" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/company-sign-up" element={<CompanySignUp />} />
+          {/* <Route path="/company-sign-up" element={<CompanySignUp />} /> */}
 
           <Route path="/posscreen" element={<PosScreen />} />
           <Route path="/add-expense" element={<AddExpense />} />
+          <Route path="/add-asset" element={<AddAsset />} />
           <Route path="/add-tax" element={<AddTax />} />
           <Route path="/profitandloss" element={<ProfitAndLoss />} />
           <Route path="/expenses" element={<ExpensePage />} />
