@@ -25,7 +25,10 @@ console.log(setSelectedTax)
   // Possible tax names
   const possibleTaxNames = ["Company Income Tax (CIT)", "Value Added Tax (VAT)", "Withholding Tax (Rent)", "Withholding Tax (Dividends)", "Withholding Tax (Management Fees)", "Withholding Tax (Interest)"];
 
-  
+
+  const handleBack = () => {
+    navigate("/inventory-page");
+  };
 
 
   useEffect(() => {
@@ -94,6 +97,9 @@ console.log(setSelectedTax)
 
   return (
     <div className="max-w-lg mx-auto mt-8 p-6 bg-gray-100 rounded-lg shadow-md">
+        <button onClick={handleBack} className="text-blue-500 text-lg cursor-pointer">
+                &#8592; Back
+              </button>
       <h2 className="text-2xl font-bold mb-4">Add Tax Payments</h2>
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
       <div className="mb-4">

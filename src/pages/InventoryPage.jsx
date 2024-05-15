@@ -16,7 +16,6 @@ import html2canvas from 'html2canvas';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import { useCallback, useEffect, useRef, useState, } from 'react';
 import EditPopup from '../components/EditPopup';
-import Footer from '../components/Footer';
 
 
 
@@ -450,7 +449,7 @@ const InventoryPage = () => {
             {renderPaginationButtons()}
           </div>
         </div>
- <Footer />
+ 
       </div>
 
       {/* EditPop Component */}
