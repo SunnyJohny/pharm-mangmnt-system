@@ -4,6 +4,7 @@ import { db } from "../firebase";
 import { toast } from 'react-toastify';
 
 import { useMyContext } from '../Context/MyContext';
+import { useNavigate } from 'react-router';
 
 const AddTax = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +21,7 @@ const AddTax = () => {
   // Call these functions wherever you need to use the total amount and total amount paid
   const totalAmount = calculateTotalAmount();
   const totalPaidAmount = calculateTotalPaidAmount();
+  const navigate = useNavigate();
   
 console.log(setSelectedTax)
   // Possible tax names
