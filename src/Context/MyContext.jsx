@@ -16,6 +16,7 @@ export const MyContextProvider = ({ children }) => {
     expenses: [], // New array for expenses data
     taxes: [], // New array for expenses data
     cart: [],
+    assets: [], // Add empty array for assets
     inventoryData: [],
     productTotals: new Map(),
     overallTotalQuantity: 0,
@@ -30,7 +31,22 @@ export const MyContextProvider = ({ children }) => {
 
 
 
+  const fetchAssets = async () => {
+    try {
+      const assetsCollection = collection(getFirestore(), 'assets');
+      const assetsSnapshot = await getDocs(assetsCollection);
+      const assetsData = assetsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setState((prevState) => ({ ...prevState, assets: assetsData }));
+      console.log('Fetching assets...', assetsData);
 
+    } catch (error) {
+      console.error('Error fetching assets:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssets();
+  }, []);
 
   const fetchExpenses = async () => {
     try {
@@ -229,7 +245,7 @@ const calculateTotalPaidAmount = () => {
       try {
         const salesData = await fetchSalesData();
         setState((prevState) => ({ ...prevState, sales: salesData }));
-        // console.log('fetching sales...', salesData);
+        console.log('fetching sales...', salesData);
       } catch (error) {
         console.error('Error fetching sales:', error);
       }
@@ -475,6 +491,7 @@ const fetchProduct = async (productId) => {
     fetchProduct, // Include fetchProduct in the context value
     logoutUser,
     fetchUsers,
+    fetchAssets,
     searchByKeyword,
     searchByDate,
     addToCart,

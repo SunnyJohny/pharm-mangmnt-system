@@ -185,7 +185,7 @@ const Cart = () => {
       </head>
       <body>
       <div style="text-align: center;">
-      <h2>Your BENOKOSI PHARMACY LTD</h2>
+      <h2>NENYURKA NIGERIA LIMITED</h2>
       <p>Company Address</p>
       <p>Phone: Company Phone</p>
       <p>Email: company@email.com</p>

@@ -71,7 +71,6 @@ function App() {
           <Route path="/print-sales" element={<PrintSalesPage />} />
 
         </Routes>
-        <Footer />
       </Router>
       <ToastContainer
         position="bottom-center"
@@ -85,6 +84,8 @@ function App() {
         pauseOnHover
         theme="dark"
       />
+        <Footer />
+
     </>
   );
 }

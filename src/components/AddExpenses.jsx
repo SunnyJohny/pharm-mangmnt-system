@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from "../firebase";
 
 
 //new  again
@@ -37,25 +39,61 @@ export default function AddExpense({ onCloseModal }) {
   };
 
   
- 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
   
     try {
-      
+      // Destructure the expense object for easier validation
+      const { name, category, amount, date, receiptNo, vendorName, paymentMethod, attendantName, paymentStatus } = expense;
   
+      // Validate input fields
+      if (
+        !name.trim() ||
+        !category.trim() ||
+        isNaN(parseFloat(amount)) ||
+        !date ||
+        !receiptNo.trim() ||
+        !vendorName.trim() ||
+        !paymentMethod.trim() ||
+        !attendantName.trim() ||
+        !paymentStatus.trim()
+      ) {
+        toast.error("All fields must be filled and contain valid values", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        setLoading(false);
+        return;
+      }
   
-      
-      setLoading(false);
-      toast.success("Expense added successfully");
+      const expenseData = {
+        name: name.trim(),
+        category: category.trim(),
+        amount: parseFloat(amount),
+        description: expense.description.trim(),
+        date: new Date(date).toISOString(), // Ensure the date is in ISO format
+        receiptNo: receiptNo.trim(),
+        vendorName: vendorName.trim(),
+        paymentMethod: paymentMethod.trim(),
+        attendantName: attendantName.trim(),
+        paymentStatus: paymentStatus.trim(),
+        receiptFile: expense.receiptFile || null,
+      };
+  
+      // Add the expense data to the 'expenses' collection in the database
+      await addDoc(collection(db, 'expenses'), expenseData);
+  
+      toast.success("Expense added successfully", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+  
+      // Reset the form fields
       setExpense({
         name: "",
         category: "",
         amount: 0,
         description: "",
-        date: null,
+        date: new Date().toISOString().slice(0, 10), // Reset to current date
         receiptNo: "",
         vendorName: "",
         paymentMethod: "",
@@ -64,13 +102,15 @@ export default function AddExpense({ onCloseModal }) {
         receiptFile: null,
       });
     } catch (error) {
+      console.error("Error adding expense: ", error);
+      toast.error("Failed to add expense. Please try again later.", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    } finally {
       setLoading(false);
-      console.error("Error adding document: ", error);
-      toast.error("Failed to add expense");
     }
   };
-  
-  
+   
   if (loading) {
     return <Spinner />;
   }

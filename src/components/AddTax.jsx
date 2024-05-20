@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { useMyContext } from '../Context/MyContext';
 import { useNavigate } from 'react-router';
 
+
 const AddTax = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [taxName, setTaxName] = useState('');

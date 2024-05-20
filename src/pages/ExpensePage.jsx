@@ -248,10 +248,6 @@ const ExpensePage = () => {
     );
   };
 
- 
-
-
-
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
     setSelectedDateOption(selectedOption);

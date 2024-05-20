@@ -126,54 +126,39 @@ const InventoryPage = () => {
   const renderActionButtons = () => {
     // InventoryPage.jsx
     const handlePrintInventory = async () => {
-      const pdf = new jsPDF();
-
-      // Create a reference to the table container
-      const tableContainer = document.querySelector('.table-container');
-
-      if (tableContainer) {
-        // Capture the content of the entire table container
-        const canvas = await html2canvas(tableContainer);
-        const imgData = canvas.toDataURL('image/png');
-
-        // Add the captured image to the PDF
-        pdf.addImage(imgData, 'PNG', 10, 10);
-
-        // Save the content of the first page
-        // const firstPageContent = imgData;
-
-        // If there are more pages, capture and append their content
-        if (allPagesContent.length > 0) {
-          for (let index = 0; index < allPagesContent.length; index++) {
-            const pageContent = allPagesContent[index];
-            pdf.addPage();
-            pdf.addImage(pageContent, 'PNG', 10, 10 + (index + 1) * tableContainer.clientHeight);
+      try {
+        const pdf = new jsPDF();
+        const tableContainer = document.querySelector('.table-container');
+    
+        if (tableContainer) {
+          console.log('Table container found:', tableContainer);
+    
+          const canvas = await html2canvas(tableContainer, {
+            logging: true, // Enable logging for debugging
+            useCORS: true, // Enable cross-origin image support if needed
+            scale: 2, // Increase scale for better quality
+          });
+    
+          const imgData = canvas.toDataURL('image/png');
+          pdf.addImage(imgData, 'PNG', 10, 10);
+    
+          if (allPagesContent.length > 0) {
+            for (let index = 0; index < allPagesContent.length; index++) {
+              const pageContent = allPagesContent[index];
+              pdf.addPage();
+              pdf.addImage(pageContent, 'PNG', 10, 10 + (index + 1) * tableContainer.clientHeight);
+            }
           }
+    
+          pdf.save('inventory.pdf');
+        } else {
+          console.error('Table container not found.');
         }
-
-        // Save and open the PDF
-        // pdf.save('inventory.pdf');
-
-        // Navigate to the print page with relevant data
-        navigate('/print-inventory', {
-          state: {
-            itemsToDisplay: itemsToDisplay.map((item, index) => ({
-              ...item,
-              sn: generateSn(index),
-            })),
-            // Pass other necessary data to PrintInventoryPage
-            state: {
-              itemsPerPage,
-              filteredItems,
-              totalStoreValue,
-              firstRestockDates,
-              allPagesContent,
-            },
-          },
-        });
+      } catch (error) {
+        console.error('Error generating PDF:', error);
       }
     };
-
+    
 
 
 
@@ -199,36 +184,36 @@ const InventoryPage = () => {
     // ... (existing code)
 
     // Call calculateTotalStoreValue with the filtered items
-    // Capture the content of each page
     const capturePagesContent = async () => {
       const pagesContent = [];
       const tableContainer = document.querySelector('.table-container');
       const itemsPerPage = 100;
-
+    
       if (tableContainer) {
         const totalItems = filteredItems.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+    
         for (let page = 1; page <= totalPages; page++) {
           const startIndex = (page - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
           const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
-
+    
           setFilteredItems(itemsToDisplay); // Update filteredItems for the current page
           calculateTotalStoreValue(itemsToDisplay);
-
+    
           // Wait for the container to render content
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Increased delay to 1000ms
+    
           const canvas = await html2canvas(tableContainer);
           pagesContent.push(canvas.toDataURL('image/png'));
         }
-
+    
         setAllPagesContent(pagesContent);
         setFilteredItems(initialItems); // Restore original filteredItems
         calculateTotalStoreValue(initialItems);
       }
     };
+    
 
     // Call the async function
     capturePagesContent();
@@ -241,10 +226,6 @@ const InventoryPage = () => {
     const handleNextPage = () => {
       setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
     };
-
-
-
-
 
 
     return (
@@ -270,10 +251,6 @@ const InventoryPage = () => {
 
 
 
-
-
-
-  
   const handleEditClick = (itemId, e) => {
     // Prevent propagation to avoid triggering row click
     e.stopPropagation();
