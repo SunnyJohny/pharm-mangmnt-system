@@ -37,7 +37,7 @@ export const MyContextProvider = ({ children }) => {
       const assetsSnapshot = await getDocs(assetsCollection);
       const assetsData = assetsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setState((prevState) => ({ ...prevState, assets: assetsData }));
-      console.log('Fetching assets...', assetsData);
+      // console.log('Fetching assets...', assetsData);
 
     } catch (error) {
       console.error('Error fetching assets:', error.message);
@@ -245,7 +245,7 @@ const calculateTotalPaidAmount = () => {
       try {
         const salesData = await fetchSalesData();
         setState((prevState) => ({ ...prevState, sales: salesData }));
-        console.log('fetching sales...', salesData);
+        // console.log('fetching sales...', salesData);
       } catch (error) {
         console.error('Error fetching sales:', error);
       }
@@ -271,9 +271,6 @@ const calculateTotalPaidAmount = () => {
 
     fetchProducts();
   }, []);
-
-
-
 
   useEffect(() => {
     const filterProducts = async () => {
@@ -303,10 +300,6 @@ const calculateTotalPaidAmount = () => {
     filterProducts();
   }, [state.products, state.sales]);
 
-
-
-
-  
   // Function to fetch users from Firestore
  
  // Function to fetch users from Firestore
@@ -333,9 +326,6 @@ const fetchUsers = async (userId) => {
     console.error('Error fetching users:', error.message);
   }
 };
-
-
-
 
 
   // useEffect hook to fetch users when component mounts
@@ -366,11 +356,6 @@ const fetchUsers = async (userId) => {
   }, []);
 
  
-
-
-
-
-
   const addToCart = (productId) => {
     const productToAdd = state.products.find((product) => product.id === productId);
 

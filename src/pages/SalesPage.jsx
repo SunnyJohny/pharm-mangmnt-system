@@ -647,30 +647,30 @@
 
 
 //                 </tr>
-//                 <tr>
-//                   <td colSpan="9">
-//                     <strong>Payment Method:</strong>
-//                     <ul>
-//                       {/* Display each payment method and its total amount */}
-//                       {Object.entries(paymentMethods).map(([method, totalAmount], index) => (
-//                         <li key={index}>
-//                           {method}: ₦{totalAmount.toFixed(2)}
-//                         </li>
-//                       ))}
-//                     </ul>
-//                   </td>
-//                   <td colSpan="2">
-//                     <strong>Salespersons:</strong>
-//                     <ul>
-//                       {/* Display unique salespersons and their total sales */}
-//                       {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => (
-//                         <li key={index}>
-//                           {salesperson}: ₦{totalSales.toFixed(2)}
-//                         </li>
-//                       ))}
-//                     </ul>
-//                   </td>
-//                 </tr>
+                // <tr>
+                //   <td colSpan="9">
+                //     <strong>Payment Method:</strong>
+                //     <ul>
+                //       {/* Display each payment method and its total amount */}
+                //       {Object.entries(paymentMethods).map(([method, totalAmount], index) => (
+                //         <li key={index}>
+                //           {method}: ₦{totalAmount.toFixed(2)}
+                //         </li>
+                //       ))}
+                //     </ul>
+                //   </td>
+                //   <td colSpan="2">
+                //     <strong>Salespersons:</strong>
+                //     <ul>
+                //       {/* Display unique salespersons and their total sales */}
+                //       {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => (
+                //         <li key={index}>
+                //           {salesperson}: ₦{totalSales.toFixed(2)}
+                //         </li>
+                //       ))}
+                //     </ul>
+                //   </td>
+                // </tr>
 //                 <tr>
 //                   <td colSpan="3"><strong>Total Sales Transactions:</strong> {filteredSales.length}</td>
 //                   <td colSpan="3"><strong>Total Quantity Sold:</strong> {calculateTotalProductsSold(filteredSales)}</td>
@@ -763,7 +763,21 @@ const SalesPage = () => {
   const [selectedDateOption, setSelectedDateOption] = useState('All');
 
 
+  // const calculateTotalStoreValue = (items) => {
+  //   const calculatedTotalStoreValue = items.reduce(
+  //     (total, item) =>
+  //       total +
+  //       item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+  //     0
+  //   );
+  //   setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+  // };
 
+
+
+
+
+  
   useEffect(() => {
     // Just referencing the variables to avoid the unused vars warning
     if (totalStoreValue || allPagesContent.length) {
@@ -895,40 +909,51 @@ const SalesPage = () => {
 
 
 
-  useEffect(() => {
-    const initialItems = state.sales || [];
-    setFilteredSales(initialItems);
-    const capturePagesContent = async () => {
-      const pagesContent = [];
-      const tableContainer = document.querySelector('.table-container');
-      const itemsPerPage = 20;
-
-      if (tableContainer) {
-        const totalItems = filteredSales.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-        for (let page = 1; page <= totalPages; page++) {
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
-
-          setFilteredSales(itemsToDisplay);
-          calculateTotalStoreValue(itemsToDisplay);
-
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          const canvas = await html2canvas(tableContainer);
-          pagesContent.push(canvas.toDataURL('image/png'));
-        }
-
-        setAllPagesContent(pagesContent);
+      useEffect(() => {
+        const initialItems = state.sales || [];
         setFilteredSales(initialItems);
-        calculateTotalStoreValue(initialItems);
-      }
-    };
-
-    capturePagesContent();
-  }, [state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue,filteredSales,state.sales]);
+        const capturePagesContent = async () => {
+          const pagesContent = [];
+          const tableContainer = document.querySelector('.table-container');
+          const itemsPerPage = 20;
+    
+          if (tableContainer) {
+            const totalItems = filteredSales.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+            const calculateTotalStoreValue = (items) => {
+              const calculatedTotalStoreValue = items.reduce(
+                (total, item) =>
+                  total +
+                  item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+                0
+              );
+              setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+            };
+    
+            for (let page = 1; page <= totalPages; page++) {
+              const startIndex = (page - 1) * itemsPerPage;
+              const endIndex = startIndex + itemsPerPage;
+              const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
+    
+              setFilteredSales(itemsToDisplay);
+              calculateTotalStoreValue(itemsToDisplay);
+    
+              await new Promise((resolve) => setTimeout(resolve, 500));
+    
+              const canvas = await html2canvas(tableContainer);
+              pagesContent.push(canvas.toDataURL('image/png'));
+            }
+    
+            setAllPagesContent(pagesContent);
+            setFilteredSales(initialItems);
+            calculateTotalStoreValue(initialItems);
+          }
+        };
+    
+        capturePagesContent();
+      }, [state.products, state.productTotals, state.productTotalsMap, filteredSales, state.sales]);
+    
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
@@ -959,15 +984,7 @@ const SalesPage = () => {
     );
   };
 
-  const calculateTotalStoreValue = (items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  };
+
 
 
   // Calculate total sales value on mount and when sales change
@@ -1105,14 +1122,14 @@ const SalesPage = () => {
   // Calculate total sales for each salesperson
   const salesBySalesperson = filteredSales.reduce((acc, sale) => {
     const { name } = sale.staff;
-    const totalSale = sale.products.reduce((total, product) => total + parseFloat(product.price), 0);
+    const totalSale = sale.products.reduce((total, product) => total + parseFloat(product.Amount), 0);
     acc[name] = (acc[name] || 0) + totalSale;
     return acc;
   }, {});
   // Calculate total sales for each payment method
   const paymentMethods = filteredSales.reduce((acc, sale) => {
     const { method } = sale.payment;
-    acc[method] = (acc[method] || 0) + sale.products.reduce((total, product) => total + parseFloat(product.price), 0);
+    acc[method] = (acc[method] || 0) + sale.products.reduce((total, product) => total + parseFloat(product.Amount), 0);
     return acc;
   }, {});
   // Function to format date as MM-DD-YYYY
@@ -1343,29 +1360,36 @@ const SalesPage = () => {
 
                 </tr>
                 <tr>
-                  <td colSpan="9">
-                    <strong>Payment Method:</strong>
-                    <ul>
-                      {/* Display each payment method and its total amount */}
-                      {Object.entries(paymentMethods).map(([method, totalAmount], index) => (
-                        <li key={index}>
-                          {method}: ₦{totalAmount.toFixed(2)}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td colSpan="2">
-                    <strong>Salespersons:</strong>
-                    <ul>
-                      {/* Display unique salespersons and their total sales */}
-                      {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => (
-                        <li key={index}>
-                          {salesperson}: ₦{totalSales.toFixed(2)}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
+  <td colSpan="9">
+    <strong>Payment Method:</strong>
+    <ul>
+      {Object.entries(paymentMethods).map(([method, totalAmount], index) => {
+        console.log(`Payment Method: ${method}, Total Amount: ${totalAmount}`);
+        const amount = Number(totalAmount);
+        return (
+          <li key={index}>
+            {method}: ₦{isNaN(amount) ? "0.00" : amount.toFixed(2)}
+          </li>
+        );
+      })}
+    </ul>
+  </td>
+  <td colSpan="2">
+    <strong>Salespersons:</strong>
+    <ul>
+      {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
+        console.log(`Salesperson: ${salesperson}, Total Sales: ${totalSales}`);
+        const sales = Number(totalSales);
+        return (
+          <li key={index}>
+            {salesperson}: ₦{isNaN(sales) ? "0.00" : sales.toFixed(2)}
+          </li>
+        );
+      })}
+    </ul>
+  </td>
+</tr>
+
 
 
                 <tr>

@@ -283,7 +283,7 @@ export default function AddAsset() {
     <>
 
 {isModalOpen && (
-  <div className="fixed inset-0 z-50 overflow-y-auto">
+<div className="fixed inset-0 z-50 overflow-y-auto">
     <div className="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
       <div className="fixed inset-0 transition-opacity">
         <div className="absolute inset-0 bg-gray-500 opacity-75"></div>

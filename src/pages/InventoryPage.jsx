@@ -11,7 +11,7 @@ import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 import InventorySidePanel from '../components/InventorySidePanel';
 
-import jsPDF from 'jspdf';
+// import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import { useCallback, useEffect, useRef, useState, } from 'react';
@@ -28,12 +28,16 @@ const InventoryPage = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
-  const [allPagesContent, setAllPagesContent] = useState([]);
+  const [allPagesContent, setAllPagesContent] = useState(1);
 
   const [showEditPop, setShowEditPop] = useState(false); // State to control the visibility of EditPop
   const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for editing
   const navigate = useNavigate();
   const tableRef = useRef(null);
+
+if(allPagesContent){
+
+}
   const calculateTotalStoreValue = useCallback((items) => {
     const calculatedTotalStoreValue = items.reduce(
       (total, item) =>
@@ -44,10 +48,12 @@ const InventoryPage = () => {
     setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
   }, [state.productTotals, state.productTotalsMap]);
 
+
+
   useEffect(() => {
     const initialItems = state.products || [];
     setFilteredItems(initialItems);
-  
+
     if (initialItems.length > 0) {
       const datesMap = {};
       initialItems.forEach((product) => {
@@ -56,18 +62,15 @@ const InventoryPage = () => {
           if (lastRestockEntry && lastRestockEntry.time && lastRestockEntry.time.toDate) {
             const productLastRestockTime = lastRestockEntry.time.toDate();
             datesMap[product.name] = productLastRestockTime;
-          } else {
-            console.log("Last restock entry has no 'time' property for", product.name);
           }
-        } else {
-          console.log("No restock history for", product.name);
         }
       });
       setFirstRestockDates(datesMap);
     }
-  
+
     calculateTotalStoreValue(initialItems);
-  }, [state.products, state.productTotals, state.productTotalsMap, calculateTotalStoreValue]);
+  }, [state.products, calculateTotalStoreValue]);
+  
   
   const searchItems = (e) => {
     let searchText = '';
@@ -126,36 +129,32 @@ const InventoryPage = () => {
   const renderActionButtons = () => {
     // InventoryPage.jsx
     const handlePrintInventory = async () => {
-      try {
-        const pdf = new jsPDF();
-        const tableContainer = document.querySelector('.table-container');
-    
-        if (tableContainer) {
-          console.log('Table container found:', tableContainer);
-    
-          const canvas = await html2canvas(tableContainer, {
-            logging: true, // Enable logging for debugging
-            useCORS: true, // Enable cross-origin image support if needed
-            scale: 2, // Increase scale for better quality
-          });
-    
-          const imgData = canvas.toDataURL('image/png');
-          pdf.addImage(imgData, 'PNG', 10, 10);
-    
-          if (allPagesContent.length > 0) {
-            for (let index = 0; index < allPagesContent.length; index++) {
-              const pageContent = allPagesContent[index];
-              pdf.addPage();
-              pdf.addImage(pageContent, 'PNG', 10, 10 + (index + 1) * tableContainer.clientHeight);
-            }
-          }
-    
-          pdf.save('inventory.pdf');
-        } else {
-          console.error('Table container not found.');
-        }
-      } catch (error) {
-        console.error('Error generating PDF:', error);
+      const tableContainer = tableRef.current;
+
+      if (tableContainer) {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write('<html><head><title>Inventory Table</title>');
+        // Add custom CSS for printing
+        printWindow.document.write('<style>');
+        printWindow.document.write('@media print {');
+        printWindow.document.write('body { -webkit-print-color-adjust: exact; }');
+        printWindow.document.write('.text-center { text-align: center; }');
+        printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
+        printWindow.document.write('.table-print { border-collapse: collapse; width: 100%; }');
+        printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
+        printWindow.document.write('.table-print thead { display: table-header-group; }');
+        printWindow.document.write('.table-print tfoot { display: table-footer-group; }');
+        printWindow.document.write('.table-print tr { page-break-inside: avoid; }');
+        printWindow.document.write('}');
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(tableContainer.outerHTML);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+        printWindow.close();
+      } else {
+        console.error('Table container not found.');
       }
     };
     
@@ -177,47 +176,34 @@ const InventoryPage = () => {
   };
 
   useEffect(() => {
-    // Initialize with inventory data from the context
-    const initialItems = state.products || [];
-    setFilteredItems(initialItems);
-
-    // ... (existing code)
-
-    // Call calculateTotalStoreValue with the filtered items
     const capturePagesContent = async () => {
       const pagesContent = [];
       const tableContainer = document.querySelector('.table-container');
       const itemsPerPage = 100;
-    
+
       if (tableContainer) {
         const totalItems = filteredItems.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
-    
+
         for (let page = 1; page <= totalPages; page++) {
           const startIndex = (page - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
           const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
-    
-          setFilteredItems(itemsToDisplay); // Update filteredItems for the current page
-          calculateTotalStoreValue(itemsToDisplay);
-    
-          // Wait for the container to render content
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Increased delay to 1000ms
-    
+
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
           const canvas = await html2canvas(tableContainer);
           pagesContent.push(canvas.toDataURL('image/png'));
         }
-    
+
         setAllPagesContent(pagesContent);
-        setFilteredItems(initialItems); // Restore original filteredItems
-        calculateTotalStoreValue(initialItems);
       }
     };
-    
 
-    // Call the async function
     capturePagesContent();
-  }, [state.products, state.productTotals, state.productTotalsMap,calculateTotalStoreValue,filteredItems]);
+  }, [filteredItems]);
+
+  
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
       setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
@@ -367,7 +353,8 @@ const InventoryPage = () => {
               <tbody>
                 {itemsToDisplay.map((item) => (
                   <tr
-                    key={item.sn}
+                    
+                    key={item.id} // Add a unique key based on the item's identifier
                     onClick={() => handleRowClick(item.id)}
                     style={{ cursor: 'pointer' }}
                   >

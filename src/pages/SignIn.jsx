@@ -38,6 +38,8 @@ export default function SignIn() {
       );
       
       if (userCredential.user) {
+      toast.error("Correct user credentials");
+
         console.log(userCredential.user);
         
         // Fetch additional user data from Firestore
