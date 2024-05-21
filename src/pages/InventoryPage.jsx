@@ -189,6 +189,7 @@ if(allPagesContent){
           const startIndex = (page - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
           const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
+          if(itemsToDisplay){};
 
           await new Promise((resolve) => setTimeout(resolve, 1000));
 
