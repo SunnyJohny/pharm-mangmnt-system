@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { useMyContext } from '../Context/MyContext';
 
 export default function SignIn() {
-  const { state } = useMyContext(); // Access the context state
+  const { state, setState } = useMyContext(); // Access the context state
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -28,35 +28,47 @@ export default function SignIn() {
   async function onSubmit(e) {
     e.preventDefault();
     const { email, password } = formData; // Assuming you have formData state defined
-
+  
     try {
       const auth = getAuth();
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  
       if (userCredential.user) {
-      toast.error("Correct user credentials");
-
+  
         console.log(userCredential.user);
-        
+  
         // Fetch additional user data from Firestore
         const userData = await getUserData(userCredential.user.uid);
         console.log("User data:", userData);
+  
+        // Update the context state with the fetched user data
+        if (userData) {
+          setState(prevState => ({
+            ...prevState,
+            user: userData,
+          }));
+        }
+  
+        // Conditional rendering based on user data
+        if (state.user) {
+        toast.success("Correct user credentials");
 
-        // Check the user's role and navigate accordingly
-        if (state.user.role === 'admin') {
-          navigate("/admin");
+          if (state.user.role === 'admin') {
+            navigate("/admin");
+          } else {
+            navigate("/posscreen");
+          }
         } else {
-          navigate("/posscreen");
+          // Handle the case where user data is not yet available (optional: loading indicator)
+          // toast.warning("Please Try Again");
         }
       }
     } catch (error) {
       toast.error("Bad user credentials");
+      console.log(error);
     }
   }
+  
 
 
   async function getUserData(userId) {

@@ -31,10 +31,7 @@ const SalesPageSidePanel = () => {
           <FaChartBar className="text-xl" />
           <p className="ml-2">Expenses </p>
         </Link>
-        <Link to="/add-expense" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
-          <FaChartBar className="text-xl" />
-          <p className="ml-2">Add Expenses </p>
-        </Link>
+        
         {/* New Link for "Add Tax" */}
         <Link to="/add-tax" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaMoneyBillWave className="text-xl" /> {/* Use the appropriate icon */}

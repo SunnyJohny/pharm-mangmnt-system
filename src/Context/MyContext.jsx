@@ -401,17 +401,40 @@ const fetchUsers = async (userId) => {
     }
   };
 
+  // const calculateTotalSalesValue = (sales) => {
+  //   if (!sales || sales.length === 0) {
+  //     // setTotalSalesValue(0);
+     
+  //     return;
+  //   }
 
-  const searchByKeyword = (expenses, keyword) => {
-    if (!expenses || !Array.isArray(expenses)) {
+  //   const calculatedTotalSalesValue = sales.reduce((total, sale) => {
+  //     if (sale.products && Array.isArray(sale.products)) {
+  //       return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
+  //     } else {
+  //       console.log('Undefined products array in sale:', sale);
+  //       return total;
+  //     }
+  //   }, 0);
+  //   setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
+  // };
+
+
+
+
+
+  const searchByKeyword = (items, keyword) => {
+    if (!items || !Array.isArray(items) || typeof keyword !== 'string') {
       return [];
     }
 
-    return expenses.filter((expense) => {
-      return Object.values(expense).some((value) =>
-        value.toLowerCase().includes(keyword.toLowerCase())
-      );
-    });
+    const lowerCaseKeyword = keyword.toLowerCase();
+
+    return items.filter(item => 
+      Object.values(item).some(value =>
+        typeof value === 'string' && value.toLowerCase().includes(lowerCaseKeyword)
+      )
+    );
   };
 
 
@@ -486,6 +509,7 @@ const fetchProduct = async (productId) => {
     decreaseQuantity,
     calculateTotalAmount,
     calculateTotalPaidAmount,
+    // calculatedTotalSalesValue,
   };
   
  

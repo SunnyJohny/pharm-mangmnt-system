@@ -14,7 +14,7 @@ import { useMyContext } from '../Context/MyContext';
 import ReceiptModal from '../components/ReceiptModal';
 
 const ProfitAndLoss = () => {
-  const { state, searchByKeyword, searchByDate, calculateTotalPaidAmount } = useMyContext();
+  const { state, searchByDate, calculateTotalPaidAmount } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -26,7 +26,7 @@ const ProfitAndLoss = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState('');
+
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const totalItems = filteredSales.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -48,7 +48,7 @@ const ProfitAndLoss = () => {
 
   const totalTaxPaidAmount = calculateTotalPaidAmount();
 
-  
+
   const calculateTotalSalesValue = useCallback((sales) => {
     if (!sales || sales.length === 0) {
       console.log('filteredsales empty');
@@ -89,20 +89,13 @@ const ProfitAndLoss = () => {
     setFilteredSales(filteredByDate);
   }, [state.sales, searchByDate, fromDate, toDate]);
 
-  useEffect(() => {
-    const filteredByKeyword = searchByKeyword(state.sales, searchKeyword);
-    setFilteredSales(filteredByKeyword);
-  }, [state.sales, searchByKeyword, searchKeyword]);
+
 
   useEffect(() => {
     const filteredByDate = searchByDate(state.sales, fromDate, toDate);
     setFilteredSales(filteredByDate);
   }, [state.sales, searchByDate, fromDate, toDate]);
 
-  useEffect(() => {
-    const filteredByKeyword = searchByKeyword(state.sales, searchKeyword);
-    setFilteredSales(filteredByKeyword);
-  }, [state.sales, searchByKeyword, searchKeyword]);
 
   useEffect(() => {
     calculateTotalSalesValue(filteredSales);
@@ -112,7 +105,7 @@ const ProfitAndLoss = () => {
   //   const totalTaxPaidAmount = calculateTotalPaidAmount();
   //   // Do something with totalTaxPaidAmount...
   // }, [calculateTotalPaidAmount]);
-  
+
   const handleFromDateChange = (date) => {
     setFromDate(date);
     const filteredByDate = searchByDate(state.sales, date, fromDate);
@@ -129,94 +122,97 @@ const ProfitAndLoss = () => {
     calculateTotalSalesValue(filteredByDate);
   };
 
-  //   useEffect(() => {
-  //     console.log('Filtered sales:', filteredSales);
-  //   }, [filteredSales]);
-
-  //   useEffect(() => {
-  //     console.log('Total sales value:', totalSalesValue);
-  //   }, [totalSalesValue]);
-  // useEffect(() => {
-  //   // Fetch and calculate summary data
-  //   fetchSummaryData();
-  // }, []);
 
 
+  const saveAndPrintTable = () => {
+    const table = document.getElementById('sales-table');
+    const printWindow = window.open('', '_blank');
 
-  const renderActionButtons = () => {
-    // Function to handle printing of the table
-    const saveAndPrintTable = () => {
-      const table = document.getElementById('sales-table');
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write('<html><head><title>Sales Table</title>');
-      // Add custom CSS for printing
-      printWindow.document.write('<style>');
-      printWindow.document.write('@media print {');
-      printWindow.document.write('.text-center { text-align: center; }');
-      printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
-      printWindow.document.write('.table-print { border-collapse: collapse; }');
-      printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
-      printWindow.document.write('}');
-      printWindow.document.write('</style>');
-      printWindow.document.write('</head><body>');
-      // printWindow.document.write('<div class="text-center mb-4">');
-      // printWindow.document.write('<h2 class="text-2xl font-bold underline">Sales Report</h2>');
-      // printWindow.document.write(`<p><strong>Selected Date Period:</strong> ${renderSelectedDatePeriod()}</p>`);
-      // printWindow.document.write(`<p>Report Printed On: ${getCurrentDate()}</p>`);
-      // printWindow.document.write('</div>');
-      printWindow.document.write(table.outerHTML);
-      printWindow.document.write('</body></html>');
-      printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
-    };
-    return (
-      <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
-        Print Sales
-      </button>
-    );
+    printWindow.document.write('<html><head><title>Sales Table</title>');
+    printWindow.document.write('<style>');
+    // Copy the styles from your main CSS
+    printWindow.document.write(`
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        .table-print {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .table-print th, .table-print td {
+            border: 2px solid black;
+            padding: 8px;
+        }
+        .text-lg {
+            font-size: 1.125rem;
+            line-height: 1.75rem;
+        }
+        .font-bold {
+            font-weight: 700;
+        }
+        .font-semibold {
+            font-weight: 600;
+        }
+        .underline {
+            text-decoration: underline;
+        }
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+        .bg-white {
+            background-color: #ffffff;
+        }
+        .border-gray-200 {
+            border-color: #e5e7eb;
+        }
+        .shadow {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .py-5 {
+            padding-top: 1.25rem;
+            padding-bottom: 1.25rem;
+        }
+        .sm\\:grid {
+            display: grid;
+        }
+        .sm\\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .sm\\:gap-4 {
+            grid-gap: 1rem;
+        }
+        .sm\\:col-span-2 {
+            grid-column: span 2 / span 2;
+        }
+    `);
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(table.outerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+    printWindow.close();
   };
-  
-
-
-  const renderPaginationButtons = () => {
-    const handlePreviousPage = () => {
-      setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-    };
-
-    const handleNextPage = () => {
-      setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
-    };
-    return (
-      <div className="flex space-x-80">
-        <button
-          className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
-          onClick={handlePreviousPage}
-        >
-          Previous
-        </button>
-        {renderActionButtons()}
-        <button
-          className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
-          onClick={handleNextPage}
-        >
-          Next
-        </button>
-      </div>
-    );
-  };
-
-
 
 
   // Calculate total sales value on mount and when sales change
   useEffect(() => {
     calculateTotalSalesValue();
-  }, [filteredSales,calculateTotalSalesValue]);
-
-
+  }, [filteredSales, calculateTotalSalesValue]);
 
 
   const calculateTotalCOGS = () => {
@@ -233,10 +229,6 @@ const ProfitAndLoss = () => {
 
     return totalCOGS.toFixed(2);
   };
-
-
-
-
 
 
   const handleCloseModal = () => {
@@ -324,8 +316,6 @@ const ProfitAndLoss = () => {
     }
 
 
-
-
     setFromDate(new Date(startDate)); // Use new Date object to avoid reference issues
     setToDate(new Date(endDate));
   };
@@ -357,11 +347,11 @@ const ProfitAndLoss = () => {
 
   const profitAndLossData = {
     revenue: totalSalesValue,
-    costOfGoodsSold: `${calculateTotalCOGS()}`,
-    grossProfit: totalSalesValue - `${calculateTotalCOGS()}`,
-    operatingExpenses: totalExpenseAmount,
-    taxes: totalTaxPaidAmount,
-    netIncome: totalSalesValue - `${calculateTotalCOGS()}` - totalExpenseAmount, // Adjusted net income after taxes
+    costOfGoodsSold: calculateTotalCOGS(),
+    grossProfit: (totalSalesValue - calculateTotalCOGS()).toFixed(2),
+    operatingExpenses: totalExpenseAmount.toFixed(2),
+    taxes: totalTaxPaidAmount.toFixed(2),
+    netIncome: (totalSalesValue - calculateTotalCOGS() - totalTaxPaidAmount - totalExpenseAmount).toFixed(2)
   };
 
   return (
@@ -468,12 +458,12 @@ const ProfitAndLoss = () => {
               <p>Report Printed On: {getCurrentDate()}</p>
             </div>
 
-          
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+
+            <div className="bg-white   shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6">
                 <h3 className="text-lg font-semibold leading-6 text-gray-900">Financial Summary</h3>
               </div>
-              <div className="border-t border-gray-200">
+              <div className="border-t  border-gray-200">
                 <dl>
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Revenue">
                     <dt className="text-sm font-medium text-gray-500">Revenue</dt>
@@ -485,7 +475,7 @@ const ProfitAndLoss = () => {
                   </div>
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Gross Profit">
                     <dt className="text-sm font-medium text-gray-500">Gross Profit</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.grossProfit}</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 font-semibold ">₦{profitAndLossData.grossProfit}</dd>
                   </div>
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Operating Expenses">
                     <dt className="text-sm font-medium text-gray-500">Operating Expenses</dt>
@@ -497,7 +487,7 @@ const ProfitAndLoss = () => {
                   </div>
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Net Income">
                     <dt className="text-sm font-medium text-gray-500">Net Income</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{profitAndLossData.netIncome}</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 font-bold underline">₦{profitAndLossData.netIncome}</dd>
                   </div>
 
                 </dl>
@@ -505,12 +495,14 @@ const ProfitAndLoss = () => {
             </div>
           </div>
 
-          <div className="flex justify-between mt-4">
-            {renderPaginationButtons()}
-          </div>
+
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md block mx-auto" onClick={saveAndPrintTable}>
+            Print Statement
+          </button>
         </div>
       </div>
     </div>
+
   );
 };
 

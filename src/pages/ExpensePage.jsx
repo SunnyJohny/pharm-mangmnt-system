@@ -11,7 +11,7 @@ import { faChartLine, faShoppingCart, faCalendarAlt, faBox } from '@fortawesome/
 import html2canvas from 'html2canvas';
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ExpenseInvoiceModal from '../components/ExpenseInvoiceModal';
-
+  import { Link } from 'react-router-dom';
 
 
 
@@ -24,8 +24,9 @@ const ExpensePage = () => {
   // const [filteredItems, setFilteredItems] = useState([]);
   // const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [allPagesContent, setAllPagesContent] = useState([]);
-  // const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
+  // Added state for total sales
   // const navigate = useNavigate();
+  const [totalExpenseValue, setTotalExpenseValue] = useState(0);
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -40,63 +41,53 @@ const ExpensePage = () => {
   const itemsToDisplay = filteredExpenses.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
 
-  if (allPagesContent) {
-    console.log("")
-  }
+
+
+  // useEffect(() => {
+  //   const filteredByDate = searchByDate(state.expenses, fromDate, toDate);
+  //   setFilteredExpenses(filteredByDate);
+  // }, [state.expenses, searchByDate, fromDate, toDate]);
+
+  // useEffect(() => {
+  //   const filteredByKeyword = searchByKeyword(state.expenses, searchKeyword);
+  //   setFilteredExpenses(filteredByKeyword);
+  // }, [state.expenses, searchByKeyword, searchKeyword]);
+
 
   useEffect(() => {
-    const filteredByDate = searchByDate(state.expenses, fromDate, toDate);
-    setFilteredExpenses(filteredByDate);
-  }, [state.expenses, searchByDate, fromDate, toDate]);
+    calculateTotalExpenseValue(filteredExpenses);
+  }, [filteredExpenses]);
+  
 
   useEffect(() => {
-    const filteredByKeyword = searchByKeyword(state.expenses, searchKeyword);
-    setFilteredExpenses(filteredByKeyword);
-  }, [state.expenses, searchByKeyword, searchKeyword]);
+    let filtered = state.expenses;
 
-  useEffect(() => {
-    // cons = (items) => {
-    //   const calculatedTotalStoreValue = items.reduce(
-    //     (total, item) =>
-    //       total +
-    //       item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-    //     0
-    //   );
-    //   // setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-    //   console.log(calculatedTotalStoreValue);
-    // };
-  //  (itemsToDisplay);// Moved the function call here
+    if (fromDate && toDate) {
+      filtered = searchByDate(filtered, fromDate, toDate);
+    }
 
+    if (searchKeyword) {
+      filtered = searchByKeyword(filtered, searchKeyword);
+    }
+
+    setFilteredExpenses(filtered);
+    calculateTotalExpenseValue(filtered);
+  }, [state.expenses, fromDate, toDate, searchKeyword, searchByDate, searchByKeyword]);
+
+
+
+  const calculateTotalExpenseValue = (expenses) => {
+    if (!expenses || expenses.length === 0) {
+      setTotalExpenseValue(0);
+      return;
+    }
   
-    const initialItems = state.expenses || [];
-    setFilteredExpenses(initialItems);
-    const capturePagesContent = async () => {
-      const pagesContent = [];
-      const tableContainer = document.querySelector('.table-container');
-      const itemsPerPage = 20;
+    const calculatedTotalExpenseValue = expenses.reduce((total, expense) => {
+      return total + parseFloat(expense.amount || 0);
+    }, 0);
   
-      if (tableContainer) {
-        const totalItems = initialItems.length; // Using initialItems instead of filteredExpenses
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-        for (let page = 1; page <= totalPages; page++) {
-          // const startIndex = (page - 1) * itemsPerPage;
-          // const endIndex = startIndex + itemsPerPage;
-          // const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
-  
-  
-          await new Promise((resolve) => setTimeout(resolve, 500));
-  
-          const canvas = await html2canvas(tableContainer);
-          pagesContent.push(canvas.toDataURL('image/png'));
-        }
-  
-        setAllPagesContent(pagesContent);
-      }
-    };
-  
-    capturePagesContent();
-  }, [state.expenses, state.products, state.productTotals, state.productTotalsMap, filteredExpenses]);
+    setTotalExpenseValue(calculatedTotalExpenseValue.toFixed(2));
+  };
   
 
 
@@ -115,25 +106,41 @@ const ExpensePage = () => {
     };
 
 
-  const handleFromDateChange = (date) => {
-    setFromDate(date);
-    const filteredByDate = searchByDate(state.expenses, date, fromDate);
-    console.log('Filtered by date:', filteredByDate);
-    setFilteredExpenses(filteredByDate);
-    // calculateTotalSalesValue(filteredByDate);
-  };
+    const handleFromDateChange = (date) => {
+      setFromDate(date);
+      if (toDate) {
+        const filteredByDate = searchByDate(state.expenses, date, toDate);
+        setFilteredExpenses(filteredByDate);
+        calculateTotalExpenseValue(filteredByDate);
+      }
+    };
 
-  const handleToDateChange = (date) => {
-    setToDate(date);
-    const filteredByDate = searchByDate(state.expenses, toDate, date);
-    console.log('Filtered by date:', filteredByDate);
-    setFilteredExpenses(filteredByDate);
-    // calculateTotalSalesValue(filteredByDate);
-  };
+    const handleToDateChange = (date) => {
+      setToDate(date);
+      if (fromDate) {
+        const filteredByDate = searchByDate(state.expenses, fromDate, date);
+        setFilteredExpenses(filteredByDate);
+        calculateTotalExpenseValue(filteredByDate);
+      }
+    };
 
-  useEffect(() => {
-    console.log('Filtered expenses:', filteredExpenses);
-  }, [filteredExpenses]);
+    const calculateTodayExpenses = () => {
+      const today = new Date().toLocaleDateString();
+  
+      return state.expenses
+        .filter((expense) => new Date(expense.date).toLocaleDateString() === today)
+        .reduce((total, expense) => total + parseFloat(expense.amount), 0);
+    };
+
+  
+  // Calculate total sales value on mount and when sales change
+ 
+
+  // useEffect(() => {
+  //   calculateTotalExpenseValue();
+    
+  //   console.log('Filtered expenses:', filteredExpenses);
+  // }, [filteredExpenses]);
 
   // useEffect(() => {
   //   console.log('Total Expenses value:', totalExpensesValue);
@@ -180,9 +187,19 @@ const ExpensePage = () => {
         printWindow.close();
       };
     return (
-      <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
-        Print Sales
-      </button>
+      <div className="flex justify-center mt-10">
+      <div className="flex items-center space-x-4">
+        <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
+          Print Report
+        </button>
+        <Link to="/add-expense" className="bg-blue-500 text-white px-4 py-2 rounded-md">
+          Add Expense
+        </Link>
+      </div>
+    </div>
+    
+
+    
     );
   };
 
@@ -219,35 +236,7 @@ const ExpensePage = () => {
   //   capturePagesContent();
   // }, [state.expenses, state.products, state.productTotals, state.productTotalsMap,filteredExpenses]);
 
-  const renderPaginationButtons = () => {
-    const handlePreviousPage = () => {
-      setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-    };
-
-    const handleNextPage = () => {
-      setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
-    };
-    return (
-      <div className="flex space-x-80">
-        <button
-          className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
-          onClick={handlePreviousPage}
-        >
-          Previous
-        </button>
-        {renderActionButtons()}
-        <button
-          className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
-          onClick={handleNextPage}
-        >
-          Next
-        </button>
-      </div>
-    );
-  };
-
+  
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
     setSelectedDateOption(selectedOption);
@@ -363,17 +352,24 @@ const ExpensePage = () => {
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
+          <div className="flex items-center justify-between mb-4 pr-4">
           <h2 className="text-2xl font-bold">Expense Stats</h2>
+
+            <button className="text-blue-500 cursor-pointer" onClick={() => window.history.back()}>
+              Back
+            </button>
+          </div>
           <div className="flex mt-4 space-x-4">
-            {renderStatCard('Total Revenue', `₦${'400'}`, 'blue', faChartLine)}
-            {renderStatCard('Total Sales', `₦${'600'}`, 'pink', faShoppingCart)}
-            {renderStatCard(
-              'Today Sales',
+              {renderStatCard('Total Expenses', `₦${totalExpenseValue}`, 'blue', faChartLine)}
+            {renderStatCard('Today Expenses', `₦${calculateTodayExpenses().toFixed(2)}`, 'red', faCalendarAlt)}
+            {renderStatCard('Total Sales', `₦${totalExpenseValue}`, 'pink', faShoppingCart)}
+            {/* {renderStatCard(
+              'Total Profit',
               `₦${'400'}`,
               'red',
               faCalendarAlt
-            )}
-            {renderStatCard('Cost Of Goods Sold', `₦${'700'}`, 'blue', faBox)}
+            )} */}
+            {renderStatCard('COG Sold', `₦${'700'}`, 'blue', faBox)}
 
           </div>
         </div>
@@ -381,17 +377,14 @@ const ExpensePage = () => {
         
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Transactions</h2>
+          
+        <p><strong>Expenses by Dates:</strong></p>
+
           <div className="flex items-center space-x-4">
+         
             <div>
-              {/* Dates label and dropdown */}
-              <label
-                htmlFor="dateOption"
-                className="text-lg"
-                style={{ marginRight: '16px' }} // Add margin-right of 16px (adjust as needed)
-              >
-                Dates
-              </label>
+              
+              
               <select
                 id="dateOption"
                 value={selectedDateOption}
@@ -421,47 +414,47 @@ const ExpensePage = () => {
               </select>
 
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="text-lg">Sales by Date</div>
-              <div className="relative">
-                <DatePicker
-                  selected={fromDate}
-                  onChange={handleFromDateChange}
-                  dateFormat="MM-dd-yyyy"
-                  placeholderText="From"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
-                />
-                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
-              </div>
-              <div className="relative">
-                <DatePicker
-                  selected={toDate}
-                  onChange={handleToDateChange}
-                  dateFormat="MM-dd-yyyy"
-                  placeholderText="To"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
-                />
-                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-            {/* Search input */}
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md p-2"
-              placeholder="Search"
-              // Assuming you have a function setSearchKeyword to handle search
-              onChange={(e) => setSearchKeyword(e.target.value)}
-              style={{ marginLeft: 'auto', marginRight: '16px' }}
-            />
+            <div className="flex items-center justify-between">
+  <div className="flex items-center space-x-2">
+    <div className="relative">
+      <DatePicker
+        selected={fromDate}
+        onChange={handleFromDateChange}
+        dateFormat="MM-dd-yyyy"
+        placeholderText="From"
+        className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+      />
+      <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
+    </div>
+    <div className="relative mr-4">
+      <DatePicker
+        selected={toDate}
+        onChange={handleToDateChange}
+        dateFormat="MM-dd-yyyy"
+        placeholderText="To"
+        className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+      />
+      <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
+    </div>
+  </div>
+  {/* Search input */}
+  <div className="relative ml-4">
+  <input
+    type="text"
+    className="border border-gray-300 rounded-md p-2"
+    placeholder="Search"
+    // Assuming you have a function setSearchKeyword to handle search
+    onChange={(e) => setSearchKeyword(e.target.value)}
+  />
+  </div>
+</div>
+
+            
           </div>
         </div>
 
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <button className="text-blue-500 cursor-pointer" onClick={() => window.history.back()}>
-              Back
-            </button>
-          </div>
+         
 
           <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '300px' }} id="sales-table" ref={tableRef}>
             {/* Header section */}
@@ -503,7 +496,8 @@ const ExpensePage = () => {
           <td className="border">{expense.receiptNo}</td>
           <td className="border">{expense.vendorName}</td>
           <td className="border">{expense.paymentMethod}</td>
-          <td className="border">{expense.amount}</td>
+          <td className="border">{parseFloat(expense.amount).toFixed(2)}</td>
+
           <td className="border">{expense.attendantName}</td>
           <td className="border">{expense.paymentStatus}</td>
         </tr>
@@ -512,8 +506,8 @@ const ExpensePage = () => {
     <tr>
       <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
       <td colSpan="6" className="border"></td> {/* Empty cell for the rest of the columns */}
-      <td className="border"><strong>₦{'600'}</strong></td> {/* Total Expenses */}
-      <td className="border"><strong>₦{'300'}</strong></td> {/* Total Amount */}
+      <td className="border"><strong>₦{totalExpenseValue}</strong></td> {/* Total Expenses */}
+  
       <td colSpan="2" className="border"></td> {/* Empty cell for the rest of the columns */}
     </tr>
   </tbody>
@@ -522,9 +516,9 @@ const ExpensePage = () => {
 
           </div>
 
-          <div className="flex justify-between mt-4">
-            {renderPaginationButtons()}
-          </div>
+          
+          {renderActionButtons()}
+       
         </div>
         
       {/* Render the modal */}

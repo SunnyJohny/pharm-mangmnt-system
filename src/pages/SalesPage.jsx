@@ -785,15 +785,24 @@ const SalesPage = () => {
     }
   }, [totalStoreValue, allPagesContent]);
 
-  useEffect(() => {
-    const filteredByDate = searchByDate(state.sales, fromDate, toDate);
-    setFilteredSales(filteredByDate);
-  }, [state.sales, searchByDate, fromDate, toDate]);
+// Combine date and keyword filters
+useEffect(() => {
+  let filtered = state.sales;
 
-  useEffect(() => {
-    const filteredByKeyword = searchByKeyword(state.sales, searchKeyword);
-    setFilteredSales(filteredByKeyword);
-  }, [state.sales, searchByKeyword, searchKeyword]);
+  // Apply date filter if both fromDate and toDate are selected
+  if (fromDate && toDate) {
+    filtered = searchByDate(filtered, fromDate, toDate);
+  }
+
+  // Apply keyword filter
+  if (searchKeyword) {
+    filtered = searchByKeyword(filtered, searchKeyword);
+  }
+
+  setFilteredSales(filtered);
+  calculateTotalSalesValue(filtered);
+}, [state.sales, fromDate, toDate, searchKeyword, searchByDate, searchByKeyword]);
+
 
   useEffect(() => {
     calculateTotalSalesValue(filteredSales);
@@ -802,7 +811,7 @@ const SalesPage = () => {
   const calculateTotalSalesValue = (sales) => {
     if (!sales || sales.length === 0) {
       // setTotalSalesValue(0);
-      console.log('filteredsales empty')
+     
       return;
     }
 
@@ -909,50 +918,50 @@ const SalesPage = () => {
 
 
 
-      useEffect(() => {
-        const initialItems = state.sales || [];
-        setFilteredSales(initialItems);
-        const capturePagesContent = async () => {
-          const pagesContent = [];
-          const tableContainer = document.querySelector('.table-container');
-          const itemsPerPage = 20;
+      // useEffect(() => {
+      //   const initialItems = state.sales || [];
+      //   setFilteredSales(initialItems);
+      //   const capturePagesContent = async () => {
+      //     const pagesContent = [];
+      //     const tableContainer = document.querySelector('.table-container');
+      //     const itemsPerPage = 20;
     
-          if (tableContainer) {
-            const totalItems = filteredSales.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
+      //     if (tableContainer) {
+      //       const totalItems = filteredSales.length;
+      //       const totalPages = Math.ceil(totalItems / itemsPerPage);
     
-            const calculateTotalStoreValue = (items) => {
-              const calculatedTotalStoreValue = items.reduce(
-                (total, item) =>
-                  total +
-                  item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-                0
-              );
-              setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-            };
+      //       const calculateTotalStoreValue = (items) => {
+      //         const calculatedTotalStoreValue = items.reduce(
+      //           (total, item) =>
+      //             total +
+      //             item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+      //           0
+      //         );
+      //         setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+      //       };
     
-            for (let page = 1; page <= totalPages; page++) {
-              const startIndex = (page - 1) * itemsPerPage;
-              const endIndex = startIndex + itemsPerPage;
-              const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
+      //       for (let page = 1; page <= totalPages; page++) {
+      //         const startIndex = (page - 1) * itemsPerPage;
+      //         const endIndex = startIndex + itemsPerPage;
+      //         const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
     
-              setFilteredSales(itemsToDisplay);
-              calculateTotalStoreValue(itemsToDisplay);
+      //         setFilteredSales(itemsToDisplay);
+      //         calculateTotalStoreValue(itemsToDisplay);
     
-              await new Promise((resolve) => setTimeout(resolve, 500));
+      //         await new Promise((resolve) => setTimeout(resolve, 500));
     
-              const canvas = await html2canvas(tableContainer);
-              pagesContent.push(canvas.toDataURL('image/png'));
-            }
+      //         const canvas = await html2canvas(tableContainer);
+      //         pagesContent.push(canvas.toDataURL('image/png'));
+      //       }
     
-            setAllPagesContent(pagesContent);
-            setFilteredSales(initialItems);
-            calculateTotalStoreValue(initialItems);
-          }
-        };
+      //       setAllPagesContent(pagesContent);
+      //       setFilteredSales(initialItems);
+      //       calculateTotalStoreValue(initialItems);
+      //     }
+      //   };
     
-        capturePagesContent();
-      }, [state.products, state.productTotals, state.productTotalsMap, filteredSales, state.sales]);
+      //   capturePagesContent();
+      // }, [state.products, state.productTotals, state.productTotalsMap, filteredSales, state.sales]);
     
 
   const renderPaginationButtons = () => {
@@ -1364,7 +1373,7 @@ const SalesPage = () => {
     <strong>Payment Method:</strong>
     <ul>
       {Object.entries(paymentMethods).map(([method, totalAmount], index) => {
-        console.log(`Payment Method: ${method}, Total Amount: ${totalAmount}`);
+       
         const amount = Number(totalAmount);
         return (
           <li key={index}>
@@ -1378,7 +1387,7 @@ const SalesPage = () => {
     <strong>Salespersons:</strong>
     <ul>
       {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
-        console.log(`Salesperson: ${salesperson}, Total Sales: ${totalSales}`);
+        
         const sales = Number(totalSales);
         return (
           <li key={index}>
