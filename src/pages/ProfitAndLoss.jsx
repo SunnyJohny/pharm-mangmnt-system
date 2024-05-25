@@ -15,8 +15,8 @@ import ReceiptModal from '../components/ReceiptModal';
 
 const ProfitAndLoss = () => {
   const { state, searchByDate, calculateTotalPaidAmount } = useMyContext();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(100);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
 
@@ -27,23 +27,19 @@ const ProfitAndLoss = () => {
   const [selectedSale, setSelectedSale] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
 
-  const [filteredExpenses, setFilteredExpenses] = useState([]);
-  const totalItems = filteredSales.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  // const [filteredExpenses, setFilteredExpenses] = useState([]);
+  // const totalItems = filteredSales.length;
+  // const totalPages = Math.ceil(totalItems / itemsPerPage);
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
   // const itemsToDisplay = filteredSales.slice(startIndex, endIndex);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   // const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [totalExpenseAmount, setTotalExpenseAmount] = useState(0);
-  const [allPagesContent, setAllPagesContent] = useState([]);
-  const [totalStoreValue, setTotalStoreValue] = useState(0);
+  // const [allPagesContent, setAllPagesContent] = useState([]);
+  // const [totalStoreValue, setTotalStoreValue] = useState(0);
 
-  if (filteredExpenses || endIndex || allPagesContent || totalStoreValue) {
-    console.log("Variables are present and have been logged:", setAllPagesContent, filteredExpenses, endIndex, allPagesContent, setTotalStoreValue);
-  } else {
-    console.log("Variables are not present or are falsy.");
-  }
+ 
 
 
   const totalTaxPaidAmount = calculateTotalPaidAmount();

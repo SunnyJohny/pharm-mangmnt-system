@@ -8,7 +8,7 @@ import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 import { faChartLine, faShoppingCart, faCalendarAlt, faBox } from '@fortawesome/free-solid-svg-icons';
 // import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ExpenseInvoiceModal from '../components/ExpenseInvoiceModal';
   import { Link } from 'react-router-dom';
@@ -17,13 +17,13 @@ import ExpenseInvoiceModal from '../components/ExpenseInvoiceModal';
 
 const ExpensePage = () => {
   const { state, searchByKeyword, searchByDate } = useMyContext();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(100);
+  
+ 
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   // const [filteredItems, setFilteredItems] = useState([]);
   // const [totalStoreValue, setTotalStoreValue] = useState(0);
-  const [allPagesContent, setAllPagesContent] = useState([]);
+ 
   // Added state for total sales
   // const navigate = useNavigate();
   const [totalExpenseValue, setTotalExpenseValue] = useState(0);
@@ -34,11 +34,9 @@ const ExpensePage = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   // const [summaryData, setSummaryData] = useState(null); // State to hold summary data
 
-  const totalItems = filteredExpenses.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const itemsToDisplay = filteredExpenses.slice(startIndex, endIndex);
+  // const totalItems = filteredExpenses.length;
+  
+ 
   const [selectedDateOption, setSelectedDateOption] = useState('All');
 
 
@@ -482,7 +480,7 @@ const ExpensePage = () => {
   </thead>
 
   <tbody>
-    {itemsToDisplay
+    {filteredExpenses
       .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date in descending order
       .map((expense, index) => (
          <tr key={index} onClick={() => handleExpenseClick(expense)} style={{ cursor: 'pointer' }}>

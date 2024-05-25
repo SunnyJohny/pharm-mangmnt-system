@@ -730,7 +730,7 @@ import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 import { faChartLine, faShoppingCart, faCalendarAlt, faBox } from '@fortawesome/free-solid-svg-icons';
 
-import html2canvas from 'html2canvas';
+
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ReceiptModal from '../components/ReceiptModal';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
@@ -744,8 +744,8 @@ const SalesPage = () => {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   // const [filteredItems, setFilteredItems] = useState([]);
-  const [totalStoreValue, setTotalStoreValue] = useState(0);
-  const [allPagesContent, setAllPagesContent] = useState([]);
+  // const [totalStoreValue, setTotalStoreValue] = useState(0);
+ 
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
  
   const tableRef = useRef(null);
@@ -778,13 +778,6 @@ const SalesPage = () => {
 
 
   
-  useEffect(() => {
-    // Just referencing the variables to avoid the unused vars warning
-    if (totalStoreValue || allPagesContent.length) {
-      // No-op
-    }
-  }, [totalStoreValue, allPagesContent]);
-
 // Combine date and keyword filters
 useEffect(() => {
   let filtered = state.sales;
@@ -825,6 +818,8 @@ useEffect(() => {
     }, 0);
     setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
   };
+
+  
   const handleFromDateChange = (date) => {
     setFromDate(date);
     if (toDate) {
