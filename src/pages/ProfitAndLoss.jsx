@@ -76,7 +76,7 @@ const ProfitAndLoss = () => {
         return accumulator + parseFloat(expense.amount);
       }, 0);
       setTotalExpenseAmount(totalAmount);
-      setFilteredExpenses(filteredByDate);
+      // setFilteredExpenses(filteredByDate);
     }
   }, [state.expenses, searchByDate, fromDate, toDate]);
 
@@ -432,7 +432,7 @@ const ProfitAndLoss = () => {
               className="border border-gray-300 rounded-md p-2"
               placeholder="Search"
               // Assuming you have a function setSearchKeyword to handle search
-              onChange={(e) => setSearchKeyword(e.target.value)}
+              // onChange={(e) => setSearchKeyword(e.target.value)}
               style={{ marginLeft: 'auto', marginRight: '16px' }}
             />
           </div>
