@@ -1,13 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
 import SignIn from "./pages/SignIn";
-// import CompanySignUp from "./pages/CompanySignUp";
 import SignUp from "./pages/SignUp";
-// import dotenv from 'dotenv';
-// dotenv.config();
-
-
 import PrivateRoute from "./components/PrivateRoute";
 import Header from "./components/Header";
 import { ToastContainer } from "react-toastify";
@@ -23,70 +17,56 @@ import SalesPage from './pages/SalesPage';
 import PrintSalesPage from './components/PrintSalesPage';
 import AddExpense from './components/AddExpenses';
 import AdminComponent from './components/Admin';
-
-
-
 import ExpensePage from './pages/ExpensePage';
 import ProfitAndLoss from './pages/ProfitAndLoss';
+import BalanceSheet from './pages/BalanceSheet';
 import AddTax from './components/AddTax';
 import AddAsset from './components/AddAsset';
-
+import AddLiability from './components/AddLiability';
 
 function App() {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Router>
         <Header />
-        <Routes>
-        <Route path="/admin" element={<AdminComponent />}
-/>
-
-          <Route path="/" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          {/* <Route path="/company-sign-up" element={<CompanySignUp />} /> */}
-
-          <Route path="/posscreen" element={<PosScreen />} />
-          <Route path="/add-expense" element={<AddExpense />} />
-          <Route path="/add-asset" element={<AddAsset />} />
-          <Route path="/add-tax" element={<AddTax />} />
-          <Route path="/profitandloss" element={<ProfitAndLoss />} />
-          <Route path="/expenses" element={<ExpensePage />} />
-
-
-
-          {/* Add a PrivateRoute for the profile page */}
-          <Route path="/profile" element={<PrivateRoute />}>
-            {/* <Route path="/" element={<Profile />} /> */}
-          </Route>
-
-          <Route path="/inventory-page" element={<InventoryPage />} />
-          <Route path="/sales" element={<SalesPage />} />
-
-          <Route path="/add-product" element={<AddProduct />} />
-          {/* Add a route for the product details page */}
-          <Route path="/product-details/:productId" element={<ProductDetails />} />
-
-          <Route path="/product-history/:productId" element={<ProductHistory />} />
-          <Route path="/print-inventory" element={<PrintInventoryPage />} />
-          <Route path="/print-sales" element={<PrintSalesPage />} />
-
-        </Routes>
-      </Router>
-      <ToastContainer
-        position="bottom-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
+        <div className="flex-grow">
+          <Routes>
+            <Route path="/admin" element={<AdminComponent />} />
+            <Route path="/" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/posscreen" element={<PosScreen />} />
+            <Route path="/add-expense" element={<AddExpense />} />
+            <Route path="/add-asset" element={<AddAsset />} />
+            <Route path="/add-liability" element={<AddLiability />} />
+            <Route path="/add-tax" element={<AddTax />} />
+            <Route path="/profitandloss" element={<ProfitAndLoss />} />
+            <Route path="/balance-sheet" element={<BalanceSheet />} />
+            <Route path="/expenses" element={<ExpensePage />} />
+            <Route path="/profile" element={<PrivateRoute />} />
+            <Route path="/inventory-page" element={<InventoryPage />} />
+            <Route path="/sales" element={<SalesPage />} />
+            <Route path="/add-product" element={<AddProduct />} />
+            <Route path="/product-details/:productId" element={<ProductDetails />} />
+            <Route path="/product-history/:productId" element={<ProductHistory />} />
+            <Route path="/print-inventory" element={<PrintInventoryPage />} />
+            <Route path="/print-sales" element={<PrintSalesPage />} />
+          </Routes>
+        </div>
+        <ToastContainer
+          position="bottom-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
         <Footer />
-
-    </>
+      </Router>
+    </div>
   );
 }
 

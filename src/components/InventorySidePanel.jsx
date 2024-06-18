@@ -32,6 +32,10 @@ const InventorySidePanel = ({ onItemSelected }) => {
           <FaPlus className="text-xl" />
           <p className="ml-2">Fixed Asset</p>
         </Link>
+        <Link to="/add-liability" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+          <FaPlus className="text-xl" />
+          <p className="ml-2">Liability</p>
+        </Link>
 
 
         <Link to="/sales" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">

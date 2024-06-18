@@ -46,6 +46,10 @@ const SalesPageSidePanel = () => {
           <FaReceipt className="text-xl" />
           <p className="ml-2">Profit & Loss Statement</p>
         </Link>
+        <Link to="/balance-sheet" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+          <FaReceipt className="text-xl" />
+          <p className="ml-2">Balance Sheet</p>
+        </Link>
         <Link to="/user-profile" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaUser className="text-xl" />
           <p className="ml-2">User Profile</p>

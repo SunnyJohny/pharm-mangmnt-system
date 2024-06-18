@@ -10,18 +10,20 @@ import { useNavigate } from 'react-router';
 export default function AddAsset() {
   const navigate = useNavigate();
   const { state } = useMyContext();
+  
   const [loading, setLoading] = useState(false);
   const [asset, setAsset] = useState({
     assetName: "",
     description: "",
     purchasePrice: 0,
+    amount: 0,
     salvageValue: 0,
     depreciationStartDate: "",
     depreciationMethod: "",
     usefulLife: 0,
     assetAccount: "",
     depreciationExpenseAccount: "",
-    accumulatedDepreciationAccount: "",
+    marketValue: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -40,7 +42,7 @@ export default function AddAsset() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "accumulatedDepreciationAccount" && value === "Add New") {
+    if (name === "marketValue" && value === "Add New") {
       setAsset((prevAsset) => ({
         ...prevAsset,
         assetName: value,
@@ -91,8 +93,10 @@ export default function AddAsset() {
                     <th>Depreciation Expense Account</th>
                     <th>Depreciation Method</th>
                     <th>Depreciation Start Date</th>
+                    <th>Date Added</th>
                     <th>Purchase Price</th>
                     <th>Salvage Value</th>
+                    <th>Market Value</th>
                     <th>Useful Life</th>
                   </tr>
                 </thead>
@@ -102,11 +106,13 @@ export default function AddAsset() {
                       <td>${index + 1}</td>
                       <td>${asset.assetName}</td>
                       <td>${asset.description}</td>
-                      <td>${asset.accumulatedDepreciationAccount}</td>
+                      <td>${asset.marketValue}</td>
                       <td>${asset.assetAccount}</td>
                       <td>${asset.depreciationExpenseAccount}</td>
                       <td>${asset.depreciationMethod}</td>
                       <td>${asset.depreciationStartDate}</td>
+                      <td>${asset.addedtDate}</td>
+                      <td>${asset.amount}</td>
                       <td>${asset.purchasePrice}</td>
                       <td>${asset.salvageValue}</td>
                       <td>${asset.usefulLife}</td>
@@ -119,6 +125,7 @@ export default function AddAsset() {
                     <td colspan="7"></td>
                     <td class="font-bold">Totals:</td>
                     <td class="font-bold">₦ ${calculateTotal("purchasePrice")}</td>
+                    <td class="font-bold">₦ ${calculateTotal("amount")}</td>
                     <td class="font-bold">₦ ${calculateTotal("salvageValue")}</td>
                     <td></td>
                   </tr>
@@ -146,6 +153,7 @@ export default function AddAsset() {
       "Depreciation Start Date",
       "Purchase Price",
       "Salvage Value",
+      "Market Value",
       "Useful Life"
     ];
 
@@ -153,11 +161,13 @@ export default function AddAsset() {
       index + 1,
       asset.assetName,
       asset.description,
-      asset.accumulatedDepreciationAccount,
+      asset.marketValue,
       asset.assetAccount,
       asset.depreciationExpenseAccount,
       asset.depreciationMethod,
       asset.depreciationStartDate,
+      asset.addedDate,
+      asset.amount,
       asset.purchasePrice,
       asset.salvageValue,
       asset.usefulLife
@@ -173,6 +183,7 @@ export default function AddAsset() {
       "Totals:",
       "",
       calculateTotal("purchasePrice"),
+      calculateTotal("amount"),
       calculateTotal("salvageValue"),
       ""
     ];
@@ -200,70 +211,80 @@ export default function AddAsset() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const {
         assetName,
         description,
+        amount,
         purchasePrice,
         salvageValue,
         depreciationStartDate,
+        addedDate,
         depreciationMethod,
         usefulLife,
         assetAccount,
         depreciationExpenseAccount,
-        accumulatedDepreciationAccount,
+        marketValue,
       } = asset;
-
-      if (
-        !assetName.trim() ||
-        !description.trim() ||
-        isNaN(parseFloat(purchasePrice)) ||
-        isNaN(parseFloat(salvageValue)) ||
-        !depreciationStartDate ||
-        !depreciationMethod ||
-        isNaN(parseFloat(usefulLife)) ||
-        !assetAccount ||
-        !depreciationExpenseAccount ||
-        !accumulatedDepreciationAccount
-      ) {
-        toast.error("All fields must be filled and contain valid data", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-        setLoading(false);
-        return;
-      }
-
+  
+      // if (
+      //   !assetName.trim() ||
+      //   !description.trim() ||
+      //   isNaN(parseFloat(purchasePrice)) ||
+      //   isNaN(parseFloat(amount)) ||
+      //   isNaN(parseFloat(salvageValue)) ||
+      //   !depreciationStartDate ||
+      //   !depreciationStartDate ||
+      //   !addedDate ||
+      //   isNaN(parseFloat(usefulLife)) ||
+      //   !assetAccount ||
+      //   !depreciationExpenseAccount ||
+      //   !marketValue
+      // ) {
+      //   toast.error("All fields must be filled and contain valid data", {
+      //     position: toast.POSITION.TOP_RIGHT,
+      //   });
+      //   setLoading(false);
+      //   return;
+      // }
+  
       const assetData = {
         assetName: assetName.trim(),
         description: description.trim(),
+        amount: parseFloat(amount),
         purchasePrice: parseFloat(purchasePrice),
         salvageValue: parseFloat(salvageValue),
         depreciationStartDate,
+        addedDate,
         depreciationMethod,
         usefulLife: parseFloat(usefulLife),
         assetAccount,
         depreciationExpenseAccount,
-        accumulatedDepreciationAccount,
+        marketValue,
+        assetType: asset.assetType, // Include assetType here
       };
-
+  
       await addDoc(collection(db, "assets"), assetData);
-
+  
       toast.success("Asset added successfully", {
         position: toast.POSITION.TOP_RIGHT,
       });
-
+  
       setAsset({
         assetName: "",
         description: "",
+        amount: 0,
         purchasePrice: 0,
         salvageValue: 0,
         depreciationStartDate: "",
+        addedDate: "",
         depreciationMethod: "",
         usefulLife: 0,
         assetAccount: "",
         depreciationExpenseAccount: "",
-        accumulatedDepreciationAccount: "",
+        marketValue: "",
+        assetType: "", // Reset assetType after adding asset
       });
     } catch (error) {
       console.error("Error adding asset: ", error);
@@ -274,7 +295,7 @@ export default function AddAsset() {
       setLoading(false);
     }
   };
-
+  
   if (loading) {
     return <Spinner />;
   }
@@ -309,7 +330,7 @@ export default function AddAsset() {
                 value={asset.assetName}
                 onChange={handleInputChange}
                 className="border rounded-md w-full p-2"
-                required
+                
               />
             </div>
             <div className="mb-4">
@@ -319,7 +340,7 @@ export default function AddAsset() {
                 value={asset.description}
                 onChange={handleInputChange}
                 className="border rounded-md w-full p-2"
-                required
+                
                 rows="4"
               ></textarea>
             </div>
@@ -339,7 +360,18 @@ export default function AddAsset() {
                     value={asset.purchasePrice}
                     onChange={handleInputChange}
                     className="border rounded-md w-full p-2"
-                    required
+                    
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Asset Amount</label>
+                  <input
+                    type="number"
+                    name="amount"
+                    value={asset.Amount}
+                    onChange={handleInputChange}
+                    className="border rounded-md w-full p-2"
+                    
                   />
                 </div>
                 <div className="mb-4">
@@ -350,7 +382,29 @@ export default function AddAsset() {
                     value={asset.salvageValue}
                     onChange={handleInputChange}
                     className="border rounded-md w-full p-2"
-                    required
+                    
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Market Value</label>
+                  <input
+                    type="number"
+                    name="marketValue"
+                    value={asset.marketValue}
+                    onChange={handleInputChange}
+                    className="border rounded-md w-full p-2"
+                    
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Date Added</label>
+                  <input
+                    type="datetime-local"
+                    name="addedDate"
+                    value={asset.addedDate}
+                    onChange={handleInputChange}
+                    className="border rounded-md w-full p-2"
+                    
                   />
                 </div>
                 <div className="mb-4">
@@ -361,7 +415,7 @@ export default function AddAsset() {
                     value={asset.depreciationStartDate}
                     onChange={handleInputChange}
                     className="border rounded-md w-full p-2"
-                    required
+                    
                   />
                 </div>
                 <div className="mb-4">
@@ -371,7 +425,7 @@ export default function AddAsset() {
                     value={asset.depreciationMethod}
                     onChange={handleInputChange}
                     className="border rounded-md w-full p-2"
-                    required
+                    
                   >
                     <option value="">Select Depreciation Method</option>
                     <option value="Straight">Straight</option>
@@ -387,7 +441,7 @@ export default function AddAsset() {
                     value={asset.usefulLife}
                     onChange={handleInputChange}
                     className="border rounded-md w-full p-2"
-                    required
+                    
                   />
                 </div>
               </div>
@@ -410,7 +464,7 @@ export default function AddAsset() {
                       handleInputChange({ target: { name: e.target.name, value: newValue } });
                     }}
                     className="border rounded-md w-full p-2"
-                    required
+                    
                   >
                     <option value="">Select Asset Account</option>
                     <option value="Add New">Add New</option>
@@ -422,6 +476,31 @@ export default function AddAsset() {
                   </select>
                 </div>
                 <div className="mb-4">
+  <label className="block text-gray-700 text-sm font-bold mb-2">Asset Type</label>
+  <select
+    name="assetType"
+    value={asset.assetType}
+    onChange={(e) => {
+      const newValue = e.target.value === "Add New" ? "" : e.target.value;
+      handleInputChange({ target: { name: e.target.name, value: newValue } });
+    }}
+    className="border rounded-md w-full p-2"
+    
+  >
+    <option value="">Select Asset Type</option>
+    <option value="Add New">Add New</option>
+    <option value="cash">Cash</option>
+    <option value="checking">Checking</option>
+    <option value="cashEquivalents">Cash Equivalents</option>
+    <option value="accountsReceivable">Accounts Receivable</option>
+    <option value="inventory">Inventory</option>
+    <option value="nonCurrentAssets">Non-Current Assets</option>
+    <option value="fixedAssets">Fixed Assets</option>
+    <option value="otherAssets">Other Assets</option>
+  </select>
+</div>
+
+                <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">Depreciation Expense Account</label>
                   <select
                     name="depreciationExpenseAccount"
@@ -431,7 +510,7 @@ export default function AddAsset() {
                       handleInputChange({ target: { name: e.target.name, value: newValue } });
                     }}
                     className="border rounded-md w-full p-2"
-                    required
+                    
                   >
                     <option value="">Select Depreciation Expense Account</option>
                     <option value="Add New">Add New</option>
@@ -445,14 +524,14 @@ export default function AddAsset() {
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">Accumulated Depreciation Account</label>
                   <select
-                    name="accumulatedDepreciationAccount"
-                    value={asset.accumulatedDepreciationAccount}
+                    name="marketValue"
+                    value={asset.marketValue}
                     onChange={(e) => {
                       const newValue = e.target.value === "Add New" ? "" : e.target.value;
                       handleInputChange({ target: { name: e.target.name, value: newValue } });
                     }}
                     className="border rounded-md w-full p-2"
-                    required
+                    
                   >
                     <option value="">Select Accumulated Depreciation Account</option>
                     <option value="Add New">Add New</option>
@@ -485,7 +564,7 @@ export default function AddAsset() {
     <button onClick={handleBack} className="text-blue-500 text-lg cursor-pointer">
       &#8592; Back
     </button>
-    <h2 className="text-2xl font-bold text-center">Fixed Asset</h2>
+    <h2 className="text-2xl font-bold text-center">Assets</h2>
     <div></div> {/* Adjust this empty div for spacing if needed */}
   </div>
       {/* Table to display data */}
@@ -497,13 +576,17 @@ export default function AddAsset() {
               <th className="border px-
 4 py-2">Asset Name</th>
               <th className="border px-4 py-2">Description</th>
-              <th className="border px-4 py-2">Accumulated Depreciation Account</th>
-              <th className="border px-4 py-2">Asset Account</th>
-              <th className="border px-4 py-2">Depreciation Expense Account</th>
-              <th className="border px-4 py-2">Depreciation Method</th>
-              <th className="border px-4 py-2">Depreciation Start Date</th>
+              <th className="border px-4 py-2">Amount</th>
               <th className="border px-4 py-2">Purchase Price</th>
               <th className="border px-4 py-2">Salvage Value</th>
+              <th className="border px-4 py-2">Market Value</th>
+              <th className="border px-4 py-2">Asset Account</th>
+              <th className="border px-4 py-2">Asset Type</th>
+
+              <th className="border px-4 py-2">Depreciation Expense Account</th>
+              <th className="border px-4 py-2">Depreciation Method</th>
+              <th className="border px-4 py-2">Date Added</th>
+              <th className="border px-4 py-2">Depreciation Start Date</th>
               <th className="border px-4 py-2">Useful Life</th>
             </tr>
           </thead>
@@ -513,13 +596,15 @@ export default function AddAsset() {
                 <td className="border px-4 py-2">{index + 1}</td>
                 <td className="border px-4 py-2">{asset.assetName}</td>
                 <td className="border px-4 py-2">{asset.description}</td>
-                <td className="border px-4 py-2">{asset.accumulatedDepreciationAccount}</td>
+                <td className="border px-4 py-2">{asset.amount}</td>
+                <td className="border px-4 py-2">{asset.purchasePrice}</td>
+                <td className="border px-4 py-2">{asset.salvageValue}</td>
+                <td className="border px-4 py-2">{asset.marketValue}</td>
                 <td className="border px-4 py-2">{asset.assetAccount}</td>
+                <td className="border px-4 py-2">{asset.assetType}</td>
                 <td className="border px-4 py-2">{asset.depreciationExpenseAccount}</td>
                 <td className="border px-4 py-2">{asset.depreciationMethod}</td>
                 <td className="border px-4 py-2">{asset.depreciationStartDate}</td>
-                <td className="border px-4 py-2">{asset.purchasePrice}</td>
-                <td className="border px-4 py-2">{asset.salvageValue}</td>
                 <td className="border px-4 py-2">{asset.usefulLife}</td>
               </tr>
             ))}

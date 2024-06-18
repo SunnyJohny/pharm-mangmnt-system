@@ -16,7 +16,8 @@ export const MyContextProvider = ({ children }) => {
     expenses: [], // New array for expenses data
     taxes: [], // New array for expenses data
     cart: [],
-    assets: [], // Add empty array for assets
+    assets: [], // Add empty array for 
+    liabilities: [], // Add empty array for liabilities
     inventoryData: [],
     productTotals: new Map(),
     overallTotalQuantity: 0,
@@ -29,7 +30,21 @@ export const MyContextProvider = ({ children }) => {
 
   const [state, setState] = useState(initialState);
 
+  const fetchLiabilities = async () => {
+    try {
+      const liabilitiesCollection = collection(getFirestore(), 'liabilities');
+      const liabilitiesSnapshot = await getDocs(liabilitiesCollection);
+      const liabilitiesData = liabilitiesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setState((prevState) => ({ ...prevState, liabilities: liabilitiesData }));
+      console.log('Fetching liabilities...', liabilitiesData);
+    } catch (error) {
+      console.error('Error fetching liabilities:', error.message);
+    }
+  };
 
+  useEffect(() => {
+    fetchLiabilities();
+  }, []);
 
   const fetchAssets = async () => {
     try {
@@ -37,7 +52,7 @@ export const MyContextProvider = ({ children }) => {
       const assetsSnapshot = await getDocs(assetsCollection);
       const assetsData = assetsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setState((prevState) => ({ ...prevState, assets: assetsData }));
-      // console.log('Fetching assets...', assetsData);
+      console.log('Fetching assets...', assetsData);
 
     } catch (error) {
       console.error('Error fetching assets:', error.message);
@@ -500,6 +515,7 @@ const fetchProduct = async (productId) => {
     logoutUser,
     fetchUsers,
     fetchAssets,
+    fetchLiabilities,
     searchByKeyword,
     searchByDate,
     addToCart,
