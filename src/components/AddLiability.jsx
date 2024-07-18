@@ -1,17 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Spinner from "./Spinner";
-
 import { MdClose, MdEdit, MdDelete } from "react-icons/md";
-import { addDoc, collection } from "firebase/firestore"; // Assuming you are using Firestore
-import { db } from "../firebase"; // Adjust the import path as necessary
+import { doc, deleteDoc, updateDoc, addDoc, collection } from "firebase/firestore";
+import { db } from "../firebase";
 import { useMyContext } from '../Context/MyContext';
+
 import { useNavigate } from 'react-router';
 
 export default function AddLiability() {
   const navigate = useNavigate();
   const { state, dispatch } = useMyContext();
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentLiabilityId, setCurrentLiabilityId] = useState(null);
   const [liability, setLiability] = useState({
     liabilityName: "",
     description: "",
@@ -20,18 +22,52 @@ export default function AddLiability() {
     accountType: "",
     liabilityAccount: "",
     interestExpenseAccount: "",
-    collectionDate: "", // New field
-    amountPaid: 0, // New field
-    loanBalance: 0, // New field
+    collectionDate: "",
+    amountPaid: 0,
+    loanBalance: 0,
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Calculate loanBalance whenever amount or amountPaid changes
+  useEffect(() => {
+    const calculatedLoanBalance = parseFloat(liability.amount) - parseFloat(liability.amountPaid);
+    setLiability((prevLiability) => ({
+      ...prevLiability,
+      loanBalance: calculatedLoanBalance,
+    }));
+  }, [liability.amount, liability.amountPaid]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
+  const handlePrint = () => {
+    // Function for printing liabilities
+    };
+    
+   
+    const handleDownload = () => {
+    // Function for downloading liabilities as CSV
+    };
+
+
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setIsEditing(false);
+    setCurrentLiabilityId(null);
+    setLiability({
+      liabilityName: "",
+      description: "",
+      amount: 0,
+      dueDate: "",
+      accountType: "",
+      liabilityAccount: "",
+      interestExpenseAccount: "",
+      collectionDate: "",
+      amountPaid: 0,
+      loanBalance: 0,
+    });
   };
 
   const handleInputChange = (e) => {
@@ -42,30 +78,32 @@ export default function AddLiability() {
     }));
   };
 
-  const handlePrint = () => {
-    // Function for printing liabilities
-  };
-
-  const handleDownload = () => {
-    // Function for downloading liabilities as CSV
+  const handleEdit = (index) => {
+    const liabilityToEdit = state.liabilities[index];
+    setLiability(liabilityToEdit);
+    setCurrentLiabilityId(liabilityToEdit.id);
+    setIsEditing(true);
+    setIsModalOpen(true);
   };
 
   const handleBack = () => {
     navigate("/inventory-page");
   };
 
-  const handleEdit = (index) => {
-    const liabilityToEdit = state.liabilities[index];
-    dispatch({ type: 'EDIT_LIABILITY', payload: liabilityToEdit });
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = (index) => {
-    dispatch({ type: 'DELETE_LIABILITY', payload: index });
-  };
-
   const calculateTotal = (field) => {
     return state.liabilities.reduce((total, liability) => total + liability[field], 0);
+  };
+
+  const handleDelete = async (index) => {
+    try {
+      const liabilityToDelete = state.liabilities[index];
+      await deleteDoc(doc(db, "liabilities", liabilityToDelete.id));
+      dispatch({ type: 'DELETE_LIABILITY', payload: index });
+      toast.success("Liability deleted successfully", { position: toast.POSITION.TOP_RIGHT });
+    } catch (error) {
+      console.error("Error deleting liability: ", error);
+      toast.error("Failed to delete liability. Please try again later.", { position: toast.POSITION.TOP_RIGHT });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -86,25 +124,6 @@ export default function AddLiability() {
         loanBalance,
       } = liability;
 
-      if (
-        !liabilityName.trim() ||
-        !description.trim() ||
-        isNaN(parseFloat(amount)) ||
-        !dueDate ||
-        !accountType ||
-        !liabilityAccount ||
-        !interestExpenseAccount ||
-        !collectionDate ||
-        isNaN(parseFloat(amountPaid)) ||
-        isNaN(parseFloat(loanBalance))
-      ) {
-        toast.error("All fields must be filled and contain valid data", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-        setLoading(false);
-        return;
-      }
-
       const liabilityData = {
         liabilityName: liabilityName.trim(),
         description: description.trim(),
@@ -115,34 +134,21 @@ export default function AddLiability() {
         interestExpenseAccount,
         collectionDate,
         amountPaid: parseFloat(amountPaid),
-        loanBalance: parseFloat(loanBalance),
+        loanBalance: parseFloat(loanBalance), // Ensure loanBalance is included here
       };
 
-      await addDoc(collection(db, "liabilities"), liabilityData);
+      if (isEditing) {
+        await updateDoc(doc(db, "liabilities", currentLiabilityId), liabilityData);
+        toast.success("Liability updated successfully", { position: toast.POSITION.TOP_RIGHT });
+      } else {
+        const docRef = await addDoc(collection(db, "liabilities"), liabilityData);
+        toast.success("Liability added successfully", { position: toast.POSITION.TOP_RIGHT });
+      }
 
-      toast.success("Liability added successfully", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
-
-      dispatch({ type: 'ADD_LIABILITY', payload: liabilityData });
-
-      setLiability({
-        liabilityName: "",
-        description: "",
-        amount: 0,
-        dueDate: "",
-        accountType: "",
-        liabilityAccount: "",
-        interestExpenseAccount: "",
-        collectionDate: "",
-        amountPaid: 0,
-        loanBalance: 0,
-      });
+      handleCloseModal();
     } catch (error) {
-      console.error("Error adding liability: ", error);
-      toast.error("Failed to add liability. Please try again later.", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
+      console.error("Error saving liability: ", error);
+      toast.error("Failed to save liability. Please try again later.", { position: toast.POSITION.TOP_RIGHT });
     } finally {
       setLoading(false);
     }
@@ -167,7 +173,9 @@ export default function AddLiability() {
                   <button onClick={handleBack} className="text-blue-500 text-lg cursor-pointer">
                     &#8592; Back
                   </button>
-                  <h2 className="text-2xl font-bold flex-1 text-center">Add Liability</h2>
+                  <h2 className="text-2xl font-bold flex-1 text-center">
+                    {isEditing ? "Edit Liability" : "Add Liability"}
+                  </h2>
                   <button onClick={handleCloseModal} className="text-gray-500">
                     <MdClose size={24} />
                   </button>
@@ -195,11 +203,7 @@ export default function AddLiability() {
                       rows="4"
                     ></textarea>
                   </div>
-
-                  {/* Divider line */}
                   <hr className="my-6 border-gray-300" />
-
-                  {/* Liability Details */}
                   <div>
                     <h3 className="text-xl font-semibold mb-4">Liability Details</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -248,15 +252,19 @@ export default function AddLiability() {
                         />
                       </div>
                       <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Loan Balance</label>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Loan Balance
+
+
+
+
+                        </label>
                         <input
                           type="number"
                           name="loanBalance"
-                          value={liability.amount - liability.amountPaid}
+                          value={liability.loanBalance}
                           onChange={handleInputChange}
                           className="border rounded-md w-full p-2"
                           required
-                          readOnly
                         />
                       </div>
                       <div className="mb-4">
@@ -303,7 +311,7 @@ export default function AddLiability() {
                   <div className="flex items-center justify-between mt-6">
                     <button
                       type="button"
-                      onClick={handleBack}
+                      onClick={handleCloseModal}
                       className="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                       Cancel
@@ -312,7 +320,7 @@ export default function AddLiability() {
                       type="submit"
                       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
-                      Add Liability
+                      {isEditing ? "Update Liability" : "Add Liability"}
                     </button>
                   </div>
                 </form>
@@ -322,13 +330,14 @@ export default function AddLiability() {
         </div>
       )}
 
-<div className="flex justify-between items-center mt-2 mx-8">
-    <button onClick={handleBack} className="text-blue-500 text-lg cursor-pointer">
-      &#8592; Back
-    </button>
-    <h2 className="text-2xl font-bold text-center">Liability</h2>
-    <div></div> {/* Adjust this empty div for spacing if needed */}
-  </div>
+      <div className="flex justify-between items-center mt-2 mx-8">
+        <button onClick={handleBack} className="text-blue-500 text-lg cursor-pointer">
+          &#8592; Back
+        </button>
+        <h2 className="text-2xl font-bold text-center">Liability</h2>
+        <div></div>
+      </div>
+
       <div className="p-4 overflow-x-auto">
         <table className="min-w-full border border-collapse">
           <thead>
@@ -340,8 +349,9 @@ export default function AddLiability() {
               <th className="border px-4 py-2">Interest Expense Account</th>
               <th className="border px-4 py-2">Account Type</th>
               <th className="border px-4 py-2">Due Date</th>
-              <th className="border px-4 py-2">Amount</th>
               <th className="border px-4 py-2">Collection Date</th>
+
+              <th className="border px-4 py-2">Amount</th>
               <th className="border px-4 py-2">Amount Paid</th>
               <th className="border px-4 py-2">Loan Balance</th>
               <th className="border px-4 py-2">Actions</th>
@@ -357,10 +367,11 @@ export default function AddLiability() {
                 <td className="border px-4 py-2">{liability.interestExpenseAccount}</td>
                 <td className="border px-4 py-2">{liability.accountType}</td>
                 <td className="border px-4 py-2">{liability.dueDate}</td>
-                <td className="border px-4 py-2">₦ {liability.amount}</td>
                 <td className="border px-4 py-2">{liability.collectionDate}</td>
+
+                <td className="border px-4 py-2">₦ {liability.amount}</td>
                 <td className="border px-4 py-2">{liability.amountPaid}</td>
-                <td className="border px-4 py-2">{liability.amount - liability.amountPaid}</td>
+                <td className="border px-4 py-2">{liability.loanBalance}</td>
                 <td className="border px-4 py-2 flex justify-center">
                   <button
                     onClick={() => handleEdit(index)}
@@ -378,25 +389,32 @@ export default function AddLiability() {
               </tr>
             ))}
           </tbody>
-
           <tfoot>
-            <tr>
-              <td className="border px-4 py-2 font-bold" colSpan="7">
-                Total Amount:
-              </td>
-              <td className="border px-4 py-2 font-bold">
-                ₦ {calculateTotal("amount")}
-              </td>
-              <td className="border px-4 py-2 font-bold" colSpan="4"></td>
-            </tr>
-          </tfoot>
+  <tr>
+    <td className="border px-4 py-2 font-bold" colSpan="8">
+      Total Amount:
+    </td>
+    <td className="border px-4 py-2 font-bold text-right" style={{ fontSize: '14px' }}>
+      ₦ {calculateTotal("amount")}
+    </td>
+    <td className="border px-4 py-2 font-bold text-right" style={{ fontSize: '14px' }}>
+      ₦ {calculateTotal("amountPaid")}
+    </td>
+    <td className="border px-4 py-2 font-bold text-right" style={{ fontSize: '14px' }}>
+      ₦ {calculateTotal("loanBalance")}
+    </td>
+    <td className="border px-4 py-2 font-bold" colSpan="2"></td>
+  </tr>
+</tfoot>
+
+
+
         </table>
         {state.liabilities && state.liabilities.length === 0 && (
           <div className="text-center mt-4 text-gray-500">No liabilities found</div>
         )}
       </div>
-         {/* Buttons for printing and downloading */}
-<div className="flex flex-wrap justify-center gap-2 p-4">
+      <div className="flex flex-wrap justify-center gap-2 p-2 mb-12">
   <button onClick={handlePrint} className="bg-blue-500 text-white px-4 py-2 rounded-md">
     Print Table
   </button>
@@ -407,6 +425,7 @@ export default function AddLiability() {
     Add Liability
   </button>
 </div>
+
     </>
   );
 }

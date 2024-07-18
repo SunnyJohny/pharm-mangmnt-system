@@ -23,13 +23,14 @@ import BalanceSheet from './pages/BalanceSheet';
 import AddTax from './components/AddTax';
 import AddAsset from './components/AddAsset';
 import AddLiability from './components/AddLiability';
+import CashFlow from './pages/CashFlow';
 
 function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Router>
         <Header />
-        <div className="flex-grow">
+        <div className="flex-grow overflow-y-auto">
           <Routes>
             <Route path="/admin" element={<AdminComponent />} />
             <Route path="/" element={<SignIn />} />
@@ -41,6 +42,7 @@ function App() {
             <Route path="/add-tax" element={<AddTax />} />
             <Route path="/profitandloss" element={<ProfitAndLoss />} />
             <Route path="/balance-sheet" element={<BalanceSheet />} />
+            <Route path="/cash-flow" element={<CashFlow />} />
             <Route path="/expenses" element={<ExpensePage />} />
             <Route path="/profile" element={<PrivateRoute />} />
             <Route path="/inventory-page" element={<InventoryPage />} />

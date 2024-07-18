@@ -1,8 +1,5 @@
-
-
-import {  useNavigate } from 'react-router-dom';
-
-
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DatePicker from 'react-datepicker';
@@ -10,17 +7,12 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
 import { useMyContext } from '../Context/MyContext';
 import InventorySidePanel from '../components/InventorySidePanel';
-
-// import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
-import { useCallback, useEffect, useRef, useState, } from 'react';
 import EditPopup from '../components/EditPopup';
-
-
+import html2canvas from 'html2canvas';
 
 const InventoryPage = () => {
-  const { state } = useMyContext(); // Destructure fetchProduct from the context
+  const { state } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -28,27 +20,12 @@ const InventoryPage = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
-  const [allPagesContent, setAllPagesContent] = useState(1);
+  const [allPagesContent, setAllPagesContent] = useState([]);
 
-  const [showEditPop, setShowEditPop] = useState(false); // State to control the visibility of EditPop
-  const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for editing
+  const [showEditPop, setShowEditPop] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate();
   const tableRef = useRef(null);
-
-if(allPagesContent){
-
-}
-  const calculateTotalStoreValue = useCallback((items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  }, [state.productTotals, state.productTotalsMap]);
-
-
 
   useEffect(() => {
     const initialItems = state.products || [];
@@ -69,9 +46,68 @@ if(allPagesContent){
     }
 
     calculateTotalStoreValue(initialItems);
-  }, [state.products, calculateTotalStoreValue]);
-  
-  
+  }, [state.products]);
+
+  const calculateTotalStoreValue = useCallback((items) => {
+    const calculatedTotalStoreValue = items.reduce(
+      (total, item) =>
+        total +
+        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+      0
+    );
+    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+  }, [state.productTotals, state.productTotalsMap]);
+
+
+  const calculateTotals = () => {
+    let totalQtyRestocked = 0;
+    let totalTotalBal = 0;
+    let totalQtySold = 0;
+    let totalQtyBalance = 0;
+    let totalCostPrice = 0;
+    let totalSalesPrice = 0;
+    let totalItemValue = 0;
+
+    filteredItems.forEach((item) => {
+      const qtyRestocked = state.productTotals.get(item.name) || 0;
+      const totalBal = state.productTotals.get(item.name) || 0;
+      const qtySold = state.productTotalsMap.get(item.name) || 0;
+      const qtyBalance = qtyRestocked - qtySold;
+      const costPrice = Number(item.costPrice);
+      const salesPrice = Number(item.price);
+      const itemValue = salesPrice * qtyBalance;
+
+      totalQtyRestocked += qtyRestocked;
+      totalTotalBal += totalBal;
+      totalQtySold += qtySold;
+      totalQtyBalance += qtyBalance;
+      totalCostPrice += costPrice;
+      totalSalesPrice += salesPrice;
+      totalItemValue += itemValue;
+    });
+
+    return {
+      totalQtyRestocked,
+      totalTotalBal,
+      totalQtySold,
+      totalQtyBalance,
+      totalCostPrice,
+      totalSalesPrice,
+      totalItemValue,
+    };
+  };
+
+  // Call the calculateTotals function to get totals
+  const {
+    totalQtyRestocked,
+    totalTotalBal,
+    totalQtySold,
+    totalQtyBalance,
+    totalCostPrice,
+    totalSalesPrice,
+    totalItemValue,
+  } = calculateTotals();
+
   const searchItems = (e) => {
     let searchText = '';
 
@@ -85,19 +121,6 @@ if(allPagesContent){
     setFilteredItems(filteredByDate);
     calculateTotalStoreValue(filteredByDate);
   };
-
-
-  useEffect(() => {
-    if (tableRef.current) {
-      console.log('Container dimensions:', tableRef.current.offsetWidth, tableRef.current.offsetHeight);
-    }
-  }, []);
-
-  const totalItems = filteredItems.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
 
   const searchInventoryByKeyword = (items, searchText) => {
     return items.filter((item) => item.name.toLowerCase().includes(searchText));
@@ -120,21 +143,38 @@ if(allPagesContent){
     searchItems();
   };
 
+  useEffect(() => {
+    if (tableRef.current) {
+      console.log('Container dimensions:', tableRef.current.offsetWidth, tableRef.current.offsetHeight);
+    }
+  }, []);
+
+  const totalItems = filteredItems.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
+
   const generateSn = (index) => index + 1;
 
   const handleRowClick = (itemId) => {
     navigate(`/product-details/${itemId}`);
   };
 
+  const handleEditClick = (itemId, e) => {
+    e.stopPropagation();
+    const productToEdit = filteredItems.find((product) => product.id === itemId);
+    setSelectedProduct(productToEdit);
+    setShowEditPop(true);
+  };
+
   const renderActionButtons = () => {
-    // InventoryPage.jsx
     const handlePrintInventory = async () => {
       const tableContainer = tableRef.current;
 
       if (tableContainer) {
         const printWindow = window.open('', '_blank');
         printWindow.document.write('<html><head><title>Inventory Table</title>');
-        // Add custom CSS for printing
         printWindow.document.write('<style>');
         printWindow.document.write('@media print {');
         printWindow.document.write('body { -webkit-print-color-adjust: exact; }');
@@ -157,19 +197,9 @@ if(allPagesContent){
         console.error('Table container not found.');
       }
     };
-    
-
-
-
-
 
     return (
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded-md"
-        onClick={handlePrintInventory}
-
-
-      >
+      <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={handlePrintInventory}>
         Print Inventory
       </button>
     );
@@ -189,7 +219,6 @@ if(allPagesContent){
           const startIndex = (page - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
           const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
-          if(itemsToDisplay){};
 
           await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -204,7 +233,6 @@ if(allPagesContent){
     capturePagesContent();
   }, [filteredItems]);
 
-  
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
       setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
@@ -214,48 +242,47 @@ if(allPagesContent){
       setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
     };
 
-
     return (
-      <div className="flex space-x-80">
-        <button
-          className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+      <div className="flex justify-between items-center w-full max-w-3xl mx-auto m-2">
+        <div className="flex-1 flex justify-start">
+          <button
+            className={`px-3 py-1.5 rounded-md ${
+              currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
             }`}
-          onClick={handlePreviousPage}
-        >
-          Previous
-        </button>
-        {renderActionButtons()}
-        <button
-          className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
-          onClick={handleNextPage}
-        >
-          Next
-        </button>
+            onClick={handlePreviousPage}
+          >
+            Previous
+          </button>
+        </div>
+        <div className="flex-1 flex justify-center">{renderActionButtons()}</div>
+        <div className="flex-1 flex justify-end">
+          <button
+            className={`px-3 py-1.5 ${
+              currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+            } rounded-md`}
+            onClick={handleNextPage}
+          >
+            Next
+          </button>
+        </div>
       </div>
     );
   };
 
-
-
-  const handleEditClick = (itemId, e) => {
-    // Prevent propagation to avoid triggering row click
-    e.stopPropagation();
-
-    console.log('Edit clicked for item ID:', itemId);
-
-    const productToEdit = filteredItems.find((product) => product.id === itemId);
-    setSelectedProduct(productToEdit);
-    setShowEditPop(true);
+  const renderFooter = () => {
+    return (
+      <div className="flex justify-between mt-4">
+        <div>Total Products: {totalItems}</div>
+        <div>Total Store Value: ₦{totalStoreValue}</div>
+        <div>Out Of Stock: {filteredItems.filter((item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) === 0).length}</div>
+        <div>All Categories: 2</div>
+      </div>
+    );
   };
-
-
 
   return (
     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-    {/* Toggle Button for Side Panel */}
-      <div className="flex-none">
-        {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
+      <div className="flex-grow flex flex-col justify-between">
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
       </div>
 
@@ -273,8 +300,6 @@ if(allPagesContent){
               'red'
             )}
             {renderStatCard('All Categories', '2', 'blue')}
-
-
           </div>
         </div>
 
@@ -291,7 +316,7 @@ if(allPagesContent){
                   placeholderText="From"
                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
                 />
-                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
+                <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
               <div className="relative">
                 <DatePicker
@@ -301,7 +326,7 @@ if(allPagesContent){
                   placeholderText="To"
                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
                 />
-                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
+                <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
             </div>
             <input
@@ -315,14 +340,7 @@ if(allPagesContent){
         </div>
 
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <button className="text-blue-500 cursor-pointer" onClick={() => window.history.back()}>
-              Back
-            </button>
-          </div>
-
-
-          <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '100px' }} ref={tableRef}>
+          <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '200px' }} ref={tableRef}>
             <table className="w-full table-auto" id="inventory-table">
               <thead>
                 <tr>
@@ -335,12 +353,9 @@ if(allPagesContent){
                   <th className="border">Qty Sold</th>
                   <th className="border">Qty Balance</th>
                   <th className="border">M.Unit</th>
-
                   <th className="border">CostPrice</th>
                   <th className="border">Sales Price</th>
                   <th className="border">Item Value</th>
-
-
                   <th className="border">
                     {state.user && state.user.role === 'admin' ? (
                       <>
@@ -348,14 +363,12 @@ if(allPagesContent){
                       </>
                     ) : null}
                   </th>
-
                 </tr>
               </thead>
               <tbody>
                 {itemsToDisplay.map((item) => (
                   <tr
-                    
-                    key={item.id} // Add a unique key based on the item's identifier
+                    key={item.id}
                     onClick={() => handleRowClick(item.id)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -372,12 +385,9 @@ if(allPagesContent){
                         (state.productTotalsMap.get(item.name) || 0)
                       )}
                     </td>
-                    <td className="border">
-                      Piece
-                    </td>
+                    <td className="border">Piece</td>
                     <td className="border">{Number(item.costPrice).toFixed(2)}</td>
                     <td className="border">{Number(item.price).toFixed(2)}</td>
-
                     <td className="border">
                       {(
                         item.price *
@@ -393,8 +403,6 @@ if(allPagesContent){
                             style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
                             onClick={(e) => handleEditClick(item.id, e)}
                           />
-
-
                           <FontAwesomeIcon
                             icon={faTrash}
                             style={{ cursor: 'pointer', color: 'red' }}
@@ -402,22 +410,52 @@ if(allPagesContent){
                         </>
                       ) : null}
                     </td>
-
-
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr>
+                  <td className="border"></td>
+                  <td className="border"></td>
+                  <td className="border"></td>
+                  <td className="border"><strong>Total</strong></td>
+                  <td className="border">{totalQtyRestocked}</td>
+                  <td className="border">{totalTotalBal}</td>
+                  <td className="border">{totalQtySold}</td>
+                  <td className="border">{totalQtyBalance}</td>
+                  <td className="border"></td>
+                  <td className="border">{totalCostPrice.toFixed(2)}</td>
+                  <td className="border">{totalSalesPrice.toFixed(2)}</td>
+                  <td className="border">{totalItemValue.toFixed(2)}</td>
+                  <td className="border"></td>
+                </tr>
+              </tfoot>
+              {/* <tfoot>
+    <tr>
+      <td className="border"></td>
+      <td className="border"></td>
+      <td className="border"></td>
+      <td className="border"></td>
+      <td className="border">{totalQtyRestocked}</td>
+      <td className="border">{totalTotalBal}</td>
+      <td className="border">{totalQtySold}</td>
+      <td className="border">{totalQtyBalance}</td>
+      <td className="border"></td>
+      <td className="border">{totalCostPrice.toFixed(2)}</td>
+      <td className="border">{totalSalesPrice.toFixed(2)}</td>
+      <td className="border">{totalItemValue.toFixed(2)}</td>
+      <td className="border"></td>
+    </tr>
+  </tfoot> */}
             </table>
           </div>
 
-          <div className="flex justify-between mt-4">
-            {renderPaginationButtons()}
-          </div>
+          <div className="flex justify-between">{renderPaginationButtons()}</div>
         </div>
- 
+
+        {renderFooter()}
       </div>
 
-      {/* EditPop Component */}
       {showEditPop && selectedProduct && (
         <EditPopup
           product={selectedProduct}
@@ -428,7 +466,6 @@ if(allPagesContent){
           }}
         />
       )}
-
     </div>
   );
 };

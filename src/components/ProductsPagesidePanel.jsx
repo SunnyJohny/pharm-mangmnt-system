@@ -31,15 +31,15 @@ const ProductsPageSidePanel = () => {
           <FaChartBar className="text-xl" />
           <p className="ml-2">Sales Report</p>
         </Link>
-        <Link to="/invoice-receipt" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+        <Link to="" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaReceipt className="text-xl" />
           <p className="ml-2">Invoice/Receipt</p>
         </Link>
-        <Link to="/user-profile" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+        <Link to="" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaUser className="text-xl" />
           <p className="ml-2">User Profile</p>
         </Link>
-        <Link to="/settings" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+        <Link to="" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaCog className="text-xl" />
           <p className="ml-2">Settings</p>
         </Link>

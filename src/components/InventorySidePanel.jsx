@@ -18,7 +18,7 @@ const InventorySidePanel = ({ onItemSelected }) => {
       <UserInformation user={state.user} />
       <hr className="my-4 border-t-2 border-white" />
       {/* Links */}
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col flex-grow "> 
         <Link to="/dashboard" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaClipboardList className="text-xl" />
           <p className="ml-2">Dashboard</p>
@@ -50,14 +50,14 @@ const InventorySidePanel = ({ onItemSelected }) => {
 
         <Link to="/sign-up" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaUserCircle className="text-xl" />
-          <p className="ml-2">Sign-Up/Add Staff</p>
+          <p className="ml-2">Staff Profile</p>
         </Link>
 
         <Link to="/report-bug" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaBug className="text-xl" />
           <p className="ml-2">Report Bug</p>
         </Link>
-        <Link to="/" onClick={handleLogout} className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
+        <Link to="/" onClick={handleLogout} className="flex items-center p-2 mb-2 cursor-pointer hover:bg-gray-700">
           <FaSignOutAlt className="text-xl" />
           <p className="ml-2">Logout</p>
         </Link>
