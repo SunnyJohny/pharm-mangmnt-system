@@ -30,23 +30,34 @@ const BalanceSheet = () => {
   }, [state.liabilities]);
 
   const calculateAccountsReceivable = () => {
+    if (!state.selectedCompanyId) {
+      console.warn('No company selected');
+      return 0;
+    }
+  
     const totalCreditSum = state.sales
-      .filter(sale => sale.payment.method === 'Credit')
+      .filter(sale => sale.payment && sale.payment.method === 'Credit')
       .reduce((sum, sale) => sum + (Number(sale.totalAmount) || 0), 0);
-
+  
     console.log('Total credit sales sum:', totalCreditSum);
     return totalCreditSum;
   };
-
   const accountsReceivable = calculateAccountsReceivable();
 
   const calculateInventoryValue = () => {
+    if (!state.selectedCompanyId) {
+      console.warn('No company selected');
+      return 0;
+    }
+  
     const totalInventoryValue = state.products.reduce((sum, product) => {
       const price = Number(product.price) || 0;
-      const quantityRestock = Number(product.quantityRestock) || 0;
+      const quantityRestock = Array.isArray(product.quantityRestocked)
+        ? product.quantityRestocked.reduce((acc, entry) => acc + (Number(entry.quantity) || 0), 0)
+        : 0;
       return sum + (price * quantityRestock);
     }, 0);
-
+  
     console.log('Total inventory value sum:', totalInventoryValue);
     return totalInventoryValue;
   };

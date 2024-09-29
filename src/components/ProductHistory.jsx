@@ -30,7 +30,7 @@
                 }));
           
                 const adjustmentsHistory = productAdjustments.map((adjustment) => ({
-                  date: new Date(adjustment.adjustmentDate), // Convert adjustment date to Date object
+                  date: adjustment.date.toDate(), // Convert adjustment date to Date object
                   eventType: 'Adjustment',
                   fieldAdjusted: adjustment.fieldAdjusted,
                   oldValue: adjustment.oldValue,

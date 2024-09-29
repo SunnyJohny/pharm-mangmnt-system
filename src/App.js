@@ -24,6 +24,8 @@ import AddTax from './components/AddTax';
 import AddAsset from './components/AddAsset';
 import AddLiability from './components/AddLiability';
 import CashFlow from './pages/CashFlow';
+import ContactMe from './pages/ContactMe';
+import CompanySignUp from './pages/CompanySignUp';
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
             <Route path="/admin" element={<AdminComponent />} />
             <Route path="/" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/report-bug" element={<ContactMe />} />
+            <Route path="/company-sign-up" element={<CompanySignUp/>} />
             <Route path="/posscreen" element={<PosScreen />} />
             <Route path="/add-expense" element={<AddExpense />} />
             <Route path="/add-asset" element={<AddAsset />} />

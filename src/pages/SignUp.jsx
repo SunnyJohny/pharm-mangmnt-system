@@ -1,24 +1,10 @@
 import { useState, useEffect } from "react";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  deleteUser,
-} from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { db } from "../firebase";
-import {
-  doc,
-  serverTimestamp,
-  setDoc,
-  deleteDoc,
-  updateDoc,
-  collection,
-  addDoc,
-} from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import { doc, serverTimestamp, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useMyContext } from '../Context/MyContext';
 import { toast } from "react-toastify";
 import Spinner from "../components/Spinner";
@@ -66,7 +52,7 @@ export const showConfirmDialog = (onConfirm) => {
 };
 
 export default function SignUp() {
-  const { state, dispatch } = useMyContext();
+  const { state } = useMyContext();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -118,7 +104,7 @@ export default function SignUp() {
           timestamp: serverTimestamp(),
         };
 
-        await updateDoc(doc(db, "users", currentUserId), userData);
+        await updateDoc(doc(db, `companies/${state.selectedCompanyId}/users`, currentUserId), userData);
         toast.success("User updated successfully", { position: toast.POSITION.TOP_RIGHT });
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -135,7 +121,7 @@ export default function SignUp() {
           timestamp: serverTimestamp(),
         };
 
-        await setDoc(doc(db, "users", user.uid), userData);
+        await setDoc(doc(db, `companies/${state.selectedCompanyId}/users`, user.uid), userData);
         toast.success("User added successfully", { position: toast.POSITION.TOP_RIGHT });
       }
 
@@ -152,7 +138,7 @@ export default function SignUp() {
     showConfirmDialog(async () => {
       try {
         const userToDelete = state.users[index];
-        await deleteDoc(doc(db, "users", userToDelete.id));
+        await deleteDoc(doc(db, `companies/${state.selectedCompanyId}/users`, userToDelete.id));
 
         toast.success("User deleted successfully", { position: toast.POSITION.TOP_RIGHT });
       } catch (error) {
@@ -160,10 +146,6 @@ export default function SignUp() {
         toast.error("Failed to delete user. Please try again later.", { position: toast.POSITION.TOP_RIGHT });
       }
     });
-  };
-
-  const handleReload = () => {
-    window.location.reload();
   };
 
   const handleEditUser = (userId) => {
@@ -195,6 +177,9 @@ export default function SignUp() {
     return <Spinner />;
   }
 
+  const handleReload = () => {
+    window.location.reload();
+  };
   return (
     <>
      <div className="flex justify-between items-center m-4">

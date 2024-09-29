@@ -18,7 +18,7 @@ import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 
 
 const SalesPage = () => {
-  const { state, searchByKeyword, searchByDate } = useMyContext();
+  const { state, searchByKeyword, searchByDate, calculateTotalSalesValue, calculateTotalCOGS } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -28,6 +28,7 @@ const SalesPage = () => {
 
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
 
+  const [totalCOGS, setTotalCOGS] = useState(0); 
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
@@ -81,23 +82,29 @@ const SalesPage = () => {
     calculateTotalSalesValue(filteredSales);
   }, [filteredSales]);
 
-  const calculateTotalSalesValue = (sales) => {
-    if (!sales || sales.length === 0) {
-      // setTotalSalesValue(0);
+  // const calculateTotalSalesValue = (sales) => {
+  //   if (!sales || sales.length === 0) {
+  //     // setTotalSalesValue(0);
 
-      return;
-    }
+  //     return;
+  //   }
 
-    const calculatedTotalSalesValue = sales.reduce((total, sale) => {
-      if (sale.products && Array.isArray(sale.products)) {
-        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
-      } else {
-        console.log('Undefined products array in sale:', sale);
-        return total;
-      }
-    }, 0);
-    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
-  };
+  //   const calculatedTotalSalesValue = sales.reduce((total, sale) => {
+  //     if (sale.products && Array.isArray(sale.products)) {
+  //       return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
+  //     } else {
+  //       console.log('Undefined products array in sale:', sale);
+  //       return total;
+  //     }
+  //   }, 0);
+  //   setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
+  // };
+
+  useEffect(() => {
+    setTotalSalesValue(calculateTotalSalesValue(filteredSales));
+    setTotalCOGS(calculateTotalCOGS(filteredSales)); // Ensure this is called with the correct sales array
+  }, [filteredSales]);
+  
 
 
   const handleFromDateChange = (date) => {
@@ -278,20 +285,20 @@ const SalesPage = () => {
 
 
 
-  const calculateTotalCOGS = () => {
-    if (!filteredSales || filteredSales.length === 0) {
-      return 0;
-    }
+  // const calculateTotalCOGS = () => {
+  //   if (!filteredSales || filteredSales.length === 0) {
+  //     return 0;
+  //   }
 
-    const totalCOGS = filteredSales.reduce((total, sale) => {
-      return total + sale.products.reduce((acc, product) => {
-        const costPrice = parseFloat(product.costPrice);
-        return isNaN(costPrice) ? acc : acc + costPrice;
-      }, 0);
-    }, 0);
+  //   const totalCOGS = filteredSales.reduce((total, sale) => {
+  //     return total + sale.products.reduce((acc, product) => {
+  //       const costPrice = parseFloat(product.costPrice);
+  //       return isNaN(costPrice) ? acc : acc + costPrice;
+  //     }, 0);
+  //   }, 0);
 
-    return totalCOGS.toFixed(2);
-  };
+  //   return totalCOGS.toFixed(2);
+  // };
 
 
   const calculateTodaySales = () => {
@@ -467,7 +474,7 @@ const SalesPage = () => {
               'red',
               faCalendarAlt
             )}
-            {renderStatCard('Cost Of Goods Sold', `₦${calculateTotalCOGS()}`, 'blue', faBox)}
+            {renderStatCard('Cost Of Goods Sold', `₦${totalCOGS}`, 'blue', faBox)}
 
           </div>
         </div>
@@ -628,7 +635,7 @@ const SalesPage = () => {
                   <td className="border"></td> {/* Empty cell for Receipt No */}
                   <td className="border"></td> {/* Empty cell for Customer Name */}
                   <td className="border"></td> {/* Empty cell for Payment Method */}
-                  <td className="border"><strong>₦{calculateTotalCOGS()}</strong></td> {/* Total COGS */}
+                  <td className="border"><strong>₦{totalCOGS}</strong></td> {/* Total COGS */}
                   <td className="border"><strong>₦{totalSalesValue}</strong></td> {/* Total Sales */}
                   <td className="border"></td> {/* Empty cell for Attendant Name */}
                   <td className="border"></td> {/* Empty cell for Payment Status */}

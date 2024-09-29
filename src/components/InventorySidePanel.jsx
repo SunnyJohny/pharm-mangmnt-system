@@ -5,11 +5,12 @@ import { useMyContext } from '../Context/MyContext';
 import { Link,useNavigate } from 'react-router-dom';
 
 const InventorySidePanel = ({ onItemSelected }) => {
-  const { state, logoutUser } = useMyContext();
+  const { state, logout } = useMyContext();
   const navigate = useNavigate();
   
+  
   const handleLogout = () => {
-    logoutUser(); 
+    logout(); 
     navigate('/'); // Navigate to home page
 };
 

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { updateDoc, doc } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-
+import { useMyContext } from '../Context/MyContext';
+import { toast } from 'react-toastify';
 
 const EditPopup = ({ product, onUpdate, onClose }) => {
- 
+  const { state } = useMyContext();
+  const { selectedCompanyId } = state;
 
   const [editedProduct, setEditedProduct] = useState(product);
   const [quantityRestock, setQuantityRestock] = useState(() => {
@@ -15,7 +17,8 @@ const EditPopup = ({ product, onUpdate, onClose }) => {
       : 0;
     return lastRestockQuantity;
   });
-  const [adjustmentDate, setAdjustmentDate] = useState(new Date().toISOString());
+  const [adjustmentDate, setAdjustmentDate] = useState(Timestamp.now().toDate().toISOString().split('T')[0]);
+  
   const [adjustmentFields, setAdjustmentFields] = useState({
     reason: '',
     adjustmentDate: '',
@@ -26,11 +29,25 @@ const EditPopup = ({ product, onUpdate, onClose }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    setAdjustmentFields({
+      ...adjustmentFields,
+      fieldAdjusted: name,
+      newValue: value
+    });
+
     setEditedProduct({ ...editedProduct, [name]: value });
   };
 
   const handleRestockChange = (e) => {
     const { value } = e.target;
+
+    setAdjustmentFields({
+      ...adjustmentFields,
+      fieldAdjusted: 'quantityRestocked',
+      newValue: value
+    });
+
     setQuantityRestock(value);
   };
 
@@ -46,34 +63,41 @@ const EditPopup = ({ product, onUpdate, onClose }) => {
 
   const handleUpdate = async () => {
     try {
+      // Update the quantityRestocked with the latest quantity
       const lastRestockIndex = editedProduct.quantityRestocked.length - 1;
       editedProduct.quantityRestocked[lastRestockIndex].quantity = quantityRestock;
-  
+
       // Initialize adjustments array if it's undefined
       if (!editedProduct.adjustments) {
         editedProduct.adjustments = [];
       }
-  
+
+      // Create a new adjustment record
       const adjustment = {
-        date: adjustmentDate,
+        date: Timestamp.fromDate(new Date(adjustmentDate)),
         reason: adjustmentFields.reason,
         field: adjustmentFields.fieldAdjusted,
         oldValue: adjustmentFields.oldValue,
         newValue: adjustmentFields.newValue
       };
       editedProduct.adjustments.push(adjustment);
-  
-      const productRef = doc(db, 'products', editedProduct.id);
+
+      // Create a reference to the Firestore document using selectedCompanyId
+      const productRef = doc(db, `companies/${selectedCompanyId}/products/${editedProduct.id}`);
+
+      // Update the product document
       await updateDoc(productRef, editedProduct);
-  
+
+      // Notify parent component about the update
       onUpdate(editedProduct);
-  
-      window.location.reload();
+
+      // Show a success toast notification
+      toast.success('Product updated successfully!');
     } catch (error) {
       console.error('Error updating product:', error);
+      toast.error('Error updating product. Please try again.');
     }
   };
-  
 
   const adjustmentReasons = [
     'Inventory Adjustment',
@@ -162,11 +186,15 @@ const EditPopup = ({ product, onUpdate, onClose }) => {
                 <input type="text" id="newValue" name="newValue" value={adjustmentFields.newValue} onChange={handleAdjustmentChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
               </div>
             </div>
-          </div>
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button onClick={handleUpdate} type="button" className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-              Update
-            </button>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleUpdate}
+                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Update Product
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ import { useMyContext } from '../Context/MyContext';
 import ReceiptModal from '../components/ReceiptModal';
 
 const ProfitAndLoss = () => {
-  const { state, searchByDate, calculateTotalPaidAmount } = useMyContext();
+  const { state, searchByDate, calculateTotalTaxPaidAmount,calculateTotalSalesValue,calculateTotalCOGS } = useMyContext();
   // const [currentPage, setCurrentPage] = useState(1);
   // const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -26,7 +26,7 @@ const ProfitAndLoss = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [filteredSales, setFilteredSales] = useState([]);
-
+  const [totalTaxPaid, setTotalTaxPaid] = useState(0); 
   // const [filteredExpenses, setFilteredExpenses] = useState([]);
   // const totalItems = filteredSales.length;
   // const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -38,29 +38,43 @@ const ProfitAndLoss = () => {
   const [totalExpenseAmount, setTotalExpenseAmount] = useState(0);
   // const [allPagesContent, setAllPagesContent] = useState([]);
   // const [totalStoreValue, setTotalStoreValue] = useState(0);
+  
+  const [totalCOGS, setTotalCOGS] = useState(0); 
 
  
 
 
-  const totalTaxPaidAmount = calculateTotalPaidAmount();
-
-
-  const calculateTotalSalesValue = useCallback((sales) => {
-    if (!sales || sales.length === 0) {
-      console.log('filteredsales empty');
-      return;
-    }
-
-    const calculatedTotalSalesValue = sales.reduce((total, sale) => {
-      if (sale.products && Array.isArray(sale.products)) {
-        return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
-      } else {
-        console.log('Undefined products array in sale:', sale);
-        return total;
-      }
+  const totalTaxPaidAmount = calculateTotalTaxPaidAmount();
+  useEffect(() => {
+    // Filter the tax data by date
+    const filteredByDate = searchByDate(state.taxes, fromDate, toDate);
+    
+    // Calculate the total tax using the filtered data
+    const totalTax = filteredByDate.reduce((total, tax) => {
+      return total + parseFloat(tax.paidAmount || 0);
     }, 0);
-    setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
-  }, []); // Empty dependency array since the function doesn't depend on any external variables
+    
+    // Update the state with the filtered tax amount
+    setTotalTaxPaid(totalTax);
+  }, [state.taxes, fromDate, toDate, searchByDate]);
+
+
+  // const calculateTotalSalesValue = useCallback((sales) => {
+  //   if (!sales || sales.length === 0) {
+  //     console.log('filteredsales empty');
+  //     return;
+  //   }
+
+  //   const calculatedTotalSalesValue = sales.reduce((total, sale) => {
+  //     if (sale.products && Array.isArray(sale.products)) {
+  //       return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
+  //     } else {
+  //       console.log('Undefined products array in sale:', sale);
+  //       return total;
+  //     }
+  //   }, 0);
+  //   setTotalSalesValue(calculatedTotalSalesValue.toFixed(2));
+  // }, []); // Empty dependency array since the function doesn't depend on any external variables
 
   // Other code...
 
@@ -70,15 +84,26 @@ const ProfitAndLoss = () => {
 
 
   useEffect(() => {
+    setTotalSalesValue(calculateTotalSalesValue(filteredSales));
+    setTotalCOGS(calculateTotalCOGS(filteredSales)); // Ensure this is called with the correct sales array
+  }, [filteredSales]);
+
+  useEffect(() => {
+    let filteredByDate;
     if (fromDate && toDate) {
-      const filteredByDate = searchByDate(state.expenses, fromDate, toDate);
-      const totalAmount = filteredByDate.reduce((accumulator, expense) => {
-        return accumulator + parseFloat(expense.amount);
-      }, 0);
-      setTotalExpenseAmount(totalAmount);
-      // setFilteredExpenses(filteredByDate);
+      filteredByDate = searchByDate(state.expenses, fromDate, toDate);
+    } else {
+      // If no date is selected, include all expenses
+      filteredByDate = state.expenses;
     }
+    
+    const totalAmount = filteredByDate.reduce((accumulator, expense) => {
+      return accumulator + parseFloat(expense.amount);
+    }, 0);
+  
+    setTotalExpenseAmount(totalAmount);
   }, [state.expenses, searchByDate, fromDate, toDate]);
+  
 
   useEffect(() => {
     const filteredByDate = searchByDate(state.sales, fromDate, toDate);
@@ -211,20 +236,20 @@ const ProfitAndLoss = () => {
   }, [filteredSales, calculateTotalSalesValue]);
 
 
-  const calculateTotalCOGS = () => {
-    if (!filteredSales || filteredSales.length === 0) {
-      return 0;
-    }
+  // const calculateTotalCOGS = () => {
+  //   if (!filteredSales || filteredSales.length === 0) {
+  //     return 0;
+  //   }
 
-    const totalCOGS = filteredSales.reduce((total, sale) => {
-      return total + sale.products.reduce((acc, product) => {
-        const costPrice = parseFloat(product.costPrice);
-        return isNaN(costPrice) ? acc : acc + costPrice;
-      }, 0);
-    }, 0);
+  //   const totalCOGS = filteredSales.reduce((total, sale) => {
+  //     return total + sale.products.reduce((acc, product) => {
+  //       const costPrice = parseFloat(product.costPrice);
+  //       return isNaN(costPrice) ? acc : acc + costPrice;
+  //     }, 0);
+  //   }, 0);
 
-    return totalCOGS.toFixed(2);
-  };
+  //   return totalCOGS.toFixed(2);
+  // };
 
 
   const handleCloseModal = () => {
@@ -330,24 +355,21 @@ const ProfitAndLoss = () => {
 
   // Function to render the selected date period
   const renderSelectedDatePeriod = () => {
-    if (fromDate && toDate) {
-      return `${formatDate(fromDate)} to ${formatDate(toDate)}`;
-    } else if (fromDate) {
-      return `From ${formatDate(fromDate)}`;
-    } else if (toDate) {
-      return `To ${formatDate(toDate)}`;
-    } else {
-      return 'All';
-    }
-  };
+  if (fromDate && toDate) {
+    return `${formatDate(fromDate)} to ${formatDate(toDate)}`;
+  } else {
+    return 'All'; // When no date range is selected
+  }
+};
+
 
   const profitAndLossData = {
     revenue: totalSalesValue,
-    costOfGoodsSold: calculateTotalCOGS(),
-    grossProfit: (totalSalesValue - calculateTotalCOGS()).toFixed(2),
+    costOfGoodsSold: totalCOGS,
+    grossProfit: (totalSalesValue - totalCOGS).toFixed(2),
     operatingExpenses: totalExpenseAmount.toFixed(2),
-    taxes: totalTaxPaidAmount.toFixed(2),
-    netIncome: (totalSalesValue - calculateTotalCOGS() - totalTaxPaidAmount - totalExpenseAmount).toFixed(2)
+    taxes: totalTaxPaid.toFixed(2), 
+    netIncome: (totalSalesValue - totalCOGS - totalTaxPaid - totalExpenseAmount).toFixed(2)
   };
 
   return (

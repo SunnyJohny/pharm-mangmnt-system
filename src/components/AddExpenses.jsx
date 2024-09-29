@@ -2,6 +2,8 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from "../firebase";
+import { useMyContext } from '../Context/MyContext';
+
 
 
 //new  again
@@ -10,6 +12,8 @@ import Spinner from "../components/Spinner";
 import { MdClose } from "react-icons/md";
 
 export default function AddExpense({ onCloseModal }) {
+  const { state } = useMyContext();
+  const { selectedCompanyId } = state;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [expense, setExpense] = useState({
@@ -81,7 +85,7 @@ export default function AddExpense({ onCloseModal }) {
       };
   
       // Add the expense data to the 'expenses' collection in the database
-      await addDoc(collection(db, 'expenses'), expenseData);
+      await addDoc(collection(db, `companies/${selectedCompanyId}/expenses`), expenseData);
   
       toast.success("Expense added successfully", {
         position: toast.POSITION.TOP_RIGHT,

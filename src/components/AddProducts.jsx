@@ -4,8 +4,12 @@ import { MdClose } from "react-icons/md";
 import { getFirestore, collection, addDoc, Timestamp, doc, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useMyContext } from '../Context/MyContext';
 
 const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
+  const { state } = useMyContext();
+  const { selectedCompanyId } = state;
+  
   const navigate = useNavigate();
   const [isNewProduct, setIsNewProduct] = useState(true);
   const [product, setProduct] = useState({
@@ -23,7 +27,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
   const [existingProductNames, setExistingProductNames] = useState([]);
 
   useEffect(() => {
-    // If navigating from InventoryPage and row data is provided, populate the fields
     if (fromInventoryPage && row) {
       setProduct(row);
       setIsNewProduct(false);
@@ -31,7 +34,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
 
     const fetchExistingProductNames = async () => {
       try {
-        const productsCollection = collection(getFirestore(), "products");
+        const productsCollection = collection(getFirestore(), `companies/${selectedCompanyId}/products`);
         const productsSnapshot = await getDocs(productsCollection);
         const names = [];
 
@@ -47,26 +50,21 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     };
 
     fetchExistingProductNames();
-  }, [fromInventoryPage, row]);
+  }, [fromInventoryPage, row, selectedCompanyId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-  
-    // Update product state based on input changes
+
     setProduct((prevProduct) => ({
       ...prevProduct,
       [name]: value,
-      // Calculate costPerItem based on costPrice and quantitySupplied
       costPerItem: (name === 'costPrice' && prevProduct.quantitySupplied) ? (parseFloat(value) / parseFloat(prevProduct.quantitySupplied)) : prevProduct.costPerItem,
     }));
   };
-  
-  
-  
-  
+
   const updateExistingProduct = async (productId, updateData) => {
     try {
-      const productRef = doc(getFirestore(), 'products', productId);
+      const productRef = doc(getFirestore(), `companies/${selectedCompanyId}/products`, productId);
       await updateDoc(productRef, {
         quantityRestocked: arrayUnion({ ...updateData, time: Timestamp.now() }),
       });
@@ -80,21 +78,20 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     } catch (error) {
       console.error('Error updating existing product:', error.message);
       toast.error('Error updating existing product. Please try again.');
-      throw error; // Propagate the error to handle it in the calling function
+      throw error;
     }
   };
 
   const onAddProduct = async (newProduct) => {
     try {
-      const productsCollection = collection(getFirestore(), 'products');
+      const productsCollection = collection(getFirestore(), `companies/${selectedCompanyId}/products`);
 
       if (isNewProduct) {
-        // For new product
         await addDoc(productsCollection, {
           name: newProduct.name,
           supplier: newProduct.supplier,
           quantitySupplied: newProduct.quantitySupplied,
-          costPrice: newProduct.costPerItem,
+          costPrice: newProduct.costPrice,
           price: newProduct.price,
           description: newProduct.description,
           quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }],
@@ -113,7 +110,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
         toast.success('Product added successfully!');
 
       } else {
-        // For existing product
         const { existingProduct, quantityRestocked } = newProduct;
 
         if (!existingProduct || quantityRestocked === null || isNaN(quantityRestocked)) {
@@ -122,7 +118,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           return;
         }
 
-        // Update the existing product
         await updateExistingProduct(existingProduct, { quantity: Number(quantityRestocked) });
       }
     } catch (error) {
@@ -153,12 +148,9 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
         }
       }
 
-      // Check if the price is dynamically calculated
       if (!isNewProduct && product.price === 0) {
-        // If price is zero (not dynamically calculated), skip the validation
         onAddProduct(product);
       } else {
-        // If the price is not zero (dynamically calculated), proceed with validation
         if (
           !product.price ||
           product.price === 0 ||
@@ -232,7 +224,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Quantity Restocked</label>
                     <input
-                      type="number"  /* Use type "number" for quantityRestocked */
+                      type="number"
                       name="quantityRestocked"
                       value={product.quantityRestocked}
                       onChange={handleInputChange}

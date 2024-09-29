@@ -16,7 +16,7 @@ import ExpenseInvoiceModal from '../components/ExpenseInvoiceModal';
 
 
 const ExpensePage = () => {
-  const { state, searchByKeyword, searchByDate } = useMyContext();
+  const { state, searchByKeyword, searchByDate, calculateTotalSalesValue, calculateTotalCOGS } = useMyContext();
   
  
   const [fromDate, setFromDate] = useState(null);
@@ -38,24 +38,29 @@ const ExpensePage = () => {
   
  
   const [selectedDateOption, setSelectedDateOption] = useState('All');
+  const [totalSalesValue, setTotalSalesValue] = useState(0);
+  const [totalCogsValue, setTotalCogsValue] = useState(0);
 
 
+  useEffect(() => {
+    // Calculate the total sales value when filteredExpenses changes
+    const totalSales = calculateTotalSalesValue(state.sales);
+    setTotalSalesValue(totalSales);
+    console.log('Total sales:', totalSales);
+  }, [state.sales, calculateTotalSalesValue]);
 
-  // useEffect(() => {
-  //   const filteredByDate = searchByDate(state.expenses, fromDate, toDate);
-  //   setFilteredExpenses(filteredByDate);
-  // }, [state.expenses, searchByDate, fromDate, toDate]);
 
-  // useEffect(() => {
-  //   const filteredByKeyword = searchByKeyword(state.expenses, searchKeyword);
-  //   setFilteredExpenses(filteredByKeyword);
-  // }, [state.expenses, searchByKeyword, searchKeyword]);
-
+  useEffect(() => {
+    // Calculate the total sales value when filteredExpenses changes
+    const totalCOGS = calculateTotalCOGS(state.sales);
+    setTotalCogsValue(totalCOGS);
+    console.log('Total cogs:', totalCOGS);
+  }, [state.sales, calculateTotalCOGS]);
 
   useEffect(() => {
     calculateTotalExpenseValue(filteredExpenses);
   }, [filteredExpenses]);
-  
+ 
 
   useEffect(() => {
     let filtered = state.expenses;
@@ -360,14 +365,14 @@ const ExpensePage = () => {
           <div className="flex mt-4 space-x-4">
               {renderStatCard('Total Expenses', `₦${totalExpenseValue}`, 'blue', faChartLine)}
             {renderStatCard('Today Expenses', `₦${calculateTodayExpenses().toFixed(2)}`, 'red', faCalendarAlt)}
-            {renderStatCard('Total Sales', `₦${totalExpenseValue}`, 'pink', faShoppingCart)}
+            {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'pink', faShoppingCart)}
             {/* {renderStatCard(
               'Total Profit',
               `₦${'400'}`,
               'red',
               faCalendarAlt
             )} */}
-            {renderStatCard('COG Sold', `₦${'700'}`, 'blue', faBox)}
+            {renderStatCard('COG Sold', `₦${totalCogsValue}`, 'blue', faBox)}
 
           </div>
         </div>

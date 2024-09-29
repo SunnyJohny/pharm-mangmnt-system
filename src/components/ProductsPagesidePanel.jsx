@@ -5,11 +5,11 @@ import { useMyContext } from '../Context/MyContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const ProductsPageSidePanel = () => {
-  const { state, logoutUser } = useMyContext(); // Destructure logoutUser from context
+  const { state, logout } = useMyContext(); // Destructure logoutUser from context
 
   const navigate = useNavigate();
   const handleLogout = () => {
-    logoutUser(); // Call logoutUser method from context
+    logout(); // Call logoutUser method from context
     navigate('/'); // Navigate to home page
   };
 

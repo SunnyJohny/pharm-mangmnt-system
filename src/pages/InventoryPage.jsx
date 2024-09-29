@@ -21,11 +21,20 @@ const InventoryPage = () => {
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
   const [allPagesContent, setAllPagesContent] = useState([]);
+  const [selectedDateOption, setSelectedDateOption] = useState('All');
+  const [searchKeyword, setSearchKeyword] = useState('');
+
+
 
   const [showEditPop, setShowEditPop] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate();
   const tableRef = useRef(null);
+
+  useEffect(() => {
+    searchItems();
+  }, [fromDate, toDate, searchKeyword]);
+
 
   useEffect(() => {
     const initialItems = state.products || [];
@@ -108,12 +117,8 @@ const InventoryPage = () => {
     totalItemValue,
   } = calculateTotals();
 
-  const searchItems = (e) => {
-    let searchText = '';
-
-    if (e && e.target && e.target.value) {
-      searchText = e.target.value.toLowerCase();
-    }
+  const searchItems = () => {
+    let searchText = searchKeyword.toLowerCase();
 
     const filteredByKeyword = searchInventoryByKeyword(state.products, searchText);
     const filteredByDate = searchByDate(filteredByKeyword, fromDate, toDate);
@@ -123,14 +128,122 @@ const InventoryPage = () => {
   };
 
   const searchInventoryByKeyword = (items, searchText) => {
-    return items.filter((item) => item.name.toLowerCase().includes(searchText));
+    if (!Array.isArray(items)) return [];
+    return items.filter((item) => {
+      const name = item.name || '';
+      return name.toLowerCase().includes(searchText);
+    });
   };
 
   const searchByDate = (items, startDate, endDate) => {
+    if (!startDate && !endDate) return items;
+
     return items.filter((item) => {
       const productDate = new Date(firstRestockDates[item.name]);
-      return productDate >= startDate && productDate <= endDate;
+      if (startDate && endDate) {
+        return productDate >= startDate && productDate <= endDate;
+      } else if (startDate) {
+        return productDate >= startDate;
+      } else if (endDate) {
+        return productDate <= endDate;
+      }
+      return true;
     });
+  };
+
+
+  // const searchInventoryByKeyword = (items, searchText) => {
+  //   return items.filter((item) => item.name.toLowerCase().includes(searchText));
+  // };
+
+  // const searchByDate = (items, startDate, endDate) => {
+  //   return items.filter((item) => {
+  //     const productDate = new Date(firstRestockDates[item.name]);
+  //     return productDate >= startDate && productDate <= endDate;
+  //   });
+  // };
+
+  const handleDateOptionChange = (e) => {
+    const selectedOption = e.target.value;
+    setSelectedDateOption(selectedOption);
+
+    let startDate = new Date();
+    let endDate = new Date();
+
+    switch (selectedOption) {
+      case 'All':
+        setFromDate(null);
+        setToDate(null);
+        return;
+      case 'Today':
+        // Set both fromDate and toDate to the current day
+        startDate.setHours(0, 0, 0, 0); // Start of the day
+        endDate.setHours(23, 59, 59, 999); // End of the day
+        break;
+      case 'This Week':
+        // Set the start date to the beginning of the current week (Sunday) and end date to today
+        const today = startDate.getDay(); // Get current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+        startDate.setDate(startDate.getDate() - today); // Set start date to Sunday of the current week
+        endDate = new Date(); // End date is today
+        endDate.setHours(23, 59, 59, 999); // End of the day
+        break;
+      case 'This Week to Date':
+        const startOfWeek = startDate.getDay();
+        startDate.setDate(startDate.getDate() - startOfWeek); // Start date is Sunday of the current week
+        // End date is today
+        endDate = new Date();
+        endDate.setHours(23, 59, 59, 999); // End of the day
+        break;
+      case 'This Month':
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+        break;
+      case 'This Month - Date':
+        // Set start date to the 1st of the month
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+
+        // Set end date to today's date
+        endDate = new Date();
+
+        // Set end date to end of the day
+        endDate.setHours(23, 59, 59, 999);
+        break;
+
+      case 'Last Month to Date':
+        // Set start date to the first day of the previous month and end date to today
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
+        endDate = new Date(); // End date is today
+        endDate.setHours(23, 59, 59, 999); // End of the day
+        break;
+      case 'This Fiscal Quarter':
+        const quarterStartMonth = Math.floor((startDate.getMonth() / 3)) * 3; // Get the start month of the current quarter
+        startDate = new Date(startDate.getFullYear(), quarterStartMonth, 1); // Start of quarter
+        endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0); // End of quarter
+        break;
+      case 'This Fiscal Year':
+        startDate = new Date(startDate.getFullYear(), 0, 1); // Start of fiscal year (January 1st)
+        endDate = new Date(startDate.getFullYear() + 1, 0, 0); // End of fiscal year (December 31st)
+        break;
+      case 'Yesterday':
+        startDate.setDate(startDate.getDate() - 1); // Subtract one day
+        endDate = new Date(startDate);
+        break;
+      case 'Last Week':
+        startDate.setDate(startDate.getDate() - 7); // Subtract seven days
+        endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6); // Set end date to one day before the current date
+        break;
+      case 'Last Month':
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1); // Set to previous month
+        endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0); // Set to last day of previous month
+        break;
+      // Add more cases as needed
+      default:
+        break;
+    }
+
+    setFromDate(new Date(startDate)); // Use new Date object to avoid reference issues
+    setToDate(new Date(endDate));
   };
 
   const handleFromDateChange = (date) => {
@@ -142,6 +255,29 @@ const InventoryPage = () => {
     setToDate(date);
     searchItems();
   };
+  // Function to format date as MM-DD-YYYY
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  // Function to get the current date
+  const getCurrentDate = () => {
+    return formatDate(new Date());
+  };
+
+  // Function to render the selected date period
+  const renderSelectedDatePeriod = () => {
+    if (fromDate && toDate) {
+      return `${formatDate(fromDate)} to ${formatDate(toDate)}`;
+    } else if (fromDate) {
+      return `From ${formatDate(fromDate)}`;
+    } else if (toDate) {
+      return `To ${formatDate(toDate)}`;
+    } else {
+      return 'All';
+    }
+  };
+
 
   useEffect(() => {
     if (tableRef.current) {
@@ -168,6 +304,8 @@ const InventoryPage = () => {
     setShowEditPop(true);
   };
 
+  //handle scaling of zooming from the the printers more setting
+
   const renderActionButtons = () => {
     const handlePrintInventory = async () => {
       const tableContainer = tableRef.current;
@@ -185,10 +323,16 @@ const InventoryPage = () => {
         printWindow.document.write('.table-print thead { display: table-header-group; }');
         printWindow.document.write('.table-print tfoot { display: table-footer-group; }');
         printWindow.document.write('.table-print tr { page-break-inside: avoid; }');
+        printWindow.document.write('.no-print { display: none !important; }');
         printWindow.document.write('}');
         printWindow.document.write('</style>');
         printWindow.document.write('</head><body>');
-        printWindow.document.write(tableContainer.outerHTML);
+
+        // Add a wrapper with the class to ensure the table is styled correctly
+        printWindow.document.write('<div class="table-print">');
+        printWindow.document.write(tableContainer.innerHTML);  // Use innerHTML to exclude the wrapper
+        printWindow.document.write('</div>');
+
         printWindow.document.write('</body></html>');
         printWindow.document.close();
         printWindow.print();
@@ -204,6 +348,7 @@ const InventoryPage = () => {
       </button>
     );
   };
+
 
   useEffect(() => {
     const capturePagesContent = async () => {
@@ -246,9 +391,8 @@ const InventoryPage = () => {
       <div className="flex justify-between items-center w-full max-w-3xl mx-auto m-2">
         <div className="flex-1 flex justify-start">
           <button
-            className={`px-3 py-1.5 rounded-md ${
-              currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
+            className={`px-3 py-1.5 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+              }`}
             onClick={handlePreviousPage}
           >
             Previous
@@ -257,9 +401,8 @@ const InventoryPage = () => {
         <div className="flex-1 flex justify-center">{renderActionButtons()}</div>
         <div className="flex-1 flex justify-end">
           <button
-            className={`px-3 py-1.5 ${
-              currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            } rounded-md`}
+            className={`px-3 py-1.5 ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+              } rounded-md`}
             onClick={handleNextPage}
           >
             Next
@@ -274,7 +417,7 @@ const InventoryPage = () => {
       <div className="flex justify-between mt-4">
         <div>Total Products: {totalItems}</div>
         <div>Total Store Value: ₦{totalStoreValue}</div>
-        <div>Out Of Stock: {filteredItems.filter((item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) === 0).length}</div>
+        <div>Out Of Stock: {filteredItems.filter((item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) <= 0).length}</div>
         <div>All Categories: 2</div>
       </div>
     );
@@ -288,14 +431,16 @@ const InventoryPage = () => {
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
-          <h2 className="text-2xl font-bold">Inventory Stats</h2>
+          <div className="flex justify-center">
+            <h2 className="text-2xl font-bold">Inventory</h2>
+          </div>
           <div className="flex mt-4 space-x-4">
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
             {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'pink')}
             {renderStatCard(
               'Out Of Stock',
               filteredItems.filter(
-                (item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) === 0
+                (item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) <= 0
               ).length.toString(),
               'red'
             )}
@@ -303,68 +448,117 @@ const InventoryPage = () => {
           </div>
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Inventory Items</h2>
+        <div className="mb-4">
+
+          <p><strong>Inventory by Dates:</strong></p>
           <div className="flex items-center space-x-4">
+            <div>
+              {/* Dates label and dropdown */}
+              {/* <label
+                htmlFor="dateOption"
+                className="text-lg"
+                style={{ marginRight: '16px' }} // Add margin-right of 16px (adjust as needed)
+              >
+                Dates
+              </label> */}
+              <select
+                id="dateOption"
+                value={selectedDateOption}
+                onChange={handleDateOptionChange}
+                className="border border-gray-300 rounded-md p-2 pl-4"
+                style={{ width: '150px' }} // Set the width to 150px (adjust as needed)
+              >
+                <option value="All">All</option>
+                <option value="Today">Today</option>
+                <option value="This Week">This Week</option>
+                <option value="This Week - Date">This Week - Date</option>
+                <option value="This Month">This Month</option>
+                <option value="Last Month to Date">This Month to Date</option>
+
+                <option value="This Fiscal Quarter">This Fiscal Quarter</option>
+                <option value="This Fiscal Quarter to Date">This Fiscal Quarter to Date</option>
+                <option value="This Fiscal Year">This Fiscal Year</option>
+                <option value="This Fiscal Year to Last Month">This Fiscal Year to Last Month</option>
+                <option value="This Fiscal Year to Date">This Fiscal Year to Date</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="Last Week">Last Week</option>
+                <option value="Last Week to Date">Last Week to Date</option>
+                <option value="Last Month">Last Month</option>
+                <option value="Last Month to Date">Last Month to Date</option>
+                <option value="Last Fiscal Quarter">Last Fiscal Quarter</option>
+                <option value="Last Fiscal Quarter to Last Month">Last Fiscal Quarter to Last Month</option>
+              </select>
+
+            </div>
             <div className="flex items-center space-x-2">
-              <div className="text-lg">Inventory by Date</div>
+
               <div className="relative">
                 <DatePicker
                   selected={fromDate}
                   onChange={handleFromDateChange}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat="MM-dd-yyyy"
                   placeholderText="From"
                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
                 />
-                <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
+                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
               </div>
               <div className="relative">
                 <DatePicker
                   selected={toDate}
                   onChange={handleToDateChange}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat="MM-dd-yyyy"
                   placeholderText="To"
                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
                 />
-                <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
+                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
               </div>
+              {/* Search input */}
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md p-2 pr-2"
+                placeholder="Search"
+                // Assuming you have a function setSearchKeyword to handle search
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                style={{ marginLeft: '8px', marginRight: '16px' }}
+              />
             </div>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md p-2"
-              placeholder="Search"
-              onChange={searchItems}
-              style={{ marginLeft: 'auto', marginRight: '16px' }}
-            />
+
           </div>
         </div>
 
         <div className="mb-8">
           <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '200px' }} ref={tableRef}>
+            <div className="mb-4 text-center">
+              <h2 className="text-2xl font-bold underline">Inventory Report</h2>
+
+              <p><strong>Selected Date Period:</strong> {renderSelectedDatePeriod()}</p>
+              <p>Report Printed On: {getCurrentDate()}</p>
+            </div>
             <table className="w-full table-auto" id="inventory-table">
-              <thead>
-                <tr>
-                  <th className="border">S/n</th>
-                  <th className="border">Name</th>
-                  <th className="border">Date</th>
-                  <th className="border">Item ID</th>
-                  <th className="border">Qty Restocked</th>
-                  <th className="border">Total Bal</th>
-                  <th className="border">Qty Sold</th>
-                  <th className="border">Qty Balance</th>
-                  <th className="border">M.Unit</th>
-                  <th className="border">CostPrice</th>
-                  <th className="border">Sales Price</th>
-                  <th className="border">Item Value</th>
-                  <th className="border">
-                    {state.user && state.user.role === 'admin' ? (
-                      <>
-                        Action
-                      </>
-                    ) : null}
-                  </th>
-                </tr>
-              </thead>
+            <thead>
+  <tr>
+    <th className="border">S/n</th>
+    <th className="border">Name</th>
+    <th className="border">Date</th>
+    <th className="border">Item ID</th>
+    <th className="border">Qty Restocked</th>
+    <th className="border">Total Bal</th>
+    <th className="border">Qty Sold</th>
+    <th className="border">Qty Balance</th>
+    <th className="border">M.Unit</th>
+    <th className="border">Cost Price</th>
+    <th className="border">Sales Price</th>
+    <th className="border">Item Value</th>
+    <th className="border">
+      {state.user && state.user.role === 'admin' ? (
+        <>
+          Action
+        </>
+      ) : null}
+    </th>
+  </tr>
+</thead>
+
               <tbody>
                 {itemsToDisplay.map((item) => (
                   <tr
@@ -400,13 +594,16 @@ const InventoryPage = () => {
                         <>
                           <FontAwesomeIcon
                             icon={faEdit}
+                            className="no-print"
                             style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
                             onClick={(e) => handleEditClick(item.id, e)}
                           />
                           <FontAwesomeIcon
                             icon={faTrash}
+                            className="no-print"
                             style={{ cursor: 'pointer', color: 'red' }}
                           />
+
                         </>
                       ) : null}
                     </td>
@@ -418,18 +615,19 @@ const InventoryPage = () => {
                   <td className="border"></td>
                   <td className="border"></td>
                   <td className="border"></td>
-                  <td className="border"><strong>Total</strong></td>
-                  <td className="border">{totalQtyRestocked}</td>
-                  <td className="border">{totalTotalBal}</td>
-                  <td className="border">{totalQtySold}</td>
-                  <td className="border">{totalQtyBalance}</td>
+                  <td className="border font-bold"><strong>Total:</strong></td>
+                  <td className="border font-bold">{totalQtyRestocked}</td>
+                  <td className="border font-bold">{totalTotalBal}</td>
+                  <td className="border font-bold">{totalQtySold}</td>
+                  <td className="border font-bold">{totalQtyBalance}</td>
                   <td className="border"></td>
-                  <td className="border">{totalCostPrice.toFixed(2)}</td>
-                  <td className="border">{totalSalesPrice.toFixed(2)}</td>
-                  <td className="border">{totalItemValue.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
                   <td className="border"></td>
                 </tr>
               </tfoot>
+
               {/* <tfoot>
     <tr>
       <td className="border"></td>

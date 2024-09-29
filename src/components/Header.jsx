@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import DateTimeDisplay from "./DateTimeDisplay";
-
+import { useMyContext } from '../Context/MyContext'; // Import the context
 
 export default function Header() {
+  const { state } = useMyContext(); // Access the context state
   const [pageState, setPageState] = useState("Sign in");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const location = useLocation();
@@ -21,6 +22,11 @@ export default function Header() {
     });
   }, [auth]);
 
+  useEffect(() => {
+    // Log changes in selectedCompanyName
+    console.log('Selected Company Name has changed:', state.selectedCompanyName);
+  }, [state.selectedCompanyName]);
+
   function pathMatchRoute(route) {
     return route === location.pathname;
   }
@@ -29,25 +35,27 @@ export default function Header() {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
+  // Extract and capitalize the initial letter of the selected company name
+  const selectedCompanyName = state.selectedCompanyName || "";
+  const initial = selectedCompanyName.charAt(0).toUpperCase();
+
   return (
     <div className="bg-white border-b shadow-sm sticky top-0 z-40">
       <header className="flex justify-between items-center px-2 max-w-6xl mx-auto">
-      <div className="flex items-center mt-2">
-  <div
-    onClick={() => navigate("/")}
-    className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center cursor-pointer mr-1 mb-2"
-    style={{ fontStyle: 'italic', color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}
-  >
-    N
-  </div>
+        <div className="flex items-center mt-2">
+          <div
+            onClick={() => navigate("/")}
+            className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center cursor-pointer mr-1 mb-2"
+            style={{ fontStyle: 'italic', color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}
+          >
+            {initial}
+          </div>
+          <div className="text-base font-semibold text-blue-800" style={{ fontFamily: 'serif', fontSize: '1rem', marginLeft: '0.2rem' }}>
+            {selectedCompanyName}
+          </div>
+        </div>
 
-  <div className="text-base font-semibold text-blue-800" style={{ fontFamily: 'serif', fontSize: '1rem', marginLeft: '0.2rem' }}>
-  NENYURKA NIGERIA LIMITED
-  </div>
-</div>
-
-   
-       <DateTimeDisplay />
+        <DateTimeDisplay />
 
         {/* Drawer Navigation - Mobile */}
         {isDrawerOpen && (
@@ -69,7 +77,7 @@ export default function Header() {
                   toggleDrawer();
                 }}
               >
-               Inventory
+                Inventory
               </li>
               <li
                 className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 ${pathMatchRoute("/blog") && "text-black"}`}
@@ -78,7 +86,7 @@ export default function Header() {
                   toggleDrawer();
                 }}
               >
-              Pos Screen
+                Pos Screen
               </li>
               <li
                 className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 ${pathMatchRoute("/contact") && "text-black"}`}
@@ -87,17 +95,17 @@ export default function Header() {
                   toggleDrawer();
                 }}
               >
-               Sales Report
+                Sales Report
               </li>
-               {/* New Links for Services and Career */}
-               <li
+              {/* New Links for Services and Career */}
+              <li
                 className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 ${pathMatchRoute("/services") && "text-black"}`}
                 onClick={() => {
                   navigate("/services");
                   toggleDrawer();
                 }}
               >
-               Invoices/Receipt
+                Invoices/Receipt
               </li>
               <li
                 className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 ${pathMatchRoute("/career") && "text-black"}`}
@@ -126,7 +134,6 @@ export default function Header() {
               >
                 {pageState}
               </li>
-             
             </ul>
           </div>
         )}

@@ -17,11 +17,11 @@ const AddTax = () => {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [errorMessage, setErrorMessage] = useState('');
  
-  const { state: { taxes },  calculateTotalAmount, calculateTotalPaidAmount  } = useMyContext();
+  const { state: { taxes, selectedCompanyId },  calculateTotalAmount, calculateTotalTaxPaidAmount  } = useMyContext();
   
   // Call these functions wherever you need to use the total amount and total amount paid
   const totalAmount = calculateTotalAmount();
-  const totalPaidAmount = calculateTotalPaidAmount();
+  const totalPaidAmount = calculateTotalTaxPaidAmount();
   const navigate = useNavigate();
   
 console.log(setSelectedTax)
@@ -67,7 +67,7 @@ console.log(setSelectedTax)
         setErrorMessage('All fields must be filled and contain valid numbers');
         return;
       }
-
+  
       const taxData = {
         name: taxName.trim(),
         rate: parseFloat(taxRate.trim()),
@@ -75,13 +75,14 @@ console.log(setSelectedTax)
         paidAmount: parseFloat(paidAmount.trim()),
         date: date
       };
-
-      await addDoc(collection(db, 'taxes'), taxData);
-
+  
+      // Modify the path to include `ttaxes`
+      await addDoc(collection(db, `companies/${selectedCompanyId}/taxes`), taxData);
+  
       toast.success('Tax added successfully', {
         position: toast.POSITION.TOP_RIGHT
       });
-
+  
       setTaxName('');
       setTaxRate('');
       setAmount('');
@@ -97,6 +98,7 @@ console.log(setSelectedTax)
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="max-w-lg mx-auto mt-8 p-6 bg-gray-100 rounded-lg shadow-md">
