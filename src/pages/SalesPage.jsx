@@ -28,7 +28,7 @@ const SalesPage = () => {
 
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
 
-  const [totalCOGS, setTotalCOGS] = useState(0); 
+  const [totalCOGS, setTotalCOGS] = useState(0);
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
@@ -75,12 +75,12 @@ const SalesPage = () => {
 
     setFilteredSales(filtered);
     calculateTotalSalesValue(filtered);
-  }, [state.sales, fromDate, toDate, searchKeyword, searchByDate, searchByKeyword]);
+  }, [state.sales, fromDate, toDate, calculateTotalSalesValue, searchKeyword, searchByDate, searchByKeyword]);
 
 
   useEffect(() => {
     calculateTotalSalesValue(filteredSales);
-  }, [filteredSales]);
+  }, [filteredSales, calculateTotalSalesValue]);
 
   // const calculateTotalSalesValue = (sales) => {
   //   if (!sales || sales.length === 0) {
@@ -103,8 +103,8 @@ const SalesPage = () => {
   useEffect(() => {
     setTotalSalesValue(calculateTotalSalesValue(filteredSales));
     setTotalCOGS(calculateTotalCOGS(filteredSales)); // Ensure this is called with the correct sales array
-  }, [filteredSales]);
-  
+  }, [filteredSales, calculateTotalCOGS, calculateTotalSalesValue]);
+
 
 
   const handleFromDateChange = (date) => {
@@ -153,7 +153,7 @@ const SalesPage = () => {
 
     setFilteredSales(filtered);
     calculateTotalSalesValue(filtered);
-  }, [state.sales, fromDate, toDate, searchKeyword, searchByDate, searchByKeyword]);
+  }, [state.sales, fromDate, toDate, searchKeyword, searchByDate, calculateTotalSalesValue,searchByKeyword]);
 
 
 
@@ -281,24 +281,9 @@ const SalesPage = () => {
   // Calculate total sales value on mount and when sales change
   useEffect(() => {
     calculateTotalSalesValue();
-  }, [filteredSales]);
+  }, [filteredSales, calculateTotalSalesValue]);
 
 
-
-  // const calculateTotalCOGS = () => {
-  //   if (!filteredSales || filteredSales.length === 0) {
-  //     return 0;
-  //   }
-
-  //   const totalCOGS = filteredSales.reduce((total, sale) => {
-  //     return total + sale.products.reduce((acc, product) => {
-  //       const costPrice = parseFloat(product.costPrice);
-  //       return isNaN(costPrice) ? acc : acc + costPrice;
-  //     }, 0);
-  //   }, 0);
-
-  //   return totalCOGS.toFixed(2);
-  // };
 
 
   const calculateTodaySales = () => {
@@ -458,23 +443,25 @@ const SalesPage = () => {
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
-
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-2xl font-bold">Sales Stats</h2>
+            <div className="flex-grow text-center">
+              <h2 className="text-2xl font-bold">Sales</h2>
+            </div>
             <button className="text-blue-500 cursor-pointer pr-24" onClick={() => window.history.back()}>
               Back
             </button>
           </div>
+
           <div className="flex mt-2 space-x-4">
             {renderStatCard('Total Revenue', `₦${totalSalesValue}`, 'blue', faChartLine)}
-            {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'pink', faShoppingCart)}
+            {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'green', faShoppingCart)}
             {renderStatCard(
               'Today Sales',
               `₦${calculateTodaySales().toFixed(2)}`,
               'red',
               faCalendarAlt
             )}
-            {renderStatCard('Cost Of Goods Sold', `₦${totalCOGS}`, 'blue', faBox)}
+            {renderStatCard('Cost Of Goods Sold', `₦${totalCOGS}`, 'gray', faBox)}
 
           </div>
         </div>

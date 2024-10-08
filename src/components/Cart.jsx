@@ -37,7 +37,9 @@ const CartItem = ({ id, name, price, quantity }) => {
   );
 };
 
-const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMethod, setSelectedPaymentMethod }) => (
+const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMethod, isProcessing, setSelectedPaymentMethod }) => (
+  
+  
   <div className="flex flex-col mt-4 items-end">
     <p className="text-lg font-bold mb-2 whitespace-nowrap">Total: ₦{total}</p>
     <select
@@ -53,8 +55,12 @@ const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMeth
       <option value="App Transfer">Transfer</option>
     </select>
     <div className="flex gap-4">
-      <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap" onClick={onPrintReceipt}>
-        Print Receipt
+    <button
+        className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap"
+        onClick={onPrintReceipt}
+        disabled={isProcessing} // Disable button when processing
+      >
+        {isProcessing ? 'Processing...' : 'Print Receipt'} {/* Show loading state */}
       </button>
       <button className="bg-red-500 text-white px-8 py-2 rounded-md overflow-hidden whitespace-nowrap" onClick={onClearItems}>
         Clear
@@ -67,6 +73,7 @@ const Cart = () => {
   const { state, clearCart } = useMyContext();
   const { selectedCompanyId } = state;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Cash");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { cart } = state;
   const overallTotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -109,7 +116,7 @@ const Cart = () => {
   const handlePrintReceipt = async () => {
     const receiptNumber = Math.floor(Math.random() * 1000000);
     const transactionDateTime = new Date().toLocaleString();
-
+    setIsProcessing(true);
     const salesDoc = {
       saleId: `sale_${receiptNumber}`,
       date: transactionDateTime,
@@ -206,6 +213,9 @@ const Cart = () => {
       console.error('Error adding receipt to Firestore:', error);
       toast.error('Error processing sale. Please try again.');
     }
+    finally {
+      setIsProcessing(false); // Reset processing state
+    }
   };
 
   
@@ -237,6 +247,8 @@ const Cart = () => {
         onPrintReceipt={handlePrintReceipt}
         selectedPaymentMethod={selectedPaymentMethod}
         setSelectedPaymentMethod={setSelectedPaymentMethod}
+        isProcessing={isProcessing} // Pass processing state to OverallTotal
+       
       />
     </div>
   );

@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import DateTimeDisplay from "./DateTimeDisplay";
 import { useMyContext } from '../Context/MyContext'; // Import the context
+import mylogo from "../assets/svg/mylogo.png";
+
 
 export default function Header() {
   const { state } = useMyContext(); // Access the context state
@@ -42,19 +44,23 @@ export default function Header() {
   return (
     <div className="bg-white border-b shadow-sm sticky top-0 z-40">
       <header className="flex justify-between items-center px-2 max-w-6xl mx-auto">
+        {/* Left section: App logo and name */}
         <div className="flex items-center mt-2">
-          <div
-            onClick={() => navigate("/")}
-            className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center cursor-pointer mr-1 mb-2"
-            style={{ fontStyle: 'italic', color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}
-          >
-            {initial}
-          </div>
+        <div onClick={() => navigate("/")} className="flex items-center justify-center pb-2">
+  <img src={mylogo} alt="BizTrack Logo" className="h-12 w-12 rounded-full object-cover" />
+</div>
+
           <div className="text-base font-semibold text-blue-800" style={{ fontFamily: 'serif', fontSize: '1rem', marginLeft: '0.2rem' }}>
-            {selectedCompanyName}
+            BizTrack
           </div>
         </div>
 
+        {/* Center section: Company Name */}
+        <div className="text-lg font-semibold text-center text-gray-800">
+          {selectedCompanyName}
+        </div>
+
+        {/* Right section: Date and Drawer */}
         <DateTimeDisplay />
 
         {/* Drawer Navigation - Mobile */}

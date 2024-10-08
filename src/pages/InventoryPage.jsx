@@ -9,7 +9,9 @@ import { useMyContext } from '../Context/MyContext';
 import InventorySidePanel from '../components/InventorySidePanel';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import EditPopup from '../components/EditPopup';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
+
+
 
 const InventoryPage = () => {
   const { state } = useMyContext();
@@ -20,7 +22,7 @@ const InventoryPage = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
-  const [allPagesContent, setAllPagesContent] = useState([]);
+  // const [allPagesContent, setAllPagesContent] = useState([]);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   const [searchKeyword, setSearchKeyword] = useState('');
 
@@ -31,10 +33,18 @@ const InventoryPage = () => {
   const navigate = useNavigate();
   const tableRef = useRef(null);
 
-  useEffect(() => {
-    searchItems();
-  }, [fromDate, toDate, searchKeyword]);
+  // if (allPagesContent){}
 
+
+  const calculateTotalStoreValue = useCallback((items) => {
+    const calculatedTotalStoreValue = items.reduce(
+      (total, item) =>
+        total +
+        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
+      0
+    );
+    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
+  }, [state.productTotals, state.productTotalsMap]);
 
   useEffect(() => {
     const initialItems = state.products || [];
@@ -55,17 +65,8 @@ const InventoryPage = () => {
     }
 
     calculateTotalStoreValue(initialItems);
-  }, [state.products]);
+  }, [state.products, calculateTotalStoreValue]);
 
-  const calculateTotalStoreValue = useCallback((items) => {
-    const calculatedTotalStoreValue = items.reduce(
-      (total, item) =>
-        total +
-        item.price * ((state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0)),
-      0
-    );
-    setTotalStoreValue(calculatedTotalStoreValue.toFixed(2));
-  }, [state.productTotals, state.productTotalsMap]);
 
 
   const calculateTotals = () => {
@@ -117,15 +118,24 @@ const InventoryPage = () => {
     totalItemValue,
   } = calculateTotals();
 
-  const searchItems = () => {
-    let searchText = searchKeyword.toLowerCase();
+// Define searchItems outside of the component
 
-    const filteredByKeyword = searchInventoryByKeyword(state.products, searchText);
-    const filteredByDate = searchByDate(filteredByKeyword, fromDate, toDate);
+const searchItems = useCallback(() => {
+  let searchText = searchKeyword.toLowerCase();
 
-    setFilteredItems(filteredByDate);
-    calculateTotalStoreValue(filteredByDate);
-  };
+  const filteredByKeyword = searchInventoryByKeyword(state.products, searchText);
+  const filteredByDate = searchByDate(filteredByKeyword, fromDate, toDate);
+
+  setFilteredItems(filteredByDate);
+  calculateTotalStoreValue(filteredByDate);
+}, [searchKeyword, fromDate, toDate, state.products]); // Define dependencies here
+
+// Inside your functional component
+useEffect(() => {
+  searchItems(); // Call searchItems here
+}, [searchItems]); // Now searchItems won't change unless its dependencies change
+
+
 
   const searchInventoryByKeyword = (items, searchText) => {
     if (!Array.isArray(items)) return [];
@@ -152,16 +162,6 @@ const InventoryPage = () => {
   };
 
 
-  // const searchInventoryByKeyword = (items, searchText) => {
-  //   return items.filter((item) => item.name.toLowerCase().includes(searchText));
-  // };
-
-  // const searchByDate = (items, startDate, endDate) => {
-  //   return items.filter((item) => {
-  //     const productDate = new Date(firstRestockDates[item.name]);
-  //     return productDate >= startDate && productDate <= endDate;
-  //   });
-  // };
 
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
@@ -350,33 +350,33 @@ const InventoryPage = () => {
   };
 
 
-  useEffect(() => {
-    const capturePagesContent = async () => {
-      const pagesContent = [];
-      const tableContainer = document.querySelector('.table-container');
-      const itemsPerPage = 100;
+  // useEffect(() => {
+  //   const capturePagesContent = async () => {
+  //     const pagesContent = [];
+  //     const tableContainer = document.querySelector('.table-container');
+  //     const itemsPerPage = 100;
 
-      if (tableContainer) {
-        const totalItems = filteredItems.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
+  //     if (tableContainer) {
+  //       const totalItems = filteredItems.length;
+  //       const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-        for (let page = 1; page <= totalPages; page++) {
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
-          const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
+  //       for (let page = 1; page <= totalPages; page++) {
+  //         const startIndex = (page - 1) * itemsPerPage;
+  //         const endIndex = startIndex + itemsPerPage;
+  //         const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
 
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+  //         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-          const canvas = await html2canvas(tableContainer);
-          pagesContent.push(canvas.toDataURL('image/png'));
-        }
+  //         const canvas = await html2canvas(tableContainer);
+  //         pagesContent.push(canvas.toDataURL('image/png'));
+  //       }
 
-        setAllPagesContent(pagesContent);
-      }
-    };
+  //       setAllPagesContent(pagesContent);
+  //     }
+  //   };
 
-    capturePagesContent();
-  }, [filteredItems]);
+  //   capturePagesContent();
+  // }, [filteredItems]);
 
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
@@ -436,7 +436,8 @@ const InventoryPage = () => {
           </div>
           <div className="flex mt-4 space-x-4">
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
-            {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'pink')}
+            {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'green')}
+
             {renderStatCard(
               'Out Of Stock',
               filteredItems.filter(
@@ -444,7 +445,7 @@ const InventoryPage = () => {
               ).length.toString(),
               'red'
             )}
-            {renderStatCard('All Categories', '2', 'blue')}
+            {renderStatCard('All Categories', '2', 'gray')}
           </div>
         </div>
 

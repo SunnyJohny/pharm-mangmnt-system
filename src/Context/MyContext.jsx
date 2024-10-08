@@ -19,6 +19,7 @@ export const MyContextProvider = ({ children }) => {
     cart: [],
     assets: [],
     liabilities: [],
+    shares: [],
     users: [],
     companies: [],
     inventoryData: [],
@@ -201,6 +202,39 @@ export const MyContextProvider = ({ children }) => {
     }
   }, [state.selectedCompanyId]);
   
+  const fetchShares = async () => {
+    try {
+      if (!state.selectedCompanyId) {
+        console.error('No company selected');
+        return;
+      }
+  
+      const sharesCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/shares`);
+      const sharesSnapshot = await getDocs(sharesCollectionRef);
+  
+      if (!sharesSnapshot.empty) {
+        const sharesData = sharesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setState((prevState) => ({ ...prevState, shares: sharesData }));
+        console.log('Fetched shares:', sharesData);
+      } else {
+        console.error('No shares found!');
+      }
+    } catch (error) {
+      console.error('Error fetching shares:', error.message);
+    }
+  };
+  
+  // Call fetchShares when selectedCompanyId is updated
+  useEffect(() => {
+    if (state.selectedCompanyId) {
+      fetchShares();
+    }
+  }, [state.selectedCompanyId]);
+  
+
 
   const fetchStaff = async () => {
     try {

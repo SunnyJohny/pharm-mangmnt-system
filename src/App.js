@@ -26,6 +26,7 @@ import AddLiability from './components/AddLiability';
 import CashFlow from './pages/CashFlow';
 import ContactMe from './pages/ContactMe';
 import CompanySignUp from './pages/CompanySignUp';
+import AddShares from './components/Shares';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="/add-expense" element={<AddExpense />} />
             <Route path="/add-asset" element={<AddAsset />} />
             <Route path="/add-liability" element={<AddLiability />} />
+            <Route path="/add-shares" element={<AddShares />} />
             <Route path="/add-tax" element={<AddTax />} />
             <Route path="/profitandloss" element={<ProfitAndLoss />} />
             <Route path="/balance-sheet" element={<BalanceSheet />} />

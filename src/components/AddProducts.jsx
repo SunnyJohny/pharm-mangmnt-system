@@ -269,6 +269,17 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                     />
                   </div>
                   <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Products Serial No</label>
+                    <input
+                      type="number"
+                      name="quantitySupplied"
+                      value={product.quantitySupplied}
+                      onChange={handleInputChange}
+                      className="border rounded-md w-full p-2"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Cost of Goods Supplied</label>
                     <input
                       type="number"

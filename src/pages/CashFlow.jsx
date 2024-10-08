@@ -9,7 +9,7 @@ import ReceiptModal from '../components/ReceiptModal';
 
 
 const CashFlow = () => {
-  const { state,calculateTotal,calculateTotalSoldAsset, searchByDate, calculateTotalTaxPaidAmount, calculateTotalSalesValue, calculateTotalCOGS } = useMyContext();
+  const { state, calculateTotal, calculateTotalSoldAsset, searchByDate, calculateTotalTaxPaidAmount, calculateTotalSalesValue, calculateTotalCOGS } = useMyContext();
   // const [currentPage, setCurrentPage] = useState(1);
   // const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -22,7 +22,17 @@ const CashFlow = () => {
   const [filteredSales, setFilteredSales] = useState([]);
   const [totalInterestReceived, setTotalInterestReceived] = useState(0);
   const [totalDividendReceived, setTotalDividendReceived] = useState(0);
-  
+  const [totalReceivedLiabilities, setTotalReceivedLiabilities] = useState(0);
+  const [totalAmountPaid, setTotalAmountPaid] = useState(0);
+  const [totalInterestPaid, setTotalInterestPaid] = useState(0);
+  const [totalDividendsPaid, setTotalDividendsPaid] = useState(0);
+  const [totalShareIssuanceProceeds, setTotalShareIssuanceProceeds] = useState(0);
+
+
+
+
+
+  const [totalLiabilities, setTotalLiabilities] = useState(0);
 
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   // const [filteredExpenses, setFilteredExpenses] = useState([]);
@@ -30,7 +40,7 @@ const CashFlow = () => {
 
   const [totalAssetSold, setTotalAssetSold] = useState(0);
   const [totalAssetPurchased, setTotalAssetPurchased] = useState(0);
-  
+
 
   const totalTaxPaidAmount = calculateTotalTaxPaidAmount();
 
@@ -48,6 +58,89 @@ const CashFlow = () => {
 
 
   useEffect(() => {
+    // Filter the liabilities data by date range using searchByDate function
+    const filteredByDate = searchByDate(state.liabilities, fromDate, toDate);
+
+    // Calculate the total amount for liabilities where loanType is "Received"
+    const totalReceived = filteredByDate.reduce((total, liability) => {
+      return liability.loanType === "Received"
+        ? total + parseFloat(liability.amount || 0)
+        : total;
+    }, 0);
+
+    // Calculate the total of amountPaid for records with loanType "Received",
+    // and filter the payments by date range
+    const totalPaidAmount = filteredByDate.reduce((total, liability) => {
+      if (liability.loanType === "Received" && Array.isArray(liability.amountPaid)) {
+        const filteredPayments = liability.amountPaid.filter(payment => {
+          const paymentDate = new Date(payment.date);
+          return (
+            (!fromDate || paymentDate >= new Date(fromDate)) &&
+            (!toDate || paymentDate <= new Date(toDate))
+          );
+        });
+
+        const sumPaid = filteredPayments.reduce((sum, payment) => {
+          return sum + parseFloat(payment.amount || 0);
+        }, 0);
+
+        return total + sumPaid;
+      }
+      return total;
+    }, 0);
+
+    // Calculate the total interest paid for records with loanType "Received",
+    // and filter the interest payments by date range
+    const totalPaidInterest = filteredByDate.reduce((total, liability) => {
+      if (liability.loanType === "Received" && Array.isArray(liability.interestPaid)) {
+        const filteredInterestPayments = liability.interestPaid.filter(interest => {
+          const interestDate = new Date(interest.date);
+          return (
+            (!fromDate || interestDate >= new Date(fromDate)) &&
+            (!toDate || interestDate <= new Date(toDate))
+          );
+        });
+
+        const sumInterestPaid = filteredInterestPayments.reduce((sum, interest) => {
+          return sum + parseFloat(interest.amount || 0);
+        }, 0);
+
+        return total + sumInterestPaid;
+      }
+      return total;
+    }, 0);
+
+    // Filter the shares data by date range using searchByDate function
+    const filteredSharesByDate = searchByDate(state.shares, fromDate, toDate);
+
+    // Calculate the total dividends paid for records where amountPaid exists,
+    // and filter the dividends payments by date range
+    const totalDividendsPaid = filteredSharesByDate.reduce((total, share) => {
+      if (Array.isArray(share.amountPaid)) {
+        const filteredDividendsPayments = share.amountPaid.filter(dividend => {
+          const dividendDate = new Date(dividend.date);
+          return (
+            (!fromDate || dividendDate >= new Date(fromDate)) &&
+            (!toDate || dividendDate <= new Date(toDate))
+          );
+        });
+
+        const sumDividendsPaid = filteredDividendsPayments.reduce((sum, amountPaid) => {
+          return sum + parseFloat(amountPaid.amount || 0);
+        }, 0);
+
+        return total + sumDividendsPaid;
+      }
+      return total;
+    }, 0);
+    // Update the state with the total received liabilities, total amount paid, and total interest paid
+    setTotalReceivedLiabilities(totalReceived);
+    setTotalAmountPaid(totalPaidAmount);
+    setTotalInterestPaid(totalPaidInterest);
+    setTotalDividendsPaid(totalDividendsPaid);
+  }, [state.liabilities,state.shares, fromDate, toDate, searchByDate]);
+
+  useEffect(() => {
     // Filter the tax data by date
     const filteredByDate = searchByDate(state.taxes, fromDate, toDate);
 
@@ -59,27 +152,101 @@ const CashFlow = () => {
     // Update the state with the filtered tax amount
     setTotalTaxPaid(totalTax);
   }, [state.taxes, fromDate, toDate, searchByDate]);
+
+
+
+  useEffect(() => {
+    console.log("From Date:", fromDate);   // Log fromDate value
+    console.log("To Date:", toDate);       // Log toDate value
   
+    // Filter the shares data by date range using searchByDate function
+    const filteredSharesByDate = searchByDate(state.shares, fromDate, toDate);
+    console.log("Filtered Shares By Date:", filteredSharesByDate);   // Log the filtered shares
+  
+    // Calculate the total proceeds from share issuance for filtered shares within the date range
+    const totalShareIssuanceProceeds = filteredSharesByDate.reduce((total, share) => {
+      if (Array.isArray(share.shareIssuanceProceeds)) {
+        // Filter the issuance proceeds by date range
+        const filteredIssuanceProceeds = share.shareIssuanceProceeds.filter(proceed => {
+          const proceedDate = new Date(proceed.date);
+          console.log("Proceed Date:", proceed.date, "Parsed Date:", proceedDate);
+          return (
+            (!fromDate || proceedDate >= new Date(fromDate)) &&
+            (!toDate || proceedDate <= new Date(toDate))
+          );
+        });
+  
+        console.log("Filtered Issuance Proceeds:", filteredIssuanceProceeds);   // Log the filtered proceeds
+  
+        // Calculate the total amount from the filtered proceeds
+        const sumIssuanceProceeds = filteredIssuanceProceeds.reduce((sum, proceed) => {
+          return sum + parseFloat(proceed.amount || 0);
+        }, 0);
+  
+        return total + sumIssuanceProceeds;
+      }
+      return total;
+    }, 0);
+  
+    console.log("Total Share Issuance Proceeds:", totalShareIssuanceProceeds);   // Log the final total
+  
+    // Update the state with the calculated total
+    setTotalShareIssuanceProceeds(totalShareIssuanceProceeds);
+  }, [state.shares, fromDate, toDate, searchByDate]);
+  
+
 
   const searchBySoldDate = (items, startDate, endDate) => {
     // Check if startDate or endDate are missing, return all items if either is missing
     if (!startDate || !endDate) {
       return items;
     }
-  
+
     // Convert startDate and endDate to Date objects if they are not already
     const start = new Date(startDate);
     const end = new Date(endDate);
-  
+
     return items.filter((item) => {
       // Check if the item has a soldDate field
       const soldDate = item.soldDate ? new Date(item.soldDate) : null;
-  
+
       // Include only items with a valid soldDate that falls within the range
       return soldDate && soldDate >= start && soldDate <= end;
     });
   };
-  
+
+  // useEffect for handling Liabilities
+  useEffect(() => {
+    const searchByDate = (items, startDate, endDate) => {
+      if (!startDate || !endDate) {
+        return items;
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      return items.filter((item) => {
+        // Check if the item has a liabilityDate field and filter by date range
+        const liabilityDate = item.date ? new Date(item.date) : null;
+        return liabilityDate && liabilityDate >= start && liabilityDate <= end;
+      });
+    };
+
+    // Filter the liabilities data by the date range
+    const filteredLiabilities = searchByDate(state.liabilities, fromDate, toDate);
+    console.log("Filtered liabilities by date:", filteredLiabilities);
+
+    // Calculate the total liabilities using the filtered data
+    const totalLiabilities = filteredLiabilities.reduce((total, liability) => {
+      return total + parseFloat(liability.amount || 0);
+    }, 0);
+
+    console.log("Total liabilities:", totalLiabilities);
+    // Update the state with the total liabilities amount
+    setTotalLiabilities(totalLiabilities); // Assuming you have a state for this
+  }, [state.liabilities, fromDate, toDate]);
+
+
   useEffect(() => {
     // Filter the assets data by date
     const filteredByDate = searchBySoldDate(state.assets, fromDate, toDate);
@@ -104,15 +271,15 @@ const CashFlow = () => {
       if (!startDate || !endDate) {
         return items;
       }
-    
+
       // Convert startDate and endDate to Date objects if they are not already
       const start = new Date(startDate);
       const end = new Date(endDate);
-    
+
       return items.filter((item) => {
         // Check if the item has a purchaseDate field
         const purchaseDate = item.purchaseDate ? new Date(item.purchaseDate) : null;
-    
+
         // Include only items with a valid purchaseDate that falls within the range
         return purchaseDate && purchaseDate >= start && purchaseDate <= end;
       });
@@ -136,89 +303,89 @@ const CashFlow = () => {
 
 
 
-// useEffect for handling Interest Received
-useEffect(() => {
-  const searchByDate = (items, startDate, endDate) => {
-    if (!startDate || !endDate) {
-      return items;
-    }
+  // useEffect for handling Interest Received
+  useEffect(() => {
+    const searchByDate = (items, startDate, endDate) => {
+      if (!startDate || !endDate) {
+        return items;
+      }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
 
-    return items.filter((item) => {
-      // Check if the item has an interestReceived array and filter by date range
-      return (
-        Array.isArray(item.interestReceived) &&
-        item.interestReceived.some((interest) => {
-          const interestDate = interest.date ? new Date(interest.date) : null;
-          return interestDate && interestDate >= start && interestDate <= end;
-        })
-      );
-    });
-  };
+      return items.filter((item) => {
+        // Check if the item has an interestReceived array and filter by date range
+        return (
+          Array.isArray(item.interestReceived) &&
+          item.interestReceived.some((interest) => {
+            const interestDate = interest.date ? new Date(interest.date) : null;
+            return interestDate && interestDate >= start && interestDate <= end;
+          })
+        );
+      });
+    };
 
-  // Filter the assets data by the date range for interest received
-  const filteredByInterestDate = searchByDate(state.assets, fromDate, toDate);
-  console.log("Filtered assets by interest date:", filteredByInterestDate);
+    // Filter the assets data by the date range for interest received
+    const filteredByInterestDate = searchByDate(state.assets, fromDate, toDate);
+    console.log("Filtered assets by interest date:", filteredByInterestDate);
 
-  // Calculate the total interest received using the filtered data
-  const totalInterestReceived = filteredByInterestDate.reduce((total, asset) => {
-    // Ensure interestReceived is an array before attempting to reduce
-    const interestSum = Array.isArray(asset.interestReceived)
-      ? asset.interestReceived.reduce((acc, interest) => {
+    // Calculate the total interest received using the filtered data
+    const totalInterestReceived = filteredByInterestDate.reduce((total, asset) => {
+      // Ensure interestReceived is an array before attempting to reduce
+      const interestSum = Array.isArray(asset.interestReceived)
+        ? asset.interestReceived.reduce((acc, interest) => {
           return acc + parseFloat(interest.amount || 0);
         }, 0)
-      : 0;
-    return total + interestSum;
-  }, 0);
+        : 0;
+      return total + interestSum;
+    }, 0);
 
-  console.log("Total interest received:", totalInterestReceived);
-  // Update the state with the total interest received amount
-  setTotalInterestReceived(totalInterestReceived);
-}, [state.assets, fromDate, toDate]);
+    console.log("Total interest received:", totalInterestReceived);
+    // Update the state with the total interest received amount
+    setTotalInterestReceived(totalInterestReceived);
+  }, [state.assets, fromDate, toDate]);
 
-// useEffect for handling Dividends Received
-useEffect(() => {
-  const searchByDate = (items, startDate, endDate) => {
-    if (!startDate || !endDate) {
-      return items;
-    }
+  // useEffect for handling Dividends Received
+  useEffect(() => {
+    const searchByDate = (items, startDate, endDate) => {
+      if (!startDate || !endDate) {
+        return items;
+      }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
 
-    return items.filter((item) => {
-      // Check if the item has a dividendsReceived array and filter by date range
-      return (
-        Array.isArray(item.dividendReceived) &&
-        item.dividendReceived.some((dividend) => {
-          const dividendDate = dividend.date ? new Date(dividend.date) : null;
-          return dividendDate && dividendDate >= start && dividendDate <= end;
-        })
-      );
-    });
-  };
+      return items.filter((item) => {
+        // Check if the item has a dividendsReceived array and filter by date range
+        return (
+          Array.isArray(item.dividendReceived) &&
+          item.dividendReceived.some((dividend) => {
+            const dividendDate = dividend.date ? new Date(dividend.date) : null;
+            return dividendDate && dividendDate >= start && dividendDate <= end;
+          })
+        );
+      });
+    };
 
-  // Filter the assets data by the date range for dividends received
-  const filteredByDividendDate = searchByDate(state.assets, fromDate, toDate);
-  console.log("Filtered assets by dividend date:", filteredByDividendDate);
+    // Filter the assets data by the date range for dividends received
+    const filteredByDividendDate = searchByDate(state.assets, fromDate, toDate);
+    console.log("Filtered assets by dividend date:", filteredByDividendDate);
 
-  // Calculate the total dividends received using the filtered data
-  const totalDividendReceived = filteredByDividendDate.reduce((total, asset) => {
-    // Ensure dividendReceived is an array before attempting to reduce
-    const dividendSum = Array.isArray(asset.dividendReceived)
-      ? asset.dividendReceived.reduce((acc, dividend) => {
+    // Calculate the total dividends received using the filtered data
+    const totalDividendReceived = filteredByDividendDate.reduce((total, asset) => {
+      // Ensure dividendReceived is an array before attempting to reduce
+      const dividendSum = Array.isArray(asset.dividendReceived)
+        ? asset.dividendReceived.reduce((acc, dividend) => {
           return acc + parseFloat(dividend.amount || 0);
         }, 0)
-      : 0;
-    return total + dividendSum;
-  }, 0);
+        : 0;
+      return total + dividendSum;
+    }, 0);
 
-  console.log("Total dividend received:", totalDividendReceived);
-  // Update the state with the total dividends received amount
-  setTotalDividendReceived(totalDividendReceived);
-}, [state.assets, fromDate, toDate]);
+    console.log("Total dividend received:", totalDividendReceived);
+    // Update the state with the total dividends received amount
+    setTotalDividendReceived(totalDividendReceived);
+  }, [state.assets, fromDate, toDate]);
 
 
 
@@ -503,6 +670,12 @@ useEffect(() => {
     netIncome: (totalSalesValue - totalTaxPaid - totalExpenseAmount).toFixed(2) // Use totalTaxPaid state here
   };
 
+  const netCashFromFinancingActivities =
+    totalShareIssuanceProceeds +
+    totalReceivedLiabilities -
+    totalAmountPaid -
+    totalInterestPaid -
+    totalDividendsPaid;
 
   return (
     <div className="container mx-auto flex h-screen">
@@ -644,77 +817,79 @@ useEffect(() => {
 
                   <div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Proceeds from Share Capital">
                     <dt className="text-sm font-medium text-gray-500">Proceeds from issuance of share capital</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦250</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalShareIssuanceProceeds}</dd>
                   </div>
 
                   <div className="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Proceeds from Borrowings">
                     <dt className="text-sm font-medium text-gray-500">Proceeds from long-term borrowings(The Loan Itself)</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦250</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalReceivedLiabilities}</dd>
                   </div>
 
                   <div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Repayment of Borrowings">
                     <dt className="text-sm font-medium text-gray-500">Repayment of long-term borrowings(Loan)</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦(180)</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦({totalAmountPaid})</dd>
                   </div>
 
                   <div className="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Interest Paid">
                     <dt className="text-sm font-medium text-gray-500">Interest paid(Cost of borrowing)</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦(270)</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦({totalInterestPaid})</dd>
                   </div>
 
                   <div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Dividends Paid">
                     <dt className="text-sm font-medium text-gray-500">Dividends paid(Share of profits paid to shareholders)</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦(1,200)</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦({totalDividendsPaid})</dd>
                   </div>
 
                   <div className="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Net Cash from Financing Activities">
                     <dt className="text-sm font-medium text-gray-500">Net cash used in financing activities</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦(1,150)</dd>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">
+                      ₦{netCashFromFinancingActivities < 0 ? `(${Math.abs(netCashFromFinancingActivities)})` : netCashFromFinancingActivities}
+                    </dd>
                   </div>
 
-               {/* Investing Activities */}
-<div className="px-4 py-5 sm:px-6">
-  <h4 className="text-lg font-semibold leading-6 text-gray-900">Cash flows from investing activities</h4>
-</div>
+                  {/* Investing Activities */}
+                  <div className="px-4 py-5 sm:px-6">
+                    <h4 className="text-lg font-semibold leading-6 text-gray-900">Cash flows from investing activities</h4>
+                  </div>
 
-{/* Purchase of Fixed Assets (Debit - Negative) */}
-<div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Purchase of Fixed Assets">
-  <dt className="text-sm font-medium text-gray-500">Purchase of fixed assets</dt>
-  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">
-    ₦{totalAssetPurchased > 0 ? `(${totalAssetPurchased.toLocaleString()})` : totalAssetPurchased.toLocaleString()}
-  </dd>
-</div>
+                  {/* Purchase of Fixed Assets (Debit - Negative) */}
+                  <div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Purchase of Fixed Assets">
+                    <dt className="text-sm font-medium text-gray-500">Purchase of fixed assets</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">
+                      ₦{totalAssetPurchased > 0 ? `(${totalAssetPurchased.toLocaleString()})` : totalAssetPurchased.toLocaleString()}
+                    </dd>
+                  </div>
 
-{/* Proceeds from Sale of Equipment (Credit - Positive) */}
-<div className="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Proceeds from Sale of Equipment">
-  <dt className="text-sm font-medium text-gray-500">Proceeds from sale of equipment</dt>
-  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalAssetSold.toLocaleString()}</dd>
-</div>
+                  {/* Proceeds from Sale of Equipment (Credit - Positive) */}
+                  <div className="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Proceeds from Sale of Equipment">
+                    <dt className="text-sm font-medium text-gray-500">Proceeds from sale of equipment</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalAssetSold.toLocaleString()}</dd>
+                  </div>
 
-{/* Interest Received (Credit - Positive) */}
-<div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Interest Received">
-  <dt className="text-sm font-medium text-gray-500">Interest received (bonds, Interest Paying Accounts, etc.)</dt>
-  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalInterestReceived.toLocaleString()}</dd>
-</div>
+                  {/* Interest Received (Credit - Positive) */}
+                  <div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Interest Received">
+                    <dt className="text-sm font-medium text-gray-500">Interest received (bonds, Interest Paying Accounts, etc.)</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalInterestReceived.toLocaleString()}</dd>
+                  </div>
 
-{/* Dividends Received (Credit - Positive) */}
-<div className="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Dividends Received">
-  <dt className="text-sm font-medium text-gray-500">Dividends received (shares, investments, etc.)</dt>
-  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalDividendReceived.toLocaleString()}</dd>
-</div>
+                  {/* Dividends Received (Credit - Positive) */}
+                  <div className="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Dividends Received">
+                    <dt className="text-sm font-medium text-gray-500">Dividends received (shares, investments, etc.)</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">₦{totalDividendReceived.toLocaleString()}</dd>
+                  </div>
 
-{/* Calculate Net Cash from Investing Activities */}
-<div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Net Cash from Investing Activities">
-  <dt className="text-sm font-medium text-gray-500">Net cash from investing activities</dt>
-  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">
-    ₦{(() => {
-      const netCashFromInvesting = totalAssetSold + totalInterestReceived + totalDividendReceived - totalAssetPurchased;
-      return netCashFromInvesting < 0 
-        ? `(${Math.abs(netCashFromInvesting).toLocaleString()})` 
-        : netCashFromInvesting.toLocaleString();
-    })()}
-  </dd>
-</div>
+                  {/* Calculate Net Cash from Investing Activities */}
+                  <div className="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6" aria-label="Net Cash from Investing Activities">
+                    <dt className="text-sm font-medium text-gray-500">Net cash from investing activities</dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">
+                      ₦{(() => {
+                        const netCashFromInvesting = totalAssetSold + totalInterestReceived + totalDividendReceived - totalAssetPurchased;
+                        return netCashFromInvesting < 0
+                          ? `(${Math.abs(netCashFromInvesting).toLocaleString()})`
+                          : netCashFromInvesting.toLocaleString();
+                      })()}
+                    </dd>
+                  </div>
 
 
                   {/* Net Increase in Cash */}

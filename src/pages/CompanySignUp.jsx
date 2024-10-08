@@ -13,7 +13,7 @@ import {
   createUserWithEmailAndPassword,
   
 } from "firebase/auth";
-import PrintSalesPage from "../components/PrintSalesPage";
+
 const CompanySignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { updateSelectedCompany } = useMyContext();
