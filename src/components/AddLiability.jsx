@@ -93,18 +93,18 @@ export default function AddLiability() {
   };
 
 
-  // Custom confirmation function using Toastify
-  const showConfirmationPrompt = (message, title, type = 'text') => {
-    return new Promise((resolve, reject) => {
-      const input = window.prompt(`${title}\n${message}`);
+  // // Custom confirmation function using Toastify
+  // const showConfirmationPrompt = (message, title, type = 'text') => {
+  //   return new Promise((resolve, reject) => {
+  //     const input = window.prompt(`${title}\n${message}`);
 
-      if (input !== null) {
-        resolve(input); // Resolve with the entered value
-      } else {
-        reject(); // Reject if canceled
-      }
-    });
-  };
+  //     if (input !== null) {
+  //       resolve(input); // Resolve with the entered value
+  //     } else {
+  //       reject(); // Reject if canceled
+  //     }
+  //   });
+  // };
 
   const handlePay = async (id, amount) => {
     try {
@@ -149,7 +149,7 @@ export default function AddLiability() {
 
       // Calculate the total amount paid
       const totalPaid = updatedAmountPaid.reduce((total, entry) => total + entry.amount, 0);
-      const totalInterestPaid = updatedInterestPaid.reduce((total, entry) => total + entry.amount, 0);
+      // const totalInterestPaid = updatedInterestPaid.reduce((total, entry) => total + entry.amount, 0);
 
       // Update the status based on whether the loan is fully paid
       const updatedStatus = totalPaid >= amount ? "paid" : "unpaid";

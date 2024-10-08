@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { toast } from "react-toastify";
-import Spinner from "./Spinner";
+import Spinner from "./Spinner"; 
 import { MdClose, MdEdit, MdDelete } from "react-icons/md";
 import { doc, deleteDoc, updateDoc, addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase";
@@ -93,18 +93,6 @@ export default function AddShares() {
 
 
 
-  // Custom confirmation function using Toastify
-  const showConfirmationPrompt = (message, title, type = 'text') => {
-    return new Promise((resolve, reject) => {
-      const input = window.prompt(`${title}\n${message}`);
-
-      if (input !== null) {
-        resolve(input); // Resolve with the entered value
-      } else {
-        reject(); // Reject if canceled
-      }
-    });
-  };
 
   // const handlePayDividend = async (id, totalDividend) => {
   //   try {
@@ -300,7 +288,6 @@ export default function AddShares() {
 
       // Calculate the total amount paid
       const totalPaid = updatedAmountPaid.reduce((total, entry) => total + entry.amount, 0);
-      const totalInterestPaid = updatedInterestPaid.reduce((total, entry) => total + entry.amount, 0);
 
       // Update the status based on whether the loan is fully paid
       const updatedStatus = totalPaid >= amount ? "paid" : "unpaid";
@@ -331,28 +318,28 @@ export default function AddShares() {
     navigate("/inventory-page");
   };
 
-  const calculateTotal = (field) => {
-    return state.shares.reduce((total, liability) => {
-      if (field === "loanBalance") {
-        // Calculate loanBalance as the difference between amount and sum of amountPaid
-        const totalPaid = Array.isArray(liability.amountPaid)
-          ? liability.amountPaid.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)
-          : 0;
-        return total + (liability.amount - totalPaid);
-      } else if (field === "interestPaid") {
-        // Calculate total interestPaid if the field is interestPaid
-        return total + (Array.isArray(liability.interestPaid)
-          ? liability.interestPaid.reduce((sum, interestItem) => sum + parseFloat(interestItem.amount || 0), 0)
-          : parseFloat(liability.interestPaid || 0));
-      } else if (Array.isArray(liability[field])) {
-        // Handle cases where the field is an array
-        return total + liability[field].reduce((sum, item) => sum + parseFloat(item.amount || item), 0);
-      } else {
-        // Handle cases where the field is a single value
-        return total + parseFloat(liability[field] || 0);
-      }
-    }, 0);
-  };
+  // const calculateTotal = (field) => {
+  //   return state.shares.reduce((total, liability) => {
+  //     if (field === "loanBalance") {
+  //       // Calculate loanBalance as the difference between amount and sum of amountPaid
+  //       const totalPaid = Array.isArray(liability.amountPaid)
+  //         ? liability.amountPaid.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)
+  //         : 0;
+  //       return total + (liability.amount - totalPaid);
+  //     } else if (field === "interestPaid") {
+  //       // Calculate total interestPaid if the field is interestPaid
+  //       return total + (Array.isArray(liability.interestPaid)
+  //         ? liability.interestPaid.reduce((sum, interestItem) => sum + parseFloat(interestItem.amount || 0), 0)
+  //         : parseFloat(liability.interestPaid || 0));
+  //     } else if (Array.isArray(liability[field])) {
+  //       // Handle cases where the field is an array
+  //       return total + liability[field].reduce((sum, item) => sum + parseFloat(item.amount || item), 0);
+  //     } else {
+  //       // Handle cases where the field is a single value
+  //       return total + parseFloat(liability[field] || 0);
+  //     }
+  //   }, 0);
+  // };
 
 
   const handleReceiveShareProceeds = async (id) => {

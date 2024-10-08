@@ -39,7 +39,7 @@ export default function Header() {
 
   // Extract and capitalize the initial letter of the selected company name
   const selectedCompanyName = state.selectedCompanyName || "";
-  const initial = selectedCompanyName.charAt(0).toUpperCase();
+  
 
   return (
     <div className="bg-white border-b shadow-sm sticky top-0 z-40">
