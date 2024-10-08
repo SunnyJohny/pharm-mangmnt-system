@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
@@ -9,7 +9,7 @@ import ReceiptModal from '../components/ReceiptModal';
 
 
 const CashFlow = () => {
-  const { state, calculateTotal, calculateTotalSoldAsset, searchByDate, calculateTotalTaxPaidAmount, calculateTotalSalesValue, calculateTotalCOGS } = useMyContext();
+  const { state,  searchByDate,  calculateTotalSalesValue } = useMyContext();
   // const [currentPage, setCurrentPage] = useState(1);
   // const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -42,19 +42,19 @@ const CashFlow = () => {
   const [totalAssetPurchased, setTotalAssetPurchased] = useState(0);
 
 
-  const totalTaxPaidAmount = calculateTotalTaxPaidAmount();
+  
 
   const [filteredAssets, setFilteredAssets] = useState([]);
 
   // Other states...
-
+if (totalLiabilities){}
+if (filteredAssets){}
   useEffect(() => {
     const filteredByDate = searchByDate(state.assets, fromDate, toDate);
     setFilteredAssets(filteredByDate);
   }, [state.assets, fromDate, toDate, searchByDate]);
 
-  // Calculate total for filtered assets
-  const totalAssetsValue = calculateTotal(filteredAssets);
+
 
 
   useEffect(() => {
@@ -405,7 +405,7 @@ const CashFlow = () => {
 
   useEffect(() => {
     setTotalSalesValue(calculateTotalSalesValue(filteredSales));
-  }, [filteredSales]);
+  }, [filteredSales,calculateTotalSalesValue]);
 
   useEffect(() => {
     let filteredByDate;

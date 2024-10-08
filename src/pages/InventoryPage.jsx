@@ -68,6 +68,27 @@ const InventoryPage = () => {
   }, [state.products, calculateTotalStoreValue]);
 
 
+const searchByDate = useCallback((items, startDate, endDate) => {
+  if (!startDate && !endDate) return items;
+
+  return items.filter((item) => {
+    const productDate = new Date(firstRestockDates[item.name]);
+
+    if (startDate && endDate) {
+      return productDate >= startDate && productDate <= endDate;
+    } else if (startDate) {
+      return productDate >= startDate;
+    } else if (endDate) {
+      return productDate <= endDate;
+    }
+    return true;
+  });
+}, [firstRestockDates]); // Add the dependencies here
+
+
+
+ 
+
 
   const calculateTotals = () => {
     let totalQtyRestocked = 0;
@@ -128,7 +149,7 @@ const searchItems = useCallback(() => {
 
   setFilteredItems(filteredByDate);
   calculateTotalStoreValue(filteredByDate);
-}, [searchKeyword, fromDate, toDate, state.products]); // Define dependencies here
+}, [searchKeyword, fromDate, searchByDate,calculateTotalStoreValue, toDate, state.products]); // Define dependencies here
 
 // Inside your functional component
 useEffect(() => {
@@ -145,21 +166,7 @@ useEffect(() => {
     });
   };
 
-  const searchByDate = (items, startDate, endDate) => {
-    if (!startDate && !endDate) return items;
 
-    return items.filter((item) => {
-      const productDate = new Date(firstRestockDates[item.name]);
-      if (startDate && endDate) {
-        return productDate >= startDate && productDate <= endDate;
-      } else if (startDate) {
-        return productDate >= startDate;
-      } else if (endDate) {
-        return productDate <= endDate;
-      }
-      return true;
-    });
-  };
 
 
 
