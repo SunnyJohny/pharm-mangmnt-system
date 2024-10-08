@@ -6,16 +6,10 @@ import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
 
-
-
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCxhTI6rZLLbKCFrIU0jil6nDY2VO2Ma18",
-  authDomain: "mydesktopapp-1bd6a.firebase\com",
+  authDomain: "mydesktopapp-1bd6a.firebase.com",
   projectId: "mydesktopapp-1bd6a",
   storageBucket:  "mydesktopapp-1bd6a.appspot.com",
   messagingSenderId: "800343128337",

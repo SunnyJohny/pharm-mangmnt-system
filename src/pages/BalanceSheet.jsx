@@ -18,7 +18,7 @@ const BalanceSheet = () => {
   });
   const [isDialogOpen, setIsDialogOpen] = useState(true);
   const dialogRef = useRef();
-  const tableRef = useRef();
+ 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,7 +93,7 @@ const BalanceSheet = () => {
     return { totalAssets, totalLiabilities, directEquity, derivedEquity };
   };
 
-  const { totalAssets, totalLiabilities, directEquity, derivedEquity } = calculateTotals();
+  const { totalAssets, totalLiabilities, derivedEquity } = calculateTotals();
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
     setSelectedDateOption(selectedOption);

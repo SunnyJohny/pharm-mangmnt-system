@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getFirestore, collection, getDocs, db, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { } from '../firebase';
 
@@ -170,16 +170,18 @@ export const MyContextProvider = ({ children }) => {
 
 
 
-  const fetchLiabilities = async () => {
+
+
+  const fetchLiabilities = useCallback(async () => {
     try {
       if (!state.selectedCompanyId) {
         console.error('No company selected');
         return;
       }
-  
+
       const liabilitiesCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/liabilities`);
       const liabilitiesSnapshot = await getDocs(liabilitiesCollectionRef);
-  
+
       if (!liabilitiesSnapshot.empty) {
         const liabilitiesData = liabilitiesSnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -193,113 +195,115 @@ export const MyContextProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching liabilities:', error.message);
     }
-  };
-  
-  // Call fetchLiabilities when selectedCompanyId is updated
-  useEffect(() => {
-    if (state.selectedCompanyId) {
-      fetchLiabilities();
-    }
   }, [state.selectedCompanyId]);
-  
-  const fetchShares = async () => {
-    try {
-      if (!state.selectedCompanyId) {
-        console.error('No company selected');
-        return;
-      }
-  
-      const sharesCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/shares`);
-      const sharesSnapshot = await getDocs(sharesCollectionRef);
-  
-      if (!sharesSnapshot.empty) {
-        const sharesData = sharesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setState((prevState) => ({ ...prevState, shares: sharesData }));
-        console.log('Fetched shares:', sharesData);
-      } else {
-        console.error('No shares found!');
-      }
-    } catch (error) {
-      console.error('Error fetching shares:', error.message);
-    }
-  };
-  
-  // Call fetchShares when selectedCompanyId is updated
+
   useEffect(() => {
-    if (state.selectedCompanyId) {
-      fetchShares();
-    }
-  }, [state.selectedCompanyId]);
+    fetchLiabilities(); // Call the function to fetch liabilities
+  }, [fetchLiabilities]); // Add fetchLiabilities as a dependency
+
+
+
+
+    // Your component state and other hooks here...
+  
+    const fetchShares = useCallback(async () => {
+      try {
+        if (!state.selectedCompanyId) {
+          console.error('No company selected');
+          return;
+        }
+  
+        const sharesCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/shares`);
+        const sharesSnapshot = await getDocs(sharesCollectionRef);
+  
+        if (!sharesSnapshot.empty) {
+          const sharesData = sharesSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setState((prevState) => ({ ...prevState, shares: sharesData }));
+          console.log('Fetched shares:', sharesData);
+        } else {
+          console.error('No shares found!');
+        }
+      } catch (error) {
+        console.error('Error fetching shares:', error.message);
+      }
+    }, [state.selectedCompanyId]); // Add state.selectedCompanyId as a dependency
+  
+    // Call fetchShares when selectedCompanyId is updated
+    useEffect(() => {
+      if (state.selectedCompanyId) {
+        fetchShares();
+      }
+    }, [fetchShares, state.selectedCompanyId]); // Use fetchShares as a dependency
   
 
 
-  const fetchStaff = async () => {
-    try {
-      if (!state.selectedCompanyId) {
-        console.error('No company selected');
-        return;
+    const fetchStaff = useCallback(async () => {
+      try {
+        if (!state.selectedCompanyId) {
+          console.error('No company selected');
+          return;
+        }
+  
+        const staffCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/users`);
+        const staffSnapshot = await getDocs(staffCollectionRef);
+  
+        if (!staffSnapshot.empty) {
+          const staffData = staffSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setState((prevState) => ({ ...prevState, users: staffData }));
+          console.log('Fetched staff:', staffData);
+        } else {
+          console.error('No staff found!');
+        }
+      } catch (error) {
+        console.error('Error fetching staff:', error.message);
       }
+    }, [state.selectedCompanyId]);
   
-      const staffCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/users`);
-      const staffSnapshot = await getDocs(staffCollectionRef);
-  
-      if (!staffSnapshot.empty) {
-        const staffData = staffSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setState((prevState) => ({ ...prevState, users: staffData }));
-        console.log('Fetched staff:', staffData);
-      } else {
-        console.error('No staff found!');
+    useEffect(() => {
+      if (state.selectedCompanyId) {
+        fetchStaff();
       }
-    } catch (error) {
-      console.error('Error fetching staff:', error.message);
-    }
-  };
-  
-  // Call fetchStaff when selectedCompanyId is updated
-  useEffect(() => {
-    if (state.selectedCompanyId) {
-      fetchStaff();
-    }
-  }, [state.selectedCompanyId]);
+    }, [fetchStaff,state.selectedCompanyId]); // Call fetchStaff when it changes
   
 
-  const fetchAssets = async () => {
-    try {
-      if (!state.selectedCompanyId) {
-        console.error('No company selected');
-        return;
+  
+    const fetchAssets = useCallback(async () => {
+      try {
+        if (!state.selectedCompanyId) {
+          console.error('No company selected');
+          return;
+        }
+  
+        const assetsCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/assets`);
+        const assetsSnapshot = await getDocs(assetsCollectionRef);
+  
+        if (!assetsSnapshot.empty) {
+          const assetsData = assetsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setState((prevState) => ({ ...prevState, assets: assetsData }));
+          console.log('Fetched assets:', assetsData);
+        } else {
+          console.error('No assets found!');
+        }
+      } catch (error) {
+        console.error('Error fetching assets:', error.message);
       }
+    }, [state.selectedCompanyId]);
   
-      const assetsCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/assets`);
-      const assetsSnapshot = await getDocs(assetsCollectionRef);
-  
-      if (!assetsSnapshot.empty) {
-        const assetsData = assetsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setState((prevState) => ({ ...prevState, assets: assetsData }));
-        console.log('Fetched assets:', assetsData);
-      } else {
-        console.error('No assets found!');
+    useEffect(() => {
+      if (state.selectedCompanyId) {
+        fetchAssets();
       }
-    } catch (error) {
-      console.error('Error fetching assets:', error.message);
-    }
-  };
+    }, [fetchAssets,state.selectedCompanyId]);
   
-  // Call fetchAssets when selectedCompanyId is updated
-  useEffect(() => {
-    if (state.selectedCompanyId) {
-      fetchAssets();
-    }
-  }, [state.selectedCompanyId]);
   
   const calculateTotal = useCallback((field) => {
     if (!state.assets || state.assets.length === 0) {
@@ -330,38 +334,37 @@ export const MyContextProvider = ({ children }) => {
   }, [state.assets]);
   
 
-  // Fetch Expenses Function
-const fetchExpenses = async () => {
-  try {
-    if (!state.selectedCompanyId) {
-      console.error('No company selected');
-      return;
+  const fetchExpenses = useCallback(async () => {
+    try {
+      if (!state.selectedCompanyId) {
+        console.error('No company selected');
+        return;
+      }
+
+      const expensesCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/expenses`);
+      const expensesSnapshot = await getDocs(expensesCollectionRef);
+
+      if (!expensesSnapshot.empty) {
+        const expensesData = expensesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setState((prevState) => ({ ...prevState, expenses: expensesData }));
+        console.log('Fetched expenses:', expensesData);
+      } else {
+        console.error('No expenses found!');
+      }
+    } catch (error) {
+      console.error('Error fetching expenses:', error.message);
     }
+  }, [state.selectedCompanyId]); // Add state.selectedCompanyId as a dependency
 
-    const expensesCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/expenses`);
-    const expensesSnapshot = await getDocs(expensesCollectionRef);
-
-    if (!expensesSnapshot.empty) {
-      const expensesData = expensesSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setState((prevState) => ({ ...prevState, expenses: expensesData }));
-      console.log('Fetched expenses:', expensesData);
-    } else {
-      console.error('No expenses found!');
+  // Call fetchExpenses when selectedCompanyId is updated
+  useEffect(() => {
+    if (state.selectedCompanyId) {
+      fetchExpenses();
     }
-  } catch (error) {
-    console.error('Error fetching expenses:', error.message);
-  }
-};
-
-// Call fetchExpenses when selectedCompanyId is updated
-useEffect(() => {
-  if (state.selectedCompanyId) {
-    fetchExpenses();
-  }
-}, [state.selectedCompanyId]);
+  }, [fetchExpenses, state.selectedCompanyId]); 
 
 // Ensure selectedCompanyId is set before fetching expenses
 useEffect(() => {
@@ -375,7 +378,7 @@ useEffect(() => {
 }, []);
 
 
-const fetchTaxes = async () => {
+const fetchTaxes = useCallback(async () => {
   try {
     if (!state.selectedCompanyId) {
       console.error('No company selected');
@@ -398,14 +401,14 @@ const fetchTaxes = async () => {
   } catch (error) {
     console.error('Error fetching taxes:', error.message);
   }
-};
+}, [state.selectedCompanyId]);
 
-// Call fetchTaxes when selectedCompanyId is updated
 useEffect(() => {
   if (state.selectedCompanyId) {
     fetchTaxes();
   }
-}, [state.selectedCompanyId]);
+}, [fetchTaxes,state.selectedCompanyId]);
+
 
   const calculateTotalAmount = () => {
     const totalAmount = state.taxes.reduce((total, tax) => total + tax.amount, 0);
@@ -484,28 +487,26 @@ useEffect(() => {
   // }, [state.selectedCompanyId]);
   
 
-
-
-  const fetchProductsAndCalculateSumOfSales = async () => {
+ const fetchProductsAndCalculateSumOfSales = useCallback(async () => {
     if (!state.selectedCompanyId) {
       console.warn('No company selected');
       return;
     }
-  
+
     try {
       const productsCollection = collection(getFirestore(), `companies/${state.selectedCompanyId}/products`);
       const productsSnapshot = await getDocs(productsCollection);
-  
+
       let overallTotalProductQuantity = 0;
       const productTotalsMap = new Map();
-  
+
       productsSnapshot.forEach((doc) => {
         const { name, quantitySold } = doc.data();
-  
+
         if (Array.isArray(quantitySold)) {
           const productTotal = quantitySold.reduce((sum, entry) => {
             const quantityValue = parseInt(entry.quantitySold, 10);
-  
+
             if (!isNaN(quantityValue)) {
               return sum + quantityValue;
             } else {
@@ -513,33 +514,33 @@ useEffect(() => {
               return sum;
             }
           }, 0);
-  
+
           productTotalsMap.set(name, productTotal);
           overallTotalProductQuantity += productTotal;
         } else {
           console.warn(`Invalid quantitySold value for ${name}: ${quantitySold}`);
         }
       });
-  
+
       setState((prevState) => ({
         ...prevState,
         productTotalsMap: productTotalsMap,
         overallTotalProductQuantity: overallTotalProductQuantity,
       }));
-  
+
       return productTotalsMap;
     } catch (error) {
       console.error('Error fetching products:', error.message);
       return new Map();
     }
-  };
-  
-  
+  }, [state.selectedCompanyId]); // Only re-create the function when selectedCompanyId changes
+
   useEffect(() => {
     if (state.selectedCompanyId) {
       fetchProductsAndCalculateSumOfSales();
     }
-  }, [state.selectedCompanyId]);
+  }, [fetchProductsAndCalculateSumOfSales,state.selectedCompanyId]); // Use fetchProductsAndCalculateSumOfSales as dependency
+
   
 
   useEffect(() => {

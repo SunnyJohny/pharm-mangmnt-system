@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // import { useNavigate } from 'react-router-dom';
 
 // import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +14,7 @@ import { useMyContext } from '../Context/MyContext';
 import ReceiptModal from '../components/ReceiptModal';
 
 const ProfitAndLoss = () => {
-  const { state, searchByDate, calculateTotalTaxPaidAmount,calculateTotalSalesValue,calculateTotalCOGS } = useMyContext();
+  const { state, searchByDate, calculateTotalSalesValue,calculateTotalCOGS } = useMyContext();
   // const [currentPage, setCurrentPage] = useState(1);
   // const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
@@ -44,7 +44,7 @@ const ProfitAndLoss = () => {
  
 
 
-  const totalTaxPaidAmount = calculateTotalTaxPaidAmount();
+  
   useEffect(() => {
     // Filter the tax data by date
     const filteredByDate = searchByDate(state.taxes, fromDate, toDate);
@@ -86,7 +86,7 @@ const ProfitAndLoss = () => {
   useEffect(() => {
     setTotalSalesValue(calculateTotalSalesValue(filteredSales));
     setTotalCOGS(calculateTotalCOGS(filteredSales)); // Ensure this is called with the correct sales array
-  }, [filteredSales]);
+  }, [filteredSales,calculateTotalCOGS,calculateTotalSalesValue]);
 
   useEffect(() => {
     let filteredByDate;

@@ -365,14 +365,14 @@ const ExpensePage = () => {
           <div className="flex mt-4 space-x-4">
               {renderStatCard('Total Expenses', `₦${totalExpenseValue}`, 'blue', faChartLine)}
             {renderStatCard('Today Expenses', `₦${calculateTodayExpenses().toFixed(2)}`, 'red', faCalendarAlt)}
-            {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'pink', faShoppingCart)}
+            {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'green', faShoppingCart)}
             {/* {renderStatCard(
               'Total Profit',
               `₦${'400'}`,
               'red',
               faCalendarAlt
             )} */}
-            {renderStatCard('COG Sold', `₦${totalCogsValue}`, 'blue', faBox)}
+            {renderStatCard('COG Sold', `₦${totalCogsValue}`, 'gray', faBox)}
 
           </div>
         </div>
