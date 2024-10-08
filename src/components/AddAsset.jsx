@@ -10,7 +10,7 @@ import { doc, updateDoc, addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase"; // Adjust the import path as necessary
 import { useMyContext } from '../Context/MyContext';
 import { useNavigate } from 'react-router';
-// import ConfirmationToast from "../components/ConfirmationToast";
+
 
 export default function AddAsset() {
   const navigate = useNavigate();
