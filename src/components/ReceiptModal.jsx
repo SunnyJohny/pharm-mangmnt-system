@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 
+import { useMyContext } from '../Context/MyContext'; // Import the context
 
 const ReceiptModal = ({ saleInfo, onClose }) => {
+  const { state } = useMyContext(); // Access the context state
+  const selectedCompanyName = state.selectedCompanyName || "";
 
   const [selectedSale, setSelectedSale] = useState(null);
   const printRef = useRef();
@@ -43,12 +46,12 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
       <div className="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full max-w-lg">
       <div ref={printRef} className="p-4 overflow-x-auto">
   <h2 className="text-2xl font-bold text-center mb-4">
-    NENYURKA NIGERIA LIMITED
+    {selectedCompanyName}
   </h2>
 
   <p className="text-center">No. 13...Enugu State</p>
   <p className="text-center">Phone: 08033821417</p>
-  <p className="text-center">Email: company@email.com</p>
+  <p className="text-center">Email: {selectedCompanyName}.com</p>
   <p className="text-center">Attendant: {staffName}</p>
   <p className="text-center">Customer: {customerName}</p>
 
