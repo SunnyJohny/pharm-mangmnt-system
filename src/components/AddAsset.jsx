@@ -6,8 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 
 import { doc, updateDoc, addDoc, collection } from "firebase/firestore";
-// import ReactTooltip from 'react-tooltip';
-
 
 import { db } from "../firebase"; // Adjust the import path as necessary
 import { useMyContext } from '../Context/MyContext';
