@@ -1,5 +1,5 @@
-import { useState } from "react";
-import OAuth from "../components/OAuth";
+import { useState, useEffect } from "react";
+
 import { db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
@@ -8,8 +8,8 @@ import { useMyContext } from '../Context/MyContext';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const CompanySignUp = () => {
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
-  const { updateSelectedCompany } = useMyContext();
+  const [showPassword, setShowPassword] = useState(false); 
+  const { updateSelectedCompany, selectedCompany } = useMyContext(); // Accessing selected company from context
   const navigate = useNavigate();
 
   // Form data state
@@ -17,8 +17,10 @@ const CompanySignUp = () => {
     companyName: "",
     email: "",
     password: "",
-    address: "", // Added company address field
+    address: "", 
   });
+
+  const [companyUpdated, setCompanyUpdated] = useState(false); // Track company update status
 
   const { companyName, email, password, address } = formData;
 
@@ -42,19 +44,28 @@ const CompanySignUp = () => {
       await setDoc(doc(db, "companies", user.uid), {
         companyName,
         email,
-        address, // Saving the address
+        address,
       });
 
-      // Update the selected company in context
+      // Update the selected company in context and set status to updated
       updateSelectedCompany(companyName, user.uid);
-      toast.success("Sign up was successful");
+      setCompanyUpdated(true);  // Set flag to true once company is updated
 
-      // Redirect to sign-up page after registration
-      navigate("/sign-up");
+      toast.success("Sign up was successful");
+       // Redirect to sign-up page after registration
+       navigate("/sign-up");
     } catch (error) {
       toast.error("Something went wrong with the registration");
     }
   };
+
+  // Effect to handle redirection after company is updated
+  useEffect(() => {
+    if (companyUpdated && selectedCompany) {
+      // Ensure selected company has updated before navigating
+      navigate("/sign-up");
+    }
+  }, [companyUpdated, selectedCompany, navigate]);
 
   // Toggle password visibility
   const toggleShowPassword = () => {
@@ -66,7 +77,7 @@ const CompanySignUp = () => {
       <h1 className="text-3xl text-center mt-6 font-bold">Company Sign Up</h1>
       <div className="flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto">
         <div className="md:w-[67%] lg:w-[50%] mb-12 md:mb-6">
-          {/* Image or additional content can be placed here */}
+          {/* Image or additional content */}
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
           <form onSubmit={handleSignUp}>

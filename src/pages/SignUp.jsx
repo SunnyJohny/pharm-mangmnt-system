@@ -182,7 +182,7 @@ export default function SignUp() {
   };
   return (
     <>
-     <div className="flex justify-between items-center m-4">
+      <div className="flex justify-between items-center m-4">
         <button
           onClick={handleReload}
           className="p-2 bg-gray-200 rounded"
@@ -351,17 +351,27 @@ export default function SignUp() {
         <div className="flex justify-center p-2 mb-12 space-x-4">
           <button
             onClick={handleOpenModal}
-            className="bg-blue-600 text-white px-7 py-3 text-sm font-medium  rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800"
+            className="bg-blue-600 text-white px-7 py-3 text-sm font-medium rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800"
           >
             Add Staff
           </button>
+
           <button
             onClick={handlePrintUsers}
             className="bg-green-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-green-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-green-800"
           >
             Print Users
           </button>
+
+          {/* New Sign In Button */}
+          <button
+            onClick={() => navigate('/')} // Using navigate to redirect to Sign In
+            className="bg-red-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-red-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-red-800"
+          >
+            Go to Sign In
+          </button>
         </div>
+
       </div>
     </>
   );
