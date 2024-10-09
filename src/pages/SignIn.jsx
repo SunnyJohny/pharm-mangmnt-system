@@ -45,25 +45,25 @@ export default function SignIn() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    
+
     try {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    
+
       if (userCredential.user) {
         console.log("User credential:", userCredential.user);
-    
+
         // Fetch additional user data from Firestore
         const userData = await getUserData(userCredential.user.uid);
         console.log("User data:", userData);
-    
+
         // Update the context state with the fetched user data
         if (userData) {
           setState(prevState => ({
             ...prevState,
             user: userData,
           }));
-    
+
           // Conditional rendering based on user data
           if (userData.role === 'admin') {
             navigate("/admin");
@@ -87,14 +87,14 @@ export default function SignIn() {
       console.log("Error details:", error); // This will help debug further
     }
   }
-  
+
 
   async function getUserData(userId) {
     try {
       // Ensure the correct Firestore path
       const userDocRef = doc(db, "companies", companyId, "users", userId); // Ensure you're fetching from the right company
       const userDocSnapshot = await getDoc(userDocRef);
-  
+
       if (userDocSnapshot.exists()) {
         return userDocSnapshot.data();
       } else {
@@ -106,7 +106,7 @@ export default function SignIn() {
       return null;
     }
   }
-  
+
 
   return (
     <section>
@@ -156,13 +156,18 @@ export default function SignIn() {
               onChange={onChange}
               className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
             >
-              <option value="">Select Company(this tobe removed later)</option>
+              <option value="">Select Company (this to be removed later)</option>
               {state.companies.map((company) => (
-                <option key={company.id} value={company.companyName}>
+                <option
+                  key={company.id}
+                  value={company.companyName}
+                  disabled={companyName && company.companyName !== companyName} // Disable if company is selected and not the current one
+                >
                   {company.companyName}
                 </option>
               ))}
             </select>
+
             <div className="flex justify-between whitespace-nowrap text-sm sm:text-lg">
               <p className="mb-6">
                 Don't have an account?
