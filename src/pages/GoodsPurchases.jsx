@@ -195,8 +195,8 @@ const GoodsPurchases = () => {
         <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
           Print Report
         </button>
-        <Link to="/add-expense" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-          Add Expense
+        <Link to="/add-purchase" className="bg-blue-500 text-white px-4 py-2 rounded-md">
+          Add Purchase
         </Link>
       </div>
     </div>

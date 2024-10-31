@@ -16,6 +16,7 @@ import PrintInventoryPage from './components/PrintInventoryPage';
 import SalesPage from './pages/SalesPage';
 import PrintSalesPage from './components/PrintSalesPage';
 import AddExpense from './components/AddExpenses';
+import AddGoodPurchase  from './components/AddPurchases';
 import AdminComponent from './components/Admin';
 import ExpensePage from './pages/ExpensePage';
 import ProfitAndLoss from './pages/ProfitAndLoss';
@@ -28,6 +29,7 @@ import ContactMe from './pages/ContactMe';
 import CompanySignUp from './pages/CompanySignUp';
 import AddShares from './components/Shares';
 import GoodsPurchases from './pages/GoodsPurchases';
+
 
 function App() {
   return (
@@ -43,6 +45,7 @@ function App() {
             <Route path="/company-sign-up" element={<CompanySignUp/>} />
             <Route path="/posscreen" element={<PosScreen />} />
             <Route path="/add-expense" element={<AddExpense />} />
+            <Route path="/add-purchase" element={<AddGoodPurchase />} />
             <Route path="/add-asset" element={<AddAsset />} />
             <Route path="/add-liability" element={<AddLiability />} />
             <Route path="/add-shares" element={<AddShares />} />
