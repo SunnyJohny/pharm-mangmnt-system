@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import { db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
@@ -73,74 +72,67 @@ const CompanySignUp = () => {
   };
 
   return (
-    <section>
-      <h1 className="text-3xl text-center mt-6 font-bold">Company Sign Up</h1>
-      <div className="flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto">
-        <div className="md:w-[67%] lg:w-[50%] mb-12 md:mb-6">
-          {/* Image or additional content */}
-        </div>
-        <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form onSubmit={handleSignUp}>
-            {/* Company Name Input */}
+    <section className="flex justify-center items-center h-screen px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-3xl text-center mt-6 font-bold">Company Sign Up</h1>
+        <form onSubmit={handleSignUp} className="mt-8">
+          {/* Company Name Input */}
+          <input
+            type="text"
+            id="companyName"
+            value={companyName}
+            onChange={onChange}
+            placeholder="Company Name"
+            className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+          />
+
+          {/* Email Input */}
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={onChange}
+            placeholder="Email Address"
+            className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+          />
+
+          {/* Password Input */}
+          <div className="relative mb-6">
             <input
-              type="text"
-              id="companyName"
-              value={companyName}
+              type={showPassword ? "text" : "password"}
+              id="password"
+              value={password}
               onChange={onChange}
-              placeholder="Company Name"
-              className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+              placeholder="Password"
+              className="w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
             />
-
-            {/* Email Input */}
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={onChange}
-              placeholder="Email Address"
-              className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
-            />
-
-            {/* Password Input */}
-            <div className="relative mb-6">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                value={password}
-                onChange={onChange}
-                placeholder="Password"
-                className="w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
-              />
-              <button
-                type="button"
-                onClick={toggleShowPassword}
-                className="absolute right-3 top-2 text-gray-600"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-
-            {/* Address Input */}
-            <input
-              type="text"
-              id="address"
-              value={address}
-              onChange={onChange}
-              placeholder="Company Address"
-              className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
-            />
-
-            {/* Submit Button */}
             <button
-              className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800"
-              type="submit"
+              type="button"
+              onClick={toggleShowPassword}
+              className="absolute right-3 top-2 text-gray-600"
             >
-              Sign Up
+              {showPassword ? "Hide" : "Show"}
             </button>
+          </div>
 
-            
-          </form>
-        </div>
+          {/* Address Input */}
+          <input
+            type="text"
+            id="address"
+            value={address}
+            onChange={onChange}
+            placeholder="Company Address"
+            className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+          />
+
+          {/* Submit Button */}
+          <button
+            className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800"
+            type="submit"
+          >
+            Sign Up
+          </button>
+        </form>
       </div>
     </section>
   );

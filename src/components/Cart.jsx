@@ -164,9 +164,9 @@ const Cart = () => {
         <body>
         <div style="text-align: center;">
         <h2>${state.selectedCompanyName}</h2>
-        <p>Company Address</p>
-        <p>Phone: Company Phone</p>
-        <p>Email: company@email.com</p>
+        <p>Address:${state.selectedCompanyAddress}</p>
+        <p>Phone: ${state.selectedCompanyPhoneNumber}</p>
+        <p>Email: ${state.selectedCompanyEmail}</p>
         <p>Attendant: ${state.user.name}</p>
         <hr>
         <h3>Receipt No.: ${receiptNumber}</h3>

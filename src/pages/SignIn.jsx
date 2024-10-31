@@ -156,7 +156,7 @@ export default function SignIn() {
               onChange={onChange}
               className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
             >
-              <option value="">Select Company (this to be removed later)</option>
+              <option value="">Select Company</option>
               {state.companies.map((company) => (
                 <option
                   key={company.id}
@@ -169,16 +169,23 @@ export default function SignIn() {
             </select>
 
             <div className="flex justify-between whitespace-nowrap text-sm sm:text-lg">
-              <p className="mb-6">
-                Don't have an account?
-                <Link
-                  to="/company-sign-up"
-                  className="text-red-600 hover:text-red-700 transition duration-200 ease-in-out ml-1"
-                  onClick={() => updateSelectedCompany(null, null)}
-                >
-                  Register
-                </Link>
-              </p>
+            <p className="mb-6">
+      Don't have an account?
+      <button
+        type="button"
+        className="text-red-600 hover:text-red-700 transition duration-200 ease-in-out ml-1 underline"
+        onClick={() => {
+          const password = prompt("Enter authorization password to proceed:");
+          if (password === "deancoonz28@john") {
+            navigate("/company-sign-up"); // Redirect if password is correct
+          } else {
+            alert("Wrong authorization password. Access denied.");
+          }
+        }}
+      >
+        Register
+      </button>
+    </p>
               <p>
                 <Link
                   to="/forgot-password"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaPlus, FaClipboardList, FaListAlt, FaUserCircle, FaBug, FaSignOutAlt } from 'react-icons/fa';
+import { FaPlus, FaListAlt, FaUserCircle, FaBug, FaSignOutAlt } from 'react-icons/fa';
 import UserInformation from './User';
 import { useMyContext } from '../Context/MyContext';
 import { Link,useNavigate } from 'react-router-dom';
@@ -20,11 +20,6 @@ const InventorySidePanel = ({ onItemSelected }) => {
       <hr className="my-4 border-t-2 border-white" />
       {/* Links */}
       <div className="flex flex-col flex-grow "> 
-        <Link to="/dashboard" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
-          <FaClipboardList className="text-xl" />
-          <p className="ml-2">Dashboard</p>
-        </Link>
-
         <Link to="/add-product" className="flex items-center p-2 cursor-pointer hover:bg-gray-700">
           <FaPlus className="text-xl" />
           <p className="ml-2">Add Product</p>

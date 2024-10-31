@@ -27,6 +27,7 @@ import CashFlow from './pages/CashFlow';
 import ContactMe from './pages/ContactMe';
 import CompanySignUp from './pages/CompanySignUp';
 import AddShares from './components/Shares';
+import GoodsPurchases from './pages/GoodsPurchases';
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
             <Route path="/balance-sheet" element={<BalanceSheet />} />
             <Route path="/cash-flow" element={<CashFlow />} />
             <Route path="/expenses" element={<ExpensePage />} />
+            <Route path="/purchases" element={<GoodsPurchases />} />
             <Route path="/profile" element={<PrivateRoute />} />
             <Route path="/inventory-page" element={<InventoryPage />} />
             <Route path="/sales" element={<SalesPage />} />

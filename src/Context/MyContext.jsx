@@ -31,6 +31,10 @@ export const MyContextProvider = ({ children }) => {
     user: null,
     selectedCompanyName: '',
     selectedCompanyId: null,
+
+    selectedCompanyAddress: '',
+    selectedCompanyPhoneNumber: '',  // Add phone number
+  selectedCompanyEmail: '',  // Add emai
   };
 
   const [state, setState] = useState(initialState);
@@ -75,6 +79,7 @@ export const MyContextProvider = ({ children }) => {
   };
   
 
+
   const fetchCompanies = async () => {
     try {
       const companiesCollection = collection(getFirestore(), 'companies');
@@ -103,14 +108,39 @@ export const MyContextProvider = ({ children }) => {
     fetchCompanies();
   }, []);
 
-  const updateSelectedCompany = (companyName, companyId) => {
-    setState((prevState) => ({
-      ...prevState,
-      selectedCompanyName: companyName,
-      selectedCompanyId: companyId
-    }));
+  // Updated to include the company address
+  const updateSelectedCompany = async (companyName, companyId) => {
+    try {
+      const companyDocRef = doc(getFirestore(), 'companies', companyId);
+      const companyDoc = await getDoc(companyDocRef);
+  
+      if (companyDoc.exists()) {
+        const companyData = companyDoc.data();
+        const companyAddress = companyData.address || '';  // Fetch company address
+        const companyPhone = companyData.phoneNumber || '';  // Fetch company phone number
+        const companyEmail = companyData.email || '';  // Fetch company email
+  
+  
+        console.log('Selected company address:', companyAddress);  // Log company address here
+        console.log('Selected company number:', companyPhone);  // Log company phone number here
+        console.log('Selected company email:', companyEmail);  // Log company email here
+  
+        setState((prevState) => ({
+          ...prevState,
+          selectedCompanyName: companyName,
+          selectedCompanyId: companyId,
+          selectedCompanyAddress: companyAddress,  // Update address in state
+          selectedCompanyPhoneNumber: companyPhone,  // Update phone number in state
+          selectedCompanyEmail: companyEmail,  // Update email in state
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching selected company address:', error.message);
+    }
   };
+  
 
+  // Persist selected company details in localStorage
   useEffect(() => {
     if (state.selectedCompanyName) {
       localStorage.setItem('selectedCompanyName', state.selectedCompanyName);
@@ -118,19 +148,37 @@ export const MyContextProvider = ({ children }) => {
     if (state.selectedCompanyId) {
       localStorage.setItem('selectedCompanyId', state.selectedCompanyId);
     }
-  }, [state.selectedCompanyName, state.selectedCompanyId]);
+    if (state.selectedCompanyAddress) {
+      localStorage.setItem('selectedCompanyAddress', state.selectedCompanyAddress);
+    }
+    if (state.selectedCompanyPhoneNumber) {
+      localStorage.setItem('selectedCompanyPhoneNumber', state.selectedCompanyPhoneNumber);
+    }
+    if (state.selectedCompanyEmail) {
+      localStorage.setItem('selectedCompanyEmail', state.selectedCompanyEmail);
+    }
+  }, [state.selectedCompanyName, state.selectedCompanyId, state.selectedCompanyAddress, state.selectedCompanyPhoneNumber, state.selectedCompanyEmail]);
 
+  // Retrieve saved company details from localStorage on page load
   useEffect(() => {
     const savedCompanyName = localStorage.getItem('selectedCompanyName');
     const savedCompanyId = localStorage.getItem('selectedCompanyId');
-    if (savedCompanyName && savedCompanyId) {
+    const savedCompanyAddress = localStorage.getItem('selectedCompanyAddress');
+    const savedCompanyPhoneNumber = localStorage.getItem('selectedCompanyPhoneNumber');
+    const savedCompanyEmail = localStorage.getItem('selectedCompanyEmail');
+    
+    if (savedCompanyName && savedCompanyId && savedCompanyAddress && savedCompanyPhoneNumber && savedCompanyEmail) {
       setState((prevState) => ({
         ...prevState,
         selectedCompanyName: savedCompanyName,
         selectedCompanyId: savedCompanyId,
+        selectedCompanyAddress: savedCompanyAddress,
+        selectedCompanyPhoneNumber: savedCompanyPhoneNumber,  // Update address in state
+        selectedCompanyEmail: savedCompanyEmail,  // Update address in state
       }));
     }
   }, []);
+
 
   const fetchUserFromSubCollection = async (companyId, userId) => {
     try {
