@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendar } from 'react-icons/fa';
@@ -11,59 +11,56 @@ import { faChartLine, faShoppingCart, faCalendarAlt, faBox } from '@fortawesome/
 
 import SalesPageSidePanel from '../components/SalesPageSidePanel';
 import ExpenseInvoiceModal from '../components/ExpenseInvoiceModal';
-  import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 
 
 const GoodsPurchases = () => {
   const { state, searchByKeyword, searchByDate, calculateTotalSalesValue, calculateTotalCOGS } = useMyContext();
-  
- 
+
+
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   // const [filteredItems, setFilteredItems] = useState([]);
   // const [totalStoreValue, setTotalStoreValue] = useState(0);
- 
+
   // Added state for total sales
   // const navigate = useNavigate();
-  const [totalExpenseValue, setTotalExpenseValue] = useState(0);
+
   const tableRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState(null);
-  const [filteredExpenses, setFilteredExpenses] = useState([]);
+  const [totalPurchaseValue, setTotalPurchaseValue] = useState(0);
+
+  const [selectedPurchase, setSelectedPurchase] = useState(null);
+  const [filteredPurchases, setFilteredPurchases] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   // const [summaryData, setSummaryData] = useState(null); // State to hold summary data
 
-  // const totalItems = filteredExpenses.length;
-  
- 
+  // const totalItems = filteredPurchases.length;
+
+
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   const [totalSalesValue, setTotalSalesValue] = useState(0);
   const [totalCogsValue, setTotalCogsValue] = useState(0);
 
-
   useEffect(() => {
-    // Calculate the total sales value when filteredExpenses changes
     const totalSales = calculateTotalSalesValue(state.sales);
     setTotalSalesValue(totalSales);
-    console.log('Total sales:', totalSales);
+
   }, [state.sales, calculateTotalSalesValue]);
 
-
   useEffect(() => {
-    // Calculate the total sales value when filteredExpenses changes
     const totalCOGS = calculateTotalCOGS(state.sales);
     setTotalCogsValue(totalCOGS);
-    console.log('Total cogs:', totalCOGS);
+
   }, [state.sales, calculateTotalCOGS]);
 
   useEffect(() => {
-    calculateTotalExpenseValue(filteredExpenses);
-  }, [filteredExpenses]);
- 
+    calculateTotalPurchaseValue(filteredPurchases);
+  }, [filteredPurchases]);
 
   useEffect(() => {
-    let filtered = state.expenses;
+    let filtered = state.purchases;
 
     if (fromDate && toDate) {
       filtered = searchByDate(filtered, fromDate, toDate);
@@ -73,173 +70,112 @@ const GoodsPurchases = () => {
       filtered = searchByKeyword(filtered, searchKeyword);
     }
 
-    setFilteredExpenses(filtered);
-    calculateTotalExpenseValue(filtered);
-  }, [state.expenses, fromDate, toDate, searchKeyword, searchByDate, searchByKeyword]);
+    setFilteredPurchases(filtered);
+    calculateTotalPurchaseValue(filtered);
+  }, [state.purchases, fromDate, toDate, searchKeyword, searchByDate, searchByKeyword]);
 
-
-
-  const calculateTotalExpenseValue = (expenses) => {
-    if (!expenses || expenses.length === 0) {
-      setTotalExpenseValue(0);
+  const calculateTotalPurchaseValue = (purchases) => {
+    if (!purchases || purchases.length === 0) {
+      setTotalPurchaseValue(0);
       return;
     }
-  
-    const calculatedTotalExpenseValue = expenses.reduce((total, expense) => {
-      return total + parseFloat(expense.amount || 0);
+
+    const calculatedTotalPurchaseValue = purchases.reduce((total, purchase) => {
+      return total + parseFloat(purchase.totalCost || 0);
     }, 0);
-  
-    setTotalExpenseValue(calculatedTotalExpenseValue.toFixed(2));
+
+    setTotalPurchaseValue(calculatedTotalPurchaseValue.toFixed(2));
   };
-  
 
+  const handlePurchaseClick = (purchase) => {
 
-   // Function to handle clicking on an expense row to open the modal
-   const handleExpenseClick = (expense) => {
-    console.log('Clicked on row with ID:', expense.id,expense.receiptFile); // Log the ID to the console
     setShowModal(true);
-    setSelectedExpense(expense);
+    setSelectedPurchase(purchase);
   };
-  
 
-    // Function to close the modal
-    const handleCloseModal = () => {
-      setShowModal(false);
-      setSelectedExpense(null);
-    };
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedPurchase(null);
+  };
+
+  const handleFromDateChange = (date) => {
+    setFromDate(date);
+    if (toDate) {
+      const filteredByDate = searchByDate(state.purchases, date, toDate);
+      setFilteredPurchases(filteredByDate);
+      calculateTotalPurchaseValue(filteredByDate);
+    }
+  };
+
+  const handleToDateChange = (date) => {
+    setToDate(date);
+    if (fromDate) {
+      const filteredByDate = searchByDate(state.purchases, fromDate, date);
+      setFilteredPurchases(filteredByDate);
+      calculateTotalPurchaseValue(filteredByDate);
+    }
+  };
+
+  const calculateTodayPurchases = () => {
+    const today = new Date().toLocaleDateString();
+
+    return state.purchases
+      .filter((purchase) => new Date(purchase.date).toLocaleDateString() === today)
+      .reduce((total, purchase) => total + parseFloat(purchase.totalCost), 0);
+  };
 
 
-    const handleFromDateChange = (date) => {
-      setFromDate(date);
-      if (toDate) {
-        const filteredByDate = searchByDate(state.expenses, date, toDate);
-        setFilteredExpenses(filteredByDate);
-        calculateTotalExpenseValue(filteredByDate);
-      }
-    };
 
-    const handleToDateChange = (date) => {
-      setToDate(date);
-      if (fromDate) {
-        const filteredByDate = searchByDate(state.expenses, fromDate, date);
-        setFilteredExpenses(filteredByDate);
-        calculateTotalExpenseValue(filteredByDate);
-      }
-    };
 
-    const calculateTodayExpenses = () => {
-      const today = new Date().toLocaleDateString();
-  
-      return state.expenses
-        .filter((expense) => new Date(expense.date).toLocaleDateString() === today)
-        .reduce((total, expense) => total + parseFloat(expense.amount), 0);
-    };
 
-  
-  // Calculate total sales value on mount and when sales change
- 
-
-  // useEffect(() => {
-  //   calculateTotalExpenseValue();
-    
-  //   console.log('Filtered expenses:', filteredExpenses);
-  // }, [filteredExpenses]);
-
-  // useEffect(() => {
-  //   console.log('Total Expenses value:', totalExpensesValue);
-  // }, [totalExpensesValue]);
-  // useEffect(() => {
-  //   // Fetch and calculate summary data
-  //   fetchSummaryData();
-  // }, []);
-  
 
 
 
   const generateSn = (index) => index + 1;
 
-  // const handleRowClick = (itemId) => {
-  //   navigate(`/product-details/${itemId}`);
-  // };
+
 
   const renderActionButtons = () => {
-      // Function to handle printing of the table
-      const saveAndPrintTable = () => {
-        const table = document.getElementById('sales-table');
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write('<html><head><title>Sales Table</title>');
-        // Add custom CSS for printing
-        printWindow.document.write('<style>');
-        printWindow.document.write('@media print {');
-        printWindow.document.write('.text-center { text-align: center; }');
-        printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
-        printWindow.document.write('.table-print { border-collapse: collapse; }');
-        printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
-        printWindow.document.write('}');
-        printWindow.document.write('</style>');
-        printWindow.document.write('</head><body>');
-        // printWindow.document.write('<div class="text-center mb-4">');
-        // printWindow.document.write('<h2 class="text-2xl font-bold underline">Sales Report</h2>');
-        // printWindow.document.write(`<p><strong>Selected Date Period:</strong> ${renderSelectedDatePeriod()}</p>`);
-        // printWindow.document.write(`<p>Report Printed On: ${getCurrentDate()}</p>`);
-        // printWindow.document.write('</div>');
-        printWindow.document.write(table.outerHTML);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
-        printWindow.close();
-      };
+    // Function to handle printing of the table
+    const saveAndPrintTable = () => {
+      const table = document.getElementById('sales-table');
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write('<html><head><title>Sales Table</title>');
+      // Add custom CSS for printing
+      printWindow.document.write('<style>');
+      printWindow.document.write('@media print {');
+      printWindow.document.write('.text-center { text-align: center; }');
+      printWindow.document.write('.mb-4 { margin-bottom: 4px; }');
+      printWindow.document.write('.table-print { border-collapse: collapse; }');
+      printWindow.document.write('.table-print th, .table-print td { border: 2px solid black; padding: 8px; }');
+      printWindow.document.write('}');
+      printWindow.document.write('</style>');
+      printWindow.document.write('</head><body>');
+
+      printWindow.document.write(table.outerHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
+    };
     return (
       <div className="flex justify-center mt-10">
-      <div className="flex items-center space-x-4">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
-          Print Report
-        </button>
-        <Link to="/add-purchase" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-          Add Purchase
-        </Link>
+        <div className="flex items-center space-x-4">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={saveAndPrintTable}>
+            Print Report
+          </button>
+          <Link to="/add-purchase" className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            Add Purchase
+          </Link>
+        </div>
       </div>
-    </div>
-    
 
-    
+
+
     );
   };
 
 
-  // useEffect(() => {
-  //   const initialItems = state.expenses || [];
-  //   setFilteredExpenses(initialItems);
-  //   const capturePagesContent = async () => {
-  //     const pagesContent = [];
-  //     const tableContainer = document.querySelector('.table-container');
-  //     const itemsPerPage = 20;
-  
-  //     if (tableContainer) {
-  //       const totalItems = initialItems.length; // Using initialItems instead of filteredExpenses
-  //       const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-  //       for (let page = 1; page <= totalPages; page++) {
-  //         const startIndex = (page - 1) * itemsPerPage;
-  //         const endIndex = startIndex + itemsPerPage;
-  //         const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
-  
-  //         // /(itemsToDisplay); // Moved the function call here
-  
-  //         await new Promise((resolve) => setTimeout(resolve, 500));
-  
-  //         const canvas = await html2canvas(tableContainer);
-  //         pagesContent.push(canvas.toDataURL('image/png'));
-  //       }
-  
-  //       setAllPagesContent(pagesContent);
-  //     }
-  //   };
-  
-  //   capturePagesContent();
-  // }, [state.expenses, state.products, state.productTotals, state.productTotalsMap,filteredExpenses]);
-
-  
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
     setSelectedDateOption(selectedOption);
@@ -323,8 +259,8 @@ const GoodsPurchases = () => {
     setToDate(new Date(endDate));
   };
 
- 
-  
+
+
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
@@ -356,15 +292,15 @@ const GoodsPurchases = () => {
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
           <div className="flex items-center justify-between mb-4 pr-4">
-          <h2 className="text-2xl font-bold">Purchase Stats</h2>
+            <h2 className="text-2xl font-bold">Purchase Stats</h2>
 
             <button className="text-blue-500 cursor-pointer" onClick={() => window.history.back()}>
               Back
             </button>
           </div>
           <div className="flex mt-4 space-x-4">
-              {renderStatCard('Total Expenses', `₦${totalExpenseValue}`, 'blue', faChartLine)}
-            {renderStatCard('Today Expenses', `₦${calculateTodayExpenses().toFixed(2)}`, 'red', faCalendarAlt)}
+            {renderStatCard('Total Purchases', `₦${totalPurchaseValue}`, 'blue', faChartLine)}
+            {renderStatCard('Today Purchases', `₦${calculateTodayPurchases().toFixed(2)}`, 'red', faCalendarAlt)}
             {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'green', faShoppingCart)}
             {/* {renderStatCard(
               'Total Profit',
@@ -377,17 +313,16 @@ const GoodsPurchases = () => {
           </div>
         </div>
 
-        
+
 
         <div className="mb-8">
-          
-        <p><strong>Expenses by Dates:</strong></p>
+
+          <p><strong>Purchases by Dates:</strong></p>
 
           <div className="flex items-center space-x-4">
-         
+
             <div>
-              
-              
+
               <select
                 id="dateOption"
                 value={selectedDateOption}
@@ -418,46 +353,46 @@ const GoodsPurchases = () => {
 
             </div>
             <div className="flex items-center justify-between">
-  <div className="flex items-center space-x-2">
-    <div className="relative">
-      <DatePicker
-        selected={fromDate}
-        onChange={handleFromDateChange}
-        dateFormat="MM-dd-yyyy"
-        placeholderText="From"
-        className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
-      />
-      <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
-    </div>
-    <div className="relative mr-4">
-      <DatePicker
-        selected={toDate}
-        onChange={handleToDateChange}
-        dateFormat="MM-dd-yyyy"
-        placeholderText="To"
-        className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
-      />
-      <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
-    </div>
-  </div>
-  {/* Search input */}
-  <div className="relative ml-4">
-  <input
-    type="text"
-    className="border border-gray-300 rounded-md p-2"
-    placeholder="Search"
-    // Assuming you have a function setSearchKeyword to handle search
-    onChange={(e) => setSearchKeyword(e.target.value)}
-  />
-  </div>
-</div>
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <DatePicker
+                    selected={fromDate}
+                    onChange={handleFromDateChange}
+                    dateFormat="MM-dd-yyyy"
+                    placeholderText="From"
+                    className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+                  />
+                  <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
+                </div>
+                <div className="relative mr-4">
+                  <DatePicker
+                    selected={toDate}
+                    onChange={handleToDateChange}
+                    dateFormat="MM-dd-yyyy"
+                    placeholderText="To"
+                    className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+                  />
+                  <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+              {/* Search input */}
+              <div className="relative ml-4">
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-md p-2"
+                  placeholder="Search"
+                  // Assuming you have a function setSearchKeyword to handle search
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                />
+              </div>
+            </div>
 
-            
+
           </div>
         </div>
 
         <div className="mb-8">
-         
+
 
           <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '300px' }} id="sales-table" ref={tableRef}>
             {/* Header section */}
@@ -469,66 +404,66 @@ const GoodsPurchases = () => {
             </div>
 
             <table className="w-full table-auto">
-  <thead>
-    <tr>
-      <th className="border">S/n</th>
-      <th className="border">Expense Description</th>
-      <th className="border">Expense Date</th>
-      <th className="border">Transaction ID</th>
-      <th className="border">Receipt No</th>
-      <th className="border">Vendor Name</th>
-      <th className="border">Payment Method</th>
-      <th className="border">Amount</th>
-      <th className="border">Attendant Name</th>
-      <th className="border">Payment Status</th>
-    </tr>
-  </thead>
+              <thead>
+                <tr>
+                  <th className="border">S/n</th>
+                  <th className="border">Attendant Name</th>
+                  <th className="border">Description</th>
+                  <th className="border">Invoice No</th>
+                  <th className="border">Item Name</th>
+                  <th className="border">Purchase Date</th>
+                  <th className="border">Quantity</th>
+                  <th className="border">Unit Price</th>
+                  <th className="border">Total Cost</th>
+                  <th className="border">Supplier Name</th>
+                  <th className="border">Payment Method</th>
+                  <th className="border">Payment Status</th>
+                </tr>
+              </thead>
 
-  <tbody>
-    {filteredExpenses
-      .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date in descending order
-      .map((expense, index) => (
-         <tr key={index} onClick={() => handleExpenseClick(expense)} style={{ cursor: 'pointer' }}>
-          <td className="border">{generateSn(index)}</td>
-          <td className="border">{expense.description}</td>
-          <td className="border">{expense.date}</td>
+              <tbody>
+                {filteredPurchases
+                  .sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)) // Sort by purchase date in descending order
+                  .map((purchase, index) => (
+                    <tr key={index} onClick={() => handlePurchaseClick(purchase)} style={{ cursor: 'pointer' }}>
+                      <td className="border">{generateSn(index)}</td>
+                      <td className="border">{purchase.attendantName}</td>
+                      <td className="border">{purchase.description}</td>
+                      <td className="border">{purchase.invoiceNo}</td>
+                      <td className="border">{purchase.itemName}</td>
+                      <td className="border">{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
+                      <td className="border">{purchase.quantity}</td>
+                      <td className="border">₦{parseFloat(purchase.unitPrice).toFixed(2)}</td>
+                      <td className="border">₦{parseFloat(purchase.totalCost).toFixed(2)}</td>
 
-
-
-          <td className="border">{expense.id.substring(0, 5)}{expense.id.length > 5 ? '...' : ''}</td>
-          <td className="border">{expense.receiptNo}</td>
-          <td className="border">{expense.vendorName}</td>
-          <td className="border">{expense.paymentMethod}</td>
-          <td className="border">{parseFloat(expense.amount).toFixed(2)}</td>
-
-          <td className="border">{expense.attendantName}</td>
-          <td className="border">{expense.paymentStatus}</td>
-        </tr>
-      ))}
-    {/* Additional row for totals */}
-    <tr>
-      <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
-      <td colSpan="6" className="border"></td> {/* Empty cell for the rest of the columns */}
-      <td className="border"><strong>₦{totalExpenseValue}</strong></td> {/* Total Expenses */}
-  
-      <td colSpan="2" className="border"></td> {/* Empty cell for the rest of the columns */}
-    </tr>
-  </tbody>
-</table>
+                      <td className="border">{purchase.supplierName}</td>
+                      <td className="border">{purchase.paymentMethod}</td>
+                      <td className="border">{purchase.paymentStatus}</td>
+                    </tr>
+                  ))}
+                {/* Additional row for totals */}
+                <tr>
+                  <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
+                  <td colSpan="7" className="border"></td> {/* Empty cell for other columns */}
+                  <td className="border"><strong>₦{totalPurchaseValue}</strong></td> {/* Total Purchases */}
+                  <td colSpan="3" className="border"></td> {/* Empty cells for remaining columns */}
+                </tr>
+              </tbody>
+            </table>
 
 
           </div>
 
-          
+
           {renderActionButtons()}
-       
+
         </div>
-        
-      {/* Render the modal */}
-      {showModal && selectedExpense && (
-          <ExpenseInvoiceModal expenseInfo={selectedExpense} onClose={handleCloseModal} />
+
+        {/* Render the modal */}
+        {showModal && selectedPurchase && (
+          <ExpenseInvoiceModal expenseInfo={selectedPurchase} onClose={handleCloseModal} />
         )}
-      {/* {selectedExpense && <ExpenseInvoiceModal expenseInfo={selectedExpense} onClose={handleCloseModal} />} */}
+        {/* {selectedExpense && <ExpenseInvoiceModal expenseInfo={selectedExpense} onClose={handleCloseModal} />} */}
       </div>
     </div>
   );

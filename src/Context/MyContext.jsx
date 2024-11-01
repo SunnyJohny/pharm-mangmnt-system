@@ -23,6 +23,7 @@ export const MyContextProvider = ({ children }) => {
     users: [],
     companies: [],
     inventoryData: [],
+    purchases: [], // Add purchases here
     productTotals: new Map(),
     overallTotalQuantity: 0,
     productTotalsMap: new Map(),
@@ -381,6 +382,40 @@ export const MyContextProvider = ({ children }) => {
     return totalSold; // Return the number directly
   }, [state.assets]);
   
+
+
+// Fetch purchases function similar to fetchExpenses
+const fetchPurchases = useCallback(async () => {
+  try {
+    if (!state.selectedCompanyId) {
+      console.error('No company selected');
+      return;
+    }
+
+    const purchasesCollectionRef = collection(getFirestore(), `companies/${state.selectedCompanyId}/purchases`);
+    const purchasesSnapshot = await getDocs(purchasesCollectionRef);
+
+    if (!purchasesSnapshot.empty) {
+      const purchasesData = purchasesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setState((prevState) => ({ ...prevState, purchases: purchasesData }));
+      console.log('Fetched purchases:', purchasesData);
+    } else {
+      console.error('No purchases found!');
+    }
+  } catch (error) {
+    console.error('Error fetching purchases:', error.message);
+  }
+}, [state.selectedCompanyId]);
+
+// Fetch purchases when selectedCompanyId updates
+useEffect(() => {
+  if (state.selectedCompanyId) {
+    fetchPurchases();
+  }
+}, [fetchPurchases, state.selectedCompanyId]);
 
   const fetchExpenses = useCallback(async () => {
     try {

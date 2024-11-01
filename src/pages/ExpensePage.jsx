@@ -46,7 +46,7 @@ const ExpensePage = () => {
     // Calculate the total sales value when filteredExpenses changes
     const totalSales = calculateTotalSalesValue(state.sales);
     setTotalSalesValue(totalSales);
-    console.log('Total sales:', totalSales);
+  
   }, [state.sales, calculateTotalSalesValue]);
 
 
@@ -54,7 +54,7 @@ const ExpensePage = () => {
     // Calculate the total sales value when filteredExpenses changes
     const totalCOGS = calculateTotalCOGS(state.sales);
     setTotalCogsValue(totalCOGS);
-    console.log('Total cogs:', totalCOGS);
+  
   }, [state.sales, calculateTotalCOGS]);
 
   useEffect(() => {
@@ -96,7 +96,7 @@ const ExpensePage = () => {
 
    // Function to handle clicking on an expense row to open the modal
    const handleExpenseClick = (expense) => {
-    console.log('Clicked on row with ID:', expense.id,expense.receiptFile); // Log the ID to the console
+   
     setShowModal(true);
     setSelectedExpense(expense);
   };
@@ -136,31 +136,12 @@ const ExpensePage = () => {
     };
 
   
-  // Calculate total sales value on mount and when sales change
- 
-
-  // useEffect(() => {
-  //   calculateTotalExpenseValue();
-    
-  //   console.log('Filtered expenses:', filteredExpenses);
-  // }, [filteredExpenses]);
-
-  // useEffect(() => {
-  //   console.log('Total Expenses value:', totalExpensesValue);
-  // }, [totalExpensesValue]);
-  // useEffect(() => {
-  //   // Fetch and calculate summary data
-  //   fetchSummaryData();
-  // }, []);
-  
 
 
 
   const generateSn = (index) => index + 1;
 
-  // const handleRowClick = (itemId) => {
-  //   navigate(`/product-details/${itemId}`);
-  // };
+
 
   const renderActionButtons = () => {
       // Function to handle printing of the table
@@ -207,39 +188,7 @@ const ExpensePage = () => {
   };
 
 
-  // useEffect(() => {
-  //   const initialItems = state.expenses || [];
-  //   setFilteredExpenses(initialItems);
-  //   const capturePagesContent = async () => {
-  //     const pagesContent = [];
-  //     const tableContainer = document.querySelector('.table-container');
-  //     const itemsPerPage = 20;
-  
-  //     if (tableContainer) {
-  //       const totalItems = initialItems.length; // Using initialItems instead of filteredExpenses
-  //       const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-  //       for (let page = 1; page <= totalPages; page++) {
-  //         const startIndex = (page - 1) * itemsPerPage;
-  //         const endIndex = startIndex + itemsPerPage;
-  //         const itemsToDisplay = initialItems.slice(startIndex, endIndex); // Using initialItems instead of filteredExpenses
-  
-  //         // /(itemsToDisplay); // Moved the function call here
-  
-  //         await new Promise((resolve) => setTimeout(resolve, 500));
-  
-  //         const canvas = await html2canvas(tableContainer);
-  //         pagesContent.push(canvas.toDataURL('image/png'));
-  //       }
-  
-  //       setAllPagesContent(pagesContent);
-  //     }
-  //   };
-  
-  //   capturePagesContent();
-  // }, [state.expenses, state.products, state.productTotals, state.productTotalsMap,filteredExpenses]);
-
-  
+ 
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
     setSelectedDateOption(selectedOption);

@@ -19,7 +19,7 @@ export default function AddGoodPurchase({ onCloseModal }) {
     unitPrice: 0,
     totalCost: 0,
     description: "",
-    purchaseDate: null,
+    date: null,
     invoiceNo: "",
     supplierName: "",
     paymentMethod: "",
@@ -45,14 +45,14 @@ export default function AddGoodPurchase({ onCloseModal }) {
     e.preventDefault();
     setLoading(true);
 
-    const { itemName, quantity, unitPrice, totalCost, purchaseDate, invoiceNo, supplierName, paymentMethod, attendantName, paymentStatus } = purchase;
+    const { itemName, quantity, unitPrice, totalCost, date, invoiceNo, supplierName, paymentMethod, attendantName, paymentStatus } = purchase;
 
     try {
       if (
         !itemName.trim() ||
         isNaN(parseInt(quantity)) ||
         isNaN(parseFloat(unitPrice)) ||
-        !purchaseDate ||
+        !date ||
         !invoiceNo.trim() ||
         !supplierName.trim() ||
         !paymentMethod.trim() ||
@@ -72,7 +72,8 @@ export default function AddGoodPurchase({ onCloseModal }) {
         unitPrice: parseFloat(unitPrice),
         totalCost: parseFloat(totalCost),
         description: purchase.description.trim(),
-        purchaseDate: new Date(purchaseDate).toISOString(),
+        date: new Date().toISOString(),
+
         invoiceNo: invoiceNo.trim(),
         supplierName: supplierName.trim(),
         paymentMethod: paymentMethod.trim(),
@@ -93,7 +94,7 @@ export default function AddGoodPurchase({ onCloseModal }) {
         unitPrice: 0,
         totalCost: 0,
         description: "",
-        purchaseDate: new Date().toISOString().slice(0, 10),
+        date: new Date().toISOString().slice(0, 10),
         invoiceNo: "",
         supplierName: "",
         paymentMethod: "",
@@ -195,8 +196,8 @@ export default function AddGoodPurchase({ onCloseModal }) {
                 <label className="block text-gray-700 text-sm font-bold mb-2">Purchase Date</label>
                 <input
                   type="datetime-local"
-                  name="purchaseDate"
-                  value={purchase.purchaseDate}
+                  name="date"
+                  value={purchase.date}
                   onChange={handleInputChange}
                   className="border rounded-md w-full p-2"
                   required

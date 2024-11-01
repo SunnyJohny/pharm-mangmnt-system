@@ -11,42 +11,42 @@
           
             useEffect(() => {
               const getProductHistory = () => {
-                const productRestocks = state.products.find((product) => product.id === productId)?.quantityRestocked || [];
-                const productSales = state.products.find((product) => product.id === productId)?.quantitySold || [];
-                const productAdjustments = state.products.find((product) => product.id === productId)?.adjustments || [];
-                setProductName(state.products.find((product) => product.id === productId)?.name || '');
-          
-                const salesHistory = productSales.map((sale) => ({
-                  date: sale.timestamp.toDate(),
+                const product = state.products.find((product) => product.id === productId);
+                if (!product) return; // Exit if the product doesn't exist
+            
+                const { quantityRestocked = [], quantitySold = [], adjustments = [], name = '' } = product;
+                setProductName(name);
+            
+                const salesHistory = quantitySold.map((sale) => ({
+                  date: sale.timestamp?.toDate(),
                   eventType: 'Sold',
                   quantity: Number(sale.quantitySold),
                 }));
-          
-                const restocksHistory = productRestocks.map((restock) => ({
-                  date: restock.time.toDate(),
+            
+                const restocksHistory = quantityRestocked.map((restock) => ({
+                  date: restock.time?.toDate(),
                   eventType: 'Restocked',
                   quantity: Number(restock.quantity),
                   receiptNumber: restock.receiptNumber || 'N/A',
                 }));
-          
-                const adjustmentsHistory = productAdjustments.map((adjustment) => ({
-                  date: adjustment.date.toDate(), // Convert adjustment date to Date object
+            
+                const adjustmentsHistory = adjustments.map((adjustment) => ({
+                  date: adjustment.date?.toDate(), // Safely access date
                   eventType: 'Adjustment',
                   fieldAdjusted: adjustment.fieldAdjusted,
                   oldValue: adjustment.oldValue,
                   newValue: adjustment.newValue,
                   reason: adjustment.reason,
                 }));
-          
+            
                 const history = [...salesHistory, ...restocksHistory, ...adjustmentsHistory];
-          
                 history.sort((a, b) => a.date - b.date);
-          
                 setProductHistory(history);
               };
-          
+            
               getProductHistory();
             }, [productId, state.products]);
+            
           
             const totalRestocked = productHistory.reduce((sum, event) => (event.eventType === 'Restocked' ? sum + event.quantity : sum), 0);
             const totalSold = productHistory.reduce((sum, event) => (event.eventType === 'Sold' ? sum + event.quantity : sum), 0);
