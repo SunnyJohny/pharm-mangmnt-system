@@ -543,117 +543,99 @@ useEffect(() => {
               <p>Report Printed On: {getCurrentDate()}</p>
             </div>
             <table className="w-full table-auto" id="inventory-table">
-            <thead>
-  <tr>
-    <th className="border">S/n</th>
-    <th className="border">Name</th>
-    <th className="border">Date</th>
-    <th className="border">Item ID</th>
-    <th className="border">Qty Restocked</th>
-    <th className="border">Total Bal</th>
-    <th className="border">Qty Sold</th>
-    <th className="border">Qty Balance</th>
-    <th className="border">M.Unit</th>
-    <th className="border">Cost Price</th>
-    <th className="border">Sales Price</th>
-    <th className="border">Item Value</th>
-    <th className="border">
-      {state.user && state.user.role === 'admin' ? (
-        <>
-          Action
-        </>
-      ) : null}
-    </th>
-  </tr>
-</thead>
+  <thead className="sticky top-0 bg-white z-10">
+    <tr>
+      <th className="border">S/n</th>
+      <th className="border">Name</th>
+      <th className="border">Date</th>
+      <th className="border">Item ID</th>
+      <th className="border">Qty Restocked</th>
+      <th className="border">Total Bal</th>
+      <th className="border">Qty Sold</th>
+      <th className="border">Qty Balance</th>
+      <th className="border">M.Unit</th>
+      <th className="border">Cost Price</th>
+      <th className="border">Sales Price</th>
+      <th className="border">Item Value</th>
+      <th className="border">
+        {state.user && state.user.role === 'admin' ? (
+          <>Action</>
+        ) : null}
+      </th>
+    </tr>
+  </thead>
 
-              <tbody>
-                {itemsToDisplay.map((item) => (
-                  <tr
-                    key={item.id}
-                    onClick={() => handleRowClick(item.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
-                    <td className="border">{item.name}</td>
-                    <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-                    <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
-                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                    <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-                    <td className="border">
-                      {(
-                        (state.productTotals.get(item.name) || 0) -
-                        (state.productTotalsMap.get(item.name) || 0)
-                      )}
-                    </td>
-                    <td className="border">Piece</td>
-                    <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-                    <td className="border">{Number(item.price).toFixed(2)}</td>
-                    <td className="border">
-                      {(
-                        item.price *
-                        ((state.productTotals.get(item.name) || 0) -
-                          (state.productTotalsMap.get(item.name) || 0))
-                      ).toFixed(2)}
-                    </td>
-                    <td className="border">
-                      {state.user && state.user.role === 'admin' ? (
-                        <>
-                          <FontAwesomeIcon
-                            icon={faEdit}
-                            className="no-print"
-                            style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-                            onClick={(e) => handleEditClick(item.id, e)}
-                          />
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            className="no-print"
-                            style={{ cursor: 'pointer', color: 'red' }}
-                          />
+  <tbody>
+    {itemsToDisplay.map((item) => (
+      <tr
+        key={item.id}
+        onClick={() => handleRowClick(item.id)}
+        style={{ cursor: 'pointer' }}
+        title="Click To View Details & Adjusted Fields"
+      >
+        <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
+        <td className="border">{item.name}</td>
+        <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
+        <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
+        <td className="border">{state.productTotals.get(item.name) || 0}</td>
+        <td className="border">{state.productTotals.get(item.name) || 0}</td>
+        <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
+        <td className="border">
+          {(
+            (state.productTotals.get(item.name) || 0) -
+            (state.productTotalsMap.get(item.name) || 0)
+          )}
+        </td>
+        <td className="border">Piece</td>
+        <td className="border">{Number(item.costPrice).toFixed(2)}</td>
+        <td className="border">{Number(item.price).toFixed(2)}</td>
+        <td className="border">
+          {(
+            item.price *
+            ((state.productTotals.get(item.name) || 0) -
+              (state.productTotalsMap.get(item.name) || 0))
+          ).toFixed(2)}
+        </td>
+        <td className="border">
+          {state.user && state.user.role === 'admin' ? (
+            <>
+              <FontAwesomeIcon
+                icon={faEdit}
+                className="no-print"
+                style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+                onClick={(e) => handleEditClick(item.id, e)}
+              />
+              <FontAwesomeIcon
+                icon={faTrash}
+                className="no-print"
+                style={{ cursor: 'pointer', color: 'red' }}
+              />
+            </>
+          ) : null}
+        </td>
+      </tr>
+    ))}
+  </tbody>
 
-                        </>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td className="border"></td>
-                  <td className="border"></td>
-                  <td className="border"></td>
-                  <td className="border font-bold"><strong>Total:</strong></td>
-                  <td className="border font-bold">{totalQtyRestocked}</td>
-                  <td className="border font-bold">{totalTotalBal}</td>
-                  <td className="border font-bold">{totalQtySold}</td>
-                  <td className="border font-bold">{totalQtyBalance}</td>
-                  <td className="border"></td>
-                  <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
-                  <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
-                  <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
-                  <td className="border"></td>
-                </tr>
-              </tfoot>
-
-              {/* <tfoot>
+  <tfoot>
     <tr>
       <td className="border"></td>
       <td className="border"></td>
       <td className="border"></td>
+      <td className="border font-bold"><strong>Total:</strong></td>
+      <td className="border font-bold">{totalQtyRestocked}</td>
+      <td className="border font-bold">{totalTotalBal}</td>
+      <td className="border font-bold">{totalQtySold}</td>
+      <td className="border font-bold">{totalQtyBalance}</td>
       <td className="border"></td>
-      <td className="border">{totalQtyRestocked}</td>
-      <td className="border">{totalTotalBal}</td>
-      <td className="border">{totalQtySold}</td>
-      <td className="border">{totalQtyBalance}</td>
-      <td className="border"></td>
-      <td className="border">{totalCostPrice.toFixed(2)}</td>
-      <td className="border">{totalSalesPrice.toFixed(2)}</td>
-      <td className="border">{totalItemValue.toFixed(2)}</td>
+      <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
+      <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
+      <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
       <td className="border"></td>
     </tr>
-  </tfoot> */}
-            </table>
+  </tfoot>
+</table>
+
           </div>
 
           <div className="flex justify-between">{renderPaginationButtons()}</div>

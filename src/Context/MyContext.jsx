@@ -23,7 +23,7 @@ export const MyContextProvider = ({ children }) => {
     users: [],
     companies: [],
     inventoryData: [],
-    purchases: [], // Add purchases here
+      purchases: [], // Add purchases here
     productTotals: new Map(),
     overallTotalQuantity: 0,
     productTotalsMap: new Map(),
@@ -383,7 +383,7 @@ export const MyContextProvider = ({ children }) => {
   }, [state.assets]);
   
 
-
+  
 // Fetch purchases function similar to fetchExpenses
 const fetchPurchases = useCallback(async () => {
   try {
@@ -416,6 +416,7 @@ useEffect(() => {
     fetchPurchases();
   }
 }, [fetchPurchases, state.selectedCompanyId]);
+
 
   const fetchExpenses = useCallback(async () => {
     try {

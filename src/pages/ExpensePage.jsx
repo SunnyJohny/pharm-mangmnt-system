@@ -418,7 +418,7 @@ const ExpensePage = () => {
             </div>
 
             <table className="w-full table-auto">
-  <thead>
+            <thead className="sticky top-0 bg-white z-10">
     <tr>
       <th className="border">S/n</th>
       <th className="border">Expense Description</th>

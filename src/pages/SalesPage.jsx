@@ -559,7 +559,7 @@ const SalesPage = () => {
             </div>
 
             <table className="w-full table-auto" >
-              <thead>
+            <thead className="sticky top-0 bg-white z-10">
                 <tr>
                   <th className="border">S/n</th>
                   <th className="border">Prod. Names</th>
@@ -653,26 +653,28 @@ const SalesPage = () => {
                     </ul>
                   </td>
                   <td colSpan="2">
-                    <strong>Salespersons:</strong>
-                    <ul>
-                      {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
+  <strong>
+    {Object.keys(salesBySalesperson).length > 1 ? "Sales Persons:" : "Sales Person:"}
+  </strong>
+  <ul>
+    {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
+      const sales = Number(totalSales);
+      return (
+        <li key={index}>
+          {salesperson}: ₦{isNaN(sales) ? "0.00" : sales.toFixed(2)}
+        </li>
+      );
+    })}
+  </ul>
+</td>
 
-                        const sales = Number(totalSales);
-                        return (
-                          <li key={index}>
-                            {salesperson}: ₦{isNaN(sales) ? "0.00" : sales.toFixed(2)}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </td>
                 </tr>
 
 
 
                 <tr>
                   <td colSpan="3"><strong>Total Sales Transactions:</strong> {filteredSales.length}</td>
-                  <td colSpan="3"><strong>Total Quantity Sold:</strong> {calculateTotalProductsSold(filteredSales)}</td>
+                  <td colSpan="3"><strong>Total Products Sold:</strong> {calculateTotalProductsSold(filteredSales)}</td>
                   <td colSpan="3" className="whitespace-no-wrap">
                     <strong>Total Sales Amount: <u className="underline">₦{totalSalesValue}</u></strong>
                   </td>

@@ -758,7 +758,7 @@ export default function AddAsset() {
       {/* Table to display data */}
       <div className="overflow-x-auto">
         <table className="min-w-full border border-collapse">
-          <thead>
+        <thead className="sticky top-0 bg-white z-10">
             <tr>
               <th className="border px-4 py-2">S/N</th>
               <th className="border px-4 py-2">Asset Name</th>

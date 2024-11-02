@@ -649,7 +649,7 @@ export default function AddShares() {
 
       <div className="p-4 overflow-x-auto">
         <table className="min-w-full border border-collapse">
-          <thead>
+        <thead className="sticky top-0 bg-white z-10">
             <tr>
               <th className="border px-4 py-2">S/N</th>
               <th className="border px-4 py-2">Share Name</th>
