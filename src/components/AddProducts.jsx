@@ -13,6 +13,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
   const navigate = useNavigate();
   const [isNewProduct, setIsNewProduct] = useState(true);
   const [product, setProduct] = useState({
+    serialNumber: "",
     name: "",
     supplier: "",
     quantitySupplied: 0,
@@ -20,11 +21,16 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     costPerItem: 0.00,
     price: 0.00,
     description: "",
+    expiryDate: "", // New expiry date field
     existingProduct: "", 
     quantityRestocked: 0,
   });
+  const [isScanMode, setIsScanMode] = useState(false); // track whether in scan or manual mode
 
   const [existingProductNames, setExistingProductNames] = useState([]);
+  const handleModeChange = (e) => {
+    setIsScanMode(e.target.value === 'scan');
+  };
 
   useEffect(() => {
     if (fromInventoryPage && row) {
@@ -94,6 +100,8 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           costPrice: newProduct.costPrice,
           price: newProduct.price,
           description: newProduct.description,
+           expiryDate: newProduct.expiryDate, // Store expiry date
+           serialNumber: newProduct.serialNumber, // Store expiry date
           quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }],
           dateAdded: Timestamp.now()
         });
@@ -106,6 +114,8 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           costPrice: 0.00,
           price: 0.00,
           description: "",
+          expiryDate: "",
+          serialNumber:"",
         });
         toast.success('Product added successfully!');
 
@@ -136,7 +146,9 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           !product.supplier ||
           !product.quantitySupplied ||
           !product.costPrice ||
-          !product.description
+          !product.description ||
+          !product.expiryDate || // Ensure expiry date is provided
+          !product.serialNumber
         ) {
           toast.error("Please fill in all required fields.");
           return;
@@ -173,6 +185,9 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
+           
+
+
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -246,6 +261,44 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       required
                     />
                   </div>
+                   {/* Mode selection */}
+            <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Serial Input Mode</label>
+                <div className="flex items-center">
+                  <label className="mr-4">
+                    <input
+                      type="radio"
+                      value="manual"
+                      checked={!isScanMode}
+                      onChange={handleModeChange}
+                    />
+                    <span className="ml-2">Manual Entry</span>
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      value="scan"
+                      checked={isScanMode}
+                      onChange={handleModeChange}
+                    />
+                    <span className="ml-2">Scan Mode</span>
+                  </label>
+                </div>
+              </div>
+                {/* Serial Number Input */}
+                <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Product Serial No</label>
+                <input
+                  type="text"
+                  name="serialNumber"
+                  value={product.serialNumber}
+                  onChange={handleInputChange}
+                  className="border rounded-md w-full p-2"
+                  placeholder="Enter or scan serial number"
+                  autoFocus={isScanMode} // autofocus only in scan mode
+                  readOnly={!isScanMode && product.serialNumber} // optional: make readonly in scan mode after scan
+                />
+              </div>
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Supplier Details</label>
                     <input
@@ -326,6 +379,17 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       rows="4"
                     ></textarea>
                   </div>
+                  <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Expiry Date</label>
+                <input
+                  type="date"
+                  name="expiryDate"
+                  value={product.expiryDate}
+                  onChange={handleInputChange}
+                  className="border rounded-md w-full p-2"
+                  required
+                />
+              </div>
                 </>
               )}
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">

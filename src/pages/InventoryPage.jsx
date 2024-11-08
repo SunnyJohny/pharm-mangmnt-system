@@ -267,6 +267,35 @@ const InventoryPage = () => {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
+
+  const getExpiryColor = (expiryDate) => {
+    if (!expiryDate) {
+      // Return a default color or class if expiryDate is undefined
+      return "text-black";
+    }
+
+    const now = new Date();
+    const expiry = new Date(expiryDate); // Parse the string to a Date object
+
+    if (isNaN(expiry.getTime())) {
+      // If the date is invalid, return a default color or handle it as needed
+      return "text-black";
+    }
+
+    const timeDifference = expiry - now;
+    const daysUntilExpiry = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+    if (daysUntilExpiry <= 0) {
+      return "text-red-500"; // Expired
+    } else if (daysUntilExpiry <= 7) {
+      return "text-red-500"; // Expiring within a week
+    } else if (daysUntilExpiry <= 60) {
+      return "text-yellow-500"; // Expiring within 2 months
+    } else {
+      return "text-black"; // Safe
+    }
+  };
+
   // Function to get the current date
   const getCurrentDate = () => {
     return formatDate(new Date());
@@ -351,7 +380,7 @@ const InventoryPage = () => {
 
     return (
       <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={handlePrintInventory}>
-        Print 
+        Print
       </button>
     );
   };
@@ -429,7 +458,7 @@ const InventoryPage = () => {
       </div>
     );
   };
-  
+
 
   return (
     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
@@ -460,40 +489,40 @@ const InventoryPage = () => {
         <div className="mb-4">
 
           <p><strong>Inventory by Dates:</strong></p>
-         
+
           <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
 
             <div className="flex items-center space-x-2">
-            <div>
-              <select
-                id="dateOption"
-                value={selectedDateOption}
-                onChange={handleDateOptionChange}
-                className="border border-gray-300 rounded-md p-2 pl-4"
-                style={{ width: '150px' }} // Set the width to 150px (adjust as needed)
-              >
-                <option value="All">All</option>
-                <option value="Today">Today</option>
-                <option value="This Week">This Week</option>
-                <option value="This Week - Date">This Week - Date</option>
-                <option value="This Month">This Month</option>
-                <option value="Last Month to Date">This Month to Date</option>
+              <div>
+                <select
+                  id="dateOption"
+                  value={selectedDateOption}
+                  onChange={handleDateOptionChange}
+                  className="border border-gray-300 rounded-md p-2 pl-4"
+                  style={{ width: '150px' }} // Set the width to 150px (adjust as needed)
+                >
+                  <option value="All">All</option>
+                  <option value="Today">Today</option>
+                  <option value="This Week">This Week</option>
+                  <option value="This Week - Date">This Week - Date</option>
+                  <option value="This Month">This Month</option>
+                  <option value="Last Month to Date">This Month to Date</option>
 
-                <option value="This Fiscal Quarter">This Fiscal Quarter</option>
-                <option value="This Fiscal Quarter to Date">This Fiscal Quarter to Date</option>
-                <option value="This Fiscal Year">This Fiscal Year</option>
-                <option value="This Fiscal Year to Last Month">This Fiscal Year to Last Month</option>
-                <option value="This Fiscal Year to Date">This Fiscal Year to Date</option>
-                <option value="Yesterday">Yesterday</option>
-                <option value="Last Week">Last Week</option>
-                <option value="Last Week to Date">Last Week to Date</option>
-                <option value="Last Month">Last Month</option>
-                <option value="Last Month to Date">Last Month to Date</option>
-                <option value="Last Fiscal Quarter">Last Fiscal Quarter</option>
-                <option value="Last Fiscal Quarter to Last Month">Last Fiscal Quarter to Last Month</option>
-              </select>
+                  <option value="This Fiscal Quarter">This Fiscal Quarter</option>
+                  <option value="This Fiscal Quarter to Date">This Fiscal Quarter to Date</option>
+                  <option value="This Fiscal Year">This Fiscal Year</option>
+                  <option value="This Fiscal Year to Last Month">This Fiscal Year to Last Month</option>
+                  <option value="This Fiscal Year to Date">This Fiscal Year to Date</option>
+                  <option value="Yesterday">Yesterday</option>
+                  <option value="Last Week">Last Week</option>
+                  <option value="Last Week to Date">Last Week to Date</option>
+                  <option value="Last Month">Last Month</option>
+                  <option value="Last Month to Date">Last Month to Date</option>
+                  <option value="Last Fiscal Quarter">Last Fiscal Quarter</option>
+                  <option value="Last Fiscal Quarter to Last Month">Last Fiscal Quarter to Last Month</option>
+                </select>
 
-            </div>
+              </div>
               {/* From Date Picker */}
               <div className="relative">
                 <DatePicker
@@ -526,7 +555,7 @@ const InventoryPage = () => {
               />
             </div>
 
-{/* Search Input */}
+            {/* Search Input */}
 
           </div>
         </div>
@@ -551,6 +580,8 @@ const InventoryPage = () => {
                   <th className="border">Qty Sold</th>
                   <th className="border">Qty Balance</th>
                   <th className="border">M.Unit</th>
+                  <th className="border">Exp.Date</th>
+                  <th className="border">serialNumber</th>
                   <th className="border">Cost Price</th>
                   <th className="border">Sales Price</th>
                   <th className="border">Item Value</th>
@@ -563,56 +594,70 @@ const InventoryPage = () => {
               </thead>
 
               <tbody>
-                {itemsToDisplay.map((item) => (
-                  <tr
-                    key={item.id}
-                    onClick={() => handleRowClick(item.id)}
-                    style={{ cursor: 'pointer' }}
-                    title="Click To View Details & Adjusted Fields"
-                  >
-                    <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
-                    <td className="border">{item.name}</td>
-                    <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-                    <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
-                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                    <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-                    <td className="border">
-                      {(
-                        (state.productTotals.get(item.name) || 0) -
-                        (state.productTotalsMap.get(item.name) || 0)
+                {itemsToDisplay.map((item) => {
+                  const totalRemaining = (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0);
+
+                  return (
+                    <tr
+                      key={item.id}
+                      onClick={() => handleRowClick(item.id)}
+                      style={{ cursor: 'pointer' }}
+                      title="Click To View Details & Adjusted Fields"
+                    >
+                      <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
+                      <td className="border">{item.name}</td>
+                      <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
+                      <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
+                      <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                      <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                      <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
+                      <td className={`border ${totalRemaining === 0 ? 'bg-red-500 text-white' : totalRemaining < 5 ? 'bg-yellow-500' : ''}`}>
+                        {totalRemaining}
+                      </td>
+                      <td className="border">Piece</td>
+
+                      {/* Conditionally render the expiry date cell only if totalRemaining is greater than 0 */}
+                      {totalRemaining > 0 ? (
+                        <td className={`border ${getExpiryColor(item.expiryDate)}`}>
+                          {item.expiryDate ? (
+                            <strong>{new Date(item.expiryDate).toLocaleDateString()}</strong>
+                          ) : (
+                            "No Expiry Date"
+                          )}
+                        </td>
+                      ) : (
+                        <td className="border">N/A</td>
                       )}
-                    </td>
-                    <td className="border">Piece</td>
-                    <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-                    <td className="border">{Number(item.price).toFixed(2)}</td>
-                    <td className="border">
-                      {(
-                        item.price *
-                        ((state.productTotals.get(item.name) || 0) -
-                          (state.productTotalsMap.get(item.name) || 0))
-                      ).toFixed(2)}
-                    </td>
-                    <td className="border">
-                      {state.user && state.user.role === 'admin' ? (
-                        <>
-                          <FontAwesomeIcon
-                            icon={faEdit}
-                            className="no-print"
-                            style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-                            onClick={(e) => handleEditClick(item.id, e)}
-                          />
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            className="no-print"
-                            style={{ cursor: 'pointer', color: 'red' }}
-                          />
-                        </>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
+
+                      <td className="border">{item.serialNumber}</td>
+
+                      <td className="border">{Number(item.costPrice).toFixed(2)}</td>
+                      <td className="border">{Number(item.price).toFixed(2)}</td>
+                      <td className="border">
+                        {(item.price * totalRemaining).toFixed(2)}
+                      </td>
+                      <td className="border">
+                        {state.user && state.user.role === 'admin' ? (
+                          <>
+                            <FontAwesomeIcon
+                              icon={faEdit}
+                              className="no-print"
+                              style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+                              onClick={(e) => handleEditClick(item.id, e)}
+                            />
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              className="no-print"
+                              style={{ cursor: 'pointer', color: 'red' }}
+                            />
+                          </>
+                        ) : null}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
+
 
               <tfoot>
                 <tr>
