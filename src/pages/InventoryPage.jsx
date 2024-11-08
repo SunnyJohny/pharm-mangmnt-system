@@ -68,26 +68,26 @@ const InventoryPage = () => {
   }, [state.products, calculateTotalStoreValue]);
 
 
-const searchByDate = useCallback((items, startDate, endDate) => {
-  if (!startDate && !endDate) return items;
+  const searchByDate = useCallback((items, startDate, endDate) => {
+    if (!startDate && !endDate) return items;
 
-  return items.filter((item) => {
-    const productDate = new Date(firstRestockDates[item.name]);
+    return items.filter((item) => {
+      const productDate = new Date(firstRestockDates[item.name]);
 
-    if (startDate && endDate) {
-      return productDate >= startDate && productDate <= endDate;
-    } else if (startDate) {
-      return productDate >= startDate;
-    } else if (endDate) {
-      return productDate <= endDate;
-    }
-    return true;
-  });
-}, [firstRestockDates]); // Add the dependencies here
+      if (startDate && endDate) {
+        return productDate >= startDate && productDate <= endDate;
+      } else if (startDate) {
+        return productDate >= startDate;
+      } else if (endDate) {
+        return productDate <= endDate;
+      }
+      return true;
+    });
+  }, [firstRestockDates]); // Add the dependencies here
 
 
 
- 
+
 
 
   const calculateTotals = () => {
@@ -139,22 +139,22 @@ const searchByDate = useCallback((items, startDate, endDate) => {
     totalItemValue,
   } = calculateTotals();
 
-// Define searchItems outside of the component
+  // Define searchItems outside of the component
 
-const searchItems = useCallback(() => {
-  let searchText = searchKeyword.toLowerCase();
+  const searchItems = useCallback(() => {
+    let searchText = searchKeyword.toLowerCase();
 
-  const filteredByKeyword = searchInventoryByKeyword(state.products, searchText);
-  const filteredByDate = searchByDate(filteredByKeyword, fromDate, toDate);
+    const filteredByKeyword = searchInventoryByKeyword(state.products, searchText);
+    const filteredByDate = searchByDate(filteredByKeyword, fromDate, toDate);
 
-  setFilteredItems(filteredByDate);
-  calculateTotalStoreValue(filteredByDate);
-}, [searchKeyword, fromDate, searchByDate,calculateTotalStoreValue, toDate, state.products]); // Define dependencies here
+    setFilteredItems(filteredByDate);
+    calculateTotalStoreValue(filteredByDate);
+  }, [searchKeyword, fromDate, searchByDate, calculateTotalStoreValue, toDate, state.products]); // Define dependencies here
 
-// Inside your functional component
-useEffect(() => {
-  searchItems(); // Call searchItems here
-}, [searchItems]); // Now searchItems won't change unless its dependencies change
+  // Inside your functional component
+  useEffect(() => {
+    searchItems(); // Call searchItems here
+  }, [searchItems]); // Now searchItems won't change unless its dependencies change
 
 
 
@@ -351,7 +351,7 @@ useEffect(() => {
 
     return (
       <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={handlePrintInventory}>
-        Print Inventory
+        Print 
       </button>
     );
   };
@@ -421,7 +421,7 @@ useEffect(() => {
 
   const renderFooter = () => {
     return (
-      <div className="flex justify-between mt-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-center">
         <div>Total Products: {totalItems}</div>
         <div>Total Store Value: ₦{totalStoreValue}</div>
         <div>Out Of Stock: {filteredItems.filter((item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) <= 0).length}</div>
@@ -429,9 +429,10 @@ useEffect(() => {
       </div>
     );
   };
+  
 
   return (
-    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
       <div className="flex-grow flex flex-col justify-between">
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
       </div>
@@ -441,7 +442,7 @@ useEffect(() => {
           <div className="flex justify-center">
             <h2 className="text-2xl font-bold">Inventory</h2>
           </div>
-          <div className="flex mt-4 space-x-4">
+          <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
             {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'green')}
 
@@ -459,16 +460,11 @@ useEffect(() => {
         <div className="mb-4">
 
           <p><strong>Inventory by Dates:</strong></p>
-          <div className="flex items-center space-x-4">
+         
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
+
+            <div className="flex items-center space-x-2">
             <div>
-              {/* Dates label and dropdown */}
-              {/* <label
-                htmlFor="dateOption"
-                className="text-lg"
-                style={{ marginRight: '16px' }} // Add margin-right of 16px (adjust as needed)
-              >
-                Dates
-              </label> */}
               <select
                 id="dateOption"
                 value={selectedDateOption}
@@ -498,38 +494,39 @@ useEffect(() => {
               </select>
 
             </div>
-            <div className="flex items-center space-x-2">
-
+              {/* From Date Picker */}
               <div className="relative">
                 <DatePicker
                   selected={fromDate}
                   onChange={handleFromDateChange}
                   dateFormat="MM-dd-yyyy"
                   placeholderText="From"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
                 />
-                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
+                <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
+
+              {/* To Date Picker */}
               <div className="relative">
                 <DatePicker
                   selected={toDate}
                   onChange={handleToDateChange}
                   dateFormat="MM-dd-yyyy"
                   placeholderText="To"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
                 />
-                <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
+                <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
-              {/* Search input */}
+
               <input
                 type="text"
-                className="border border-gray-300 rounded-md p-2 pr-2"
-                placeholder="Search"
-                // Assuming you have a function setSearchKeyword to handle search
+                className="border border-gray-300 rounded-md p-2 pr-2 w-full md:w-auto"
+                placeholder="Search Product by Name"
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                style={{ marginLeft: '8px', marginRight: '16px' }}
               />
             </div>
+
+{/* Search Input */}
 
           </div>
         </div>
@@ -543,105 +540,107 @@ useEffect(() => {
               <p>Report Printed On: {getCurrentDate()}</p>
             </div>
             <table className="w-full table-auto" id="inventory-table">
-  <thead className="sticky top-0 bg-white z-10">
-    <tr>
-      <th className="border">S/n</th>
-      <th className="border">Name</th>
-      <th className="border">Date</th>
-      <th className="border">Item ID</th>
-      <th className="border">Qty Restocked</th>
-      <th className="border">Total Bal</th>
-      <th className="border">Qty Sold</th>
-      <th className="border">Qty Balance</th>
-      <th className="border">M.Unit</th>
-      <th className="border">Cost Price</th>
-      <th className="border">Sales Price</th>
-      <th className="border">Item Value</th>
-      <th className="border">
-        {state.user && state.user.role === 'admin' ? (
-          <>Action</>
-        ) : null}
-      </th>
-    </tr>
-  </thead>
+              <thead className="sticky top-0 bg-white z-10">
+                <tr>
+                  <th className="border">S/n</th>
+                  <th className="border">Name</th>
+                  <th className="border">Date</th>
+                  <th className="border">Item ID</th>
+                  <th className="border">Qty Restocked</th>
+                  <th className="border">Total Bal</th>
+                  <th className="border">Qty Sold</th>
+                  <th className="border">Qty Balance</th>
+                  <th className="border">M.Unit</th>
+                  <th className="border">Cost Price</th>
+                  <th className="border">Sales Price</th>
+                  <th className="border">Item Value</th>
+                  <th className="border">
+                    {state.user && state.user.role === 'admin' ? (
+                      <>Action</>
+                    ) : null}
+                  </th>
+                </tr>
+              </thead>
 
-  <tbody>
-    {itemsToDisplay.map((item) => (
-      <tr
-        key={item.id}
-        onClick={() => handleRowClick(item.id)}
-        style={{ cursor: 'pointer' }}
-        title="Click To View Details & Adjusted Fields"
-      >
-        <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
-        <td className="border">{item.name}</td>
-        <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-        <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
-        <td className="border">{state.productTotals.get(item.name) || 0}</td>
-        <td className="border">{state.productTotals.get(item.name) || 0}</td>
-        <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-        <td className="border">
-          {(
-            (state.productTotals.get(item.name) || 0) -
-            (state.productTotalsMap.get(item.name) || 0)
-          )}
-        </td>
-        <td className="border">Piece</td>
-        <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-        <td className="border">{Number(item.price).toFixed(2)}</td>
-        <td className="border">
-          {(
-            item.price *
-            ((state.productTotals.get(item.name) || 0) -
-              (state.productTotalsMap.get(item.name) || 0))
-          ).toFixed(2)}
-        </td>
-        <td className="border">
-          {state.user && state.user.role === 'admin' ? (
-            <>
-              <FontAwesomeIcon
-                icon={faEdit}
-                className="no-print"
-                style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
-                onClick={(e) => handleEditClick(item.id, e)}
-              />
-              <FontAwesomeIcon
-                icon={faTrash}
-                className="no-print"
-                style={{ cursor: 'pointer', color: 'red' }}
-              />
-            </>
-          ) : null}
-        </td>
-      </tr>
-    ))}
-  </tbody>
+              <tbody>
+                {itemsToDisplay.map((item) => (
+                  <tr
+                    key={item.id}
+                    onClick={() => handleRowClick(item.id)}
+                    style={{ cursor: 'pointer' }}
+                    title="Click To View Details & Adjusted Fields"
+                  >
+                    <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
+                    <td className="border">{item.name}</td>
+                    <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
+                    <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
+                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                    <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                    <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
+                    <td className="border">
+                      {(
+                        (state.productTotals.get(item.name) || 0) -
+                        (state.productTotalsMap.get(item.name) || 0)
+                      )}
+                    </td>
+                    <td className="border">Piece</td>
+                    <td className="border">{Number(item.costPrice).toFixed(2)}</td>
+                    <td className="border">{Number(item.price).toFixed(2)}</td>
+                    <td className="border">
+                      {(
+                        item.price *
+                        ((state.productTotals.get(item.name) || 0) -
+                          (state.productTotalsMap.get(item.name) || 0))
+                      ).toFixed(2)}
+                    </td>
+                    <td className="border">
+                      {state.user && state.user.role === 'admin' ? (
+                        <>
+                          <FontAwesomeIcon
+                            icon={faEdit}
+                            className="no-print"
+                            style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+                            onClick={(e) => handleEditClick(item.id, e)}
+                          />
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            className="no-print"
+                            style={{ cursor: 'pointer', color: 'red' }}
+                          />
+                        </>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
 
-  <tfoot>
-    <tr>
-      <td className="border"></td>
-      <td className="border"></td>
-      <td className="border"></td>
-      <td className="border font-bold"><strong>Total:</strong></td>
-      <td className="border font-bold">{totalQtyRestocked}</td>
-      <td className="border font-bold">{totalTotalBal}</td>
-      <td className="border font-bold">{totalQtySold}</td>
-      <td className="border font-bold">{totalQtyBalance}</td>
-      <td className="border"></td>
-      <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
-      <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
-      <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
-      <td className="border"></td>
-    </tr>
-  </tfoot>
-</table>
+              <tfoot>
+                <tr>
+                  <td className="border"></td>
+                  <td className="border"></td>
+                  <td className="border"></td>
+                  <td className="border font-bold"><strong>Total:</strong></td>
+                  <td className="border font-bold">{totalQtyRestocked}</td>
+                  <td className="border font-bold">{totalTotalBal}</td>
+                  <td className="border font-bold">{totalQtySold}</td>
+                  <td className="border font-bold">{totalQtyBalance}</td>
+                  <td className="border"></td>
+                  <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
+                  <td className="border"></td>
+                </tr>
+              </tfoot>
+            </table>
 
           </div>
 
-          <div className="flex justify-between">{renderPaginationButtons()}</div>
         </div>
 
         {renderFooter()}
+        <div className="flex justify-between mb-4">{renderPaginationButtons()}</div>
+
+
       </div>
 
       {showEditPop && selectedProduct && (
@@ -659,10 +658,12 @@ useEffect(() => {
 };
 
 const renderStatCard = (title, value, color) => (
-  <div className={`flex-1 bg-${color}-500 text-white p-4 rounded-md`}>
+  <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
     <div className="text-sm">{title}</div>
     <div className="text-2xl font-bold">{value}</div>
   </div>
 );
+
+
 
 export default InventoryPage;

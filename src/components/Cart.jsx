@@ -69,6 +69,7 @@ const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMeth
   </div>
 );
 
+
 const Cart = () => {
   const { state, clearCart } = useMyContext();
   const { selectedCompanyId } = state;
@@ -206,26 +207,20 @@ const Cart = () => {
       printWindow.document.close();
       printWindow.print();
     } catch (error) {
-      
-   
-
-
       console.error('Error adding receipt to Firestore:', error);
       toast.error('Error processing sale. Please try again.');
-    }
-    finally {
+    } finally {
       setIsProcessing(false); // Reset processing state
     }
   };
 
-  
   return (
-    <div className="bg-gray-200 p-2 w-1/4">
+    <div className="bg-gray-200 p-4 w-full md:w-1/4 max-h-[400px] overflow-y-auto">
       <h2 className="text-2xl font-bold mb-4 flex justify-between">
         <span>Cart</span>
         <span>Total</span>
       </h2>
-      <div className="flex justify-between">
+      <div className="flex justify-between mb-2 text-sm sm:text-base">
         <span className="font-bold">Name</span>
         <span className="font-bold">Amount(&#x20A6;)</span>
         <span className="font-bold">Qty</span>
@@ -248,12 +243,13 @@ const Cart = () => {
         selectedPaymentMethod={selectedPaymentMethod}
         setSelectedPaymentMethod={setSelectedPaymentMethod}
         isProcessing={isProcessing} // Pass processing state to OverallTotal
-       
       />
     </div>
   );
 };
 
-
-
 export default Cart;
+
+
+
+

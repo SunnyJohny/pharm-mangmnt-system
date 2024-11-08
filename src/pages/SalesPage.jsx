@@ -20,7 +20,7 @@ import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 const SalesPage = () => {
   const { state, searchByKeyword, searchByDate, calculateTotalSalesValue, calculateTotalCOGS } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(100);
+  const [itemsPerPage] = useState(50);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   // const [filteredItems, setFilteredItems] = useState([]);

@@ -36,6 +36,8 @@ export const MyContextProvider = ({ children }) => {
     selectedCompanyAddress: '',
     selectedCompanyPhoneNumber: '',  // Add phone number
   selectedCompanyEmail: '',  // Add emai
+  isCartOpen: false,           // Track cart visibility
+  isSidePanelOpen: false        // Track side panel visibility
   };
 
   const [state, setState] = useState(initialState);
@@ -54,6 +56,22 @@ export const MyContextProvider = ({ children }) => {
       return saleDate >= startDate && saleDate <= endDate;
     });
   };
+
+  // Toggle functions for Cart and Side Panel
+  const toggleCart = () => {
+    setState((prevState) => ({
+      ...prevState,
+      isCartOpen: !prevState.isCartOpen
+    }));
+  };
+
+  const toggleSidePanel = () => {
+    setState((prevState) => ({
+      ...prevState,
+      isSidePanelOpen: !prevState.isSidePanelOpen
+    }));
+  };
+
 
   const searchByKeyword = (items, keyword) => {
     console.log('Searching with keyword:', keyword); // Log the keyword
@@ -514,62 +532,6 @@ useEffect(() => {
   }, [state.taxes]);
   
 
-  
-
-  // const fetchProductsAndCalculateSumOfSales = async () => {
-  //   if (!state.selectedCompanyId) {
-  //     console.warn('No company selected');
-  //     return;
-  //   }
-  
-  //   try {
-  //     const productsCollection = collection(getFirestore(), `companies/${state.selectedCompanyId}/products`);
-  //     const productsSnapshot = await getDocs(productsCollection);
-  
-  //     let overallTotalProductQuantity = 0;
-  //     const productTotalsMap = new Map();
-  
-  //     productsSnapshot.forEach((doc) => {
-  //       const { name, quantitySold } = doc.data();
-  
-  //       if (Array.isArray(quantitySold)) {
-  //         const productTotal = quantitySold.reduce((sum, entry) => {
-  //           const quantityValue = parseInt(entry.quantitySold, 10);
-  
-  //           if (!isNaN(quantityValue)) {
-  //             return sum + quantityValue;
-  //           } else {
-  //             console.error(`Invalid quantity value for ${name}: ${entry.quantitySold}`);
-  //             return sum;
-  //           }
-  //         }, 0);
-  
-  //         productTotalsMap.set(name, productTotal);
-  //         overallTotalProductQuantity += productTotal;
-  //       } else {
-  //         console.warn(`Invalid quantitySold value for ${name}: ${quantitySold}`);
-  //       }
-  //     });
-  
-  //     setState((prevState) => ({
-  //       ...prevState,
-  //       productTotalsMap: productTotalsMap,
-  //       overallTotalProductQuantity: overallTotalProductQuantity,
-  //     }));
-  
-  //     return productTotalsMap;
-  //   } catch (error) {
-  //     console.error('Error fetching products:', error.message);
-  //     return new Map();
-  //   }
-  // };
-  
-  // useEffect(() => {
-  //   if (state.selectedCompanyId) {
-  //     fetchProductsAndCalculateSumOfSales();
-  //   }
-  // }, [state.selectedCompanyId]);
-  
 
  const fetchProductsAndCalculateSumOfSales = useCallback(async () => {
     if (!state.selectedCompanyId) {
@@ -848,6 +810,9 @@ useEffect(() => {
     setState({ ...state, cart: [] });
   };
 
+  
+
+
   const increaseQuantity = (productId) => {
     const updatedCart = state.cart.map((item) =>
       item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
@@ -972,6 +937,8 @@ useEffect(() => {
       removeFromCart,
 
       clearCart,
+      toggleCart,
+      toggleSidePanel,
       increaseQuantity,
 
       decreaseQuantity,
