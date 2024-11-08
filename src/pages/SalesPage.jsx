@@ -432,7 +432,7 @@ const SalesPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex h-screen">
+    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
 
       <div className="flex-none">
         {/* Render InventorySidePanel if user exists and role is admin, otherwise render ProductsPagesidePanel */}
@@ -452,7 +452,7 @@ const SalesPage = () => {
             </button>
           </div>
 
-          <div className="flex mt-2 space-x-4">
+          <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
             {renderStatCard('Total Revenue', `₦${totalSalesValue}`, 'blue', faChartLine)}
             {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'green', faShoppingCart)}
             {renderStatCard(
@@ -472,7 +472,7 @@ const SalesPage = () => {
         <div className="mb-4">
 
           <p><strong>Transactions by:</strong></p>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
             <div>
               {/* Dates label and dropdown */}
               <label
@@ -519,7 +519,7 @@ const SalesPage = () => {
                   onChange={handleFromDateChange}
                   dateFormat="MM-dd-yyyy"
                   placeholderText="From"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
                 />
                 <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
               </div>
@@ -529,7 +529,7 @@ const SalesPage = () => {
                   onChange={handleToDateChange}
                   dateFormat="MM-dd-yyyy"
                   placeholderText="To"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer"
+                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
                 />
                 <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
               </div>
@@ -697,7 +697,8 @@ const SalesPage = () => {
 };
 
 const renderStatCard = (title, value, color) => (
-  <div className={`flex-1 bg-${color}-500 text-white p-4 rounded-md`}>
+  
+    <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
     <div className="text-sm">{title}</div>
     <div className="text-2xl font-bold">{value}</div>
   </div>

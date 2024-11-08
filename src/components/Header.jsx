@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 // import {  useNavigate } from "react-router-dom";
 // import { getAuth, onAuthStateChanged } from "firebase/auth";
-import DateTimeDisplay from "./DateTimeDisplay";
+// import DateTimeDisplay from "./DateTimeDisplay";
 import { useMyContext } from '../Context/MyContext';
 import mylogo from "../assets/svg/mylogo.png";
 import { FaShoppingCart } from "react-icons/fa";
@@ -49,7 +49,7 @@ export default function Header() {
 
         {/* Right Section: Date, Cart Icon */}
         <div className="flex items-center space-x-4">
-          <DateTimeDisplay />
+          {/* <DateTimeDisplay /> */}
           
           {/* Cart Icon with Counter */}
           <div onClick={() => toggleCart()} className="relative cursor-pointer ">
