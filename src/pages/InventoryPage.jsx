@@ -581,7 +581,7 @@ const InventoryPage = () => {
                   <th className="border">Qty Balance</th>
                   <th className="border">M.Unit</th>
                   <th className="border">Exp.Date</th>
-                  <th className="border">serialNumber</th>
+                  <th className="border">Products S/N</th>
                   <th className="border">Cost Price</th>
                   <th className="border">Sales Price</th>
                   <th className="border">Item Value</th>
