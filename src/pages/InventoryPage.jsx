@@ -461,7 +461,8 @@ const InventoryPage = () => {
 
 
   return (
-    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
+    // <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
+     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
       <div className="flex-grow flex flex-col justify-between">
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
       </div>
@@ -704,7 +705,8 @@ const InventoryPage = () => {
 };
 
 const renderStatCard = (title, value, color) => (
-  <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
+  // <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
+  <div className={`flex-1 bg-${color}-500 text-white p-4 rounded-md`}>
     <div className="text-sm">{title}</div>
     <div className="text-2xl font-bold">{value}</div>
   </div>

@@ -940,6 +940,8 @@ useEffect(() => {
       toggleCart,
       toggleSidePanel,
       increaseQuantity,
+      
+fetchCompanies,
 
       decreaseQuantity,
       logout,

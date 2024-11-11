@@ -1,26 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
-import { db } from "../firebase"; // Ensure db is properly initialized
+import { db } from "../firebase";
 import { toast } from "react-toastify";
 import { useMyContext } from '../Context/MyContext';
-import { doc, getDoc } from "firebase/firestore"; // Import Firestore functions
-
-
-// Remember to remove company dropdown at the end of the work
+import { doc, getDoc } from "firebase/firestore";
 
 export default function SignIn() {
-  const { state, setState, updateSelectedCompany } = useMyContext(); // Access the context state
+  const { state, setState, updateSelectedCompany, fetchCompanies } = useMyContext();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    companyName: "", // Add companyName to formData state
-    companyId: ""    // Add companyId to formData state
+    companyName: "",
+    companyId: ""
   });
   const { email, password, companyName, companyId } = formData;
   const navigate = useNavigate();
+
+  // Fetch companies on component mount
+  useEffect(() => {
+    if (state.companies.length === 0) {
+      fetchCompanies();
+    }
+  }, [fetchCompanies, state.companies.length]);
 
   function onChange(e) {
     const { id, value } = e.target;
@@ -29,7 +33,6 @@ export default function SignIn() {
       [id]: value,
     }));
 
-    // Update selected company name and ID in the context state
     if (id === 'companyName') {
       const selectedCompany = state.companies.find(company => company.companyName === value);
       if (selectedCompany) {
@@ -52,31 +55,25 @@ export default function SignIn() {
 
       if (userCredential.user) {
         console.log("User credential:", userCredential.user);
-
-        // Fetch additional user data from Firestore
         const userData = await getUserData(userCredential.user.uid);
         console.log("User data:", userData);
 
-        // Update the context state with the fetched user data
         if (userData) {
           setState(prevState => ({
             ...prevState,
             user: userData,
           }));
 
-          // Conditional rendering based on user data
           if (userData.role === 'admin') {
             navigate("/admin");
           } else {
             navigate("/posscreen");
           }
         } else {
-          // Handle the case where user data is not yet available (optional: loading indicator)
           toast.warning("Please Try Again");
         }
       }
     } catch (error) {
-      // More detailed error handling
       if (error.code === 'auth/user-not-found') {
         toast.error("No user found with this email. Please check your email or sign up.");
       } else if (error.code === 'auth/wrong-password') {
@@ -84,15 +81,13 @@ export default function SignIn() {
       } else {
         toast.error("Failed to sign in. Please try again later.");
       }
-      console.log("Error details:", error); // This will help debug further
+      console.log("Error details:", error);
     }
   }
 
-
   async function getUserData(userId) {
     try {
-      // Ensure the correct Firestore path
-      const userDocRef = doc(db, "companies", companyId, "users", userId); // Ensure you're fetching from the right company
+      const userDocRef = doc(db, "companies", companyId, "users", userId);
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (userDocSnapshot.exists()) {
@@ -107,18 +102,8 @@ export default function SignIn() {
     }
   }
 
-  const handleReload = () => {
-    window.location.reload();
-  };
-
   return (
     <section>
-       <button
-          onClick={handleReload}
-          className="p-2 bg-gray-200 rounded"
-        >
-          Reload
-        </button>
       <h1 className="text-3xl text-center mt-6 font-bold">Sign In</h1>
       <div className="flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto">
         <div className="md:w-[67%] lg:w-[50%] mb-12 md:mb-6">
@@ -170,7 +155,7 @@ export default function SignIn() {
                 <option
                   key={company.id}
                   value={company.companyName}
-                  disabled={companyName && company.companyName !== companyName} // Disable if company is selected and not the current one
+                  disabled={companyName && company.companyName !== companyName}
                 >
                   {company.companyName}
                 </option>
@@ -178,23 +163,23 @@ export default function SignIn() {
             </select>
 
             <div className="flex justify-between whitespace-nowrap text-sm sm:text-lg">
-            <p className="mb-6">
-      Don't have an account?
-      <button
-        type="button"
-        className="text-red-600 hover:text-red-700 transition duration-200 ease-in-out ml-1 underline"
-        onClick={() => {
-          const password = prompt("Enter authorization password to proceed:");
-          if (password === "deancoonz28@john") {
-            navigate("/company-sign-up"); // Redirect if password is correct
-          } else {
-            alert("Wrong authorization password. Access denied.");
-          }
-        }}
-      >
-        Register
-      </button>
-    </p>
+              <p className="mb-6">
+                Don't have an account?
+                <button
+                  type="button"
+                  className="text-red-600 hover:text-red-700 transition duration-200 ease-in-out ml-1 underline"
+                  onClick={() => {
+                    const password = prompt("Enter authorization password to proceed:");
+                    if (password === "deancoonz28@john") {
+                      navigate("/company-sign-up");
+                    } else {
+                      alert("Wrong authorization password. Access denied.");
+                    }
+                  }}
+                >
+                  Register
+                </button>
+              </p>
               <p>
                 <Link
                   to="/forgot-password"

@@ -215,7 +215,9 @@ const Cart = () => {
   };
 
   return (
-    <div className="bg-gray-200 p-4 w-full md:w-1/4 max-h-[400px] overflow-y-auto">
+    // <div className="bg-gray-200 p-2 w-full md:w-1/4 max-h-[400px] overflow-y-auto">
+    <div className="bg-gray-200 p-2 w-1/4">
+
       <h2 className="text-2xl font-bold mb-4 flex justify-between">
         <span>Cart</span>
         <span>Total</span>
