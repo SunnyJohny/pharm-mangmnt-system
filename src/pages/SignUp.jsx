@@ -180,6 +180,7 @@ export default function SignUp() {
   const handleReload = () => {
     window.location.reload();
   };
+  
   return (
     <>
       <div className="flex justify-between items-center m-4">

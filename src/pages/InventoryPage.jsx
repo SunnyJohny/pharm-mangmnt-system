@@ -458,18 +458,28 @@ const InventoryPage = () => {
       </div>
     );
   };
-
+  const handleReload = () => {
+    window.location.reload();
+  };
 
   return (
     // <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-      <div className="flex-grow flex flex-col justify-between">
+      {/* <div className="flex-grow flex flex-col justify-between"> */}
+      <div className="flex-none">
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
       </div>
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
+        <button
+  onClick={handleReload}
+  className="p-2 bg-gray-200 rounded"
+>
+  Reload
+</button>
           <div className="flex justify-center">
+            
             <h2 className="text-2xl font-bold">Inventory</h2>
           </div>
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
@@ -487,11 +497,15 @@ const InventoryPage = () => {
             {renderStatCard('All Categories', '2', 'gray')}
           </div>
         </div>
+        
 
         <div className="mb-4">
 
           <p><strong>Inventory by Dates:</strong></p>
 
+
+    
+  
           <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
 
             <div className="flex items-center space-x-2">
