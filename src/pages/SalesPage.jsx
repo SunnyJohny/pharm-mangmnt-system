@@ -153,7 +153,7 @@ const SalesPage = () => {
 
     setFilteredSales(filtered);
     calculateTotalSalesValue(filtered);
-  }, [state.sales, fromDate, toDate, searchKeyword, searchByDate, calculateTotalSalesValue,searchByKeyword]);
+  }, [state.sales, fromDate, toDate, searchKeyword, searchByDate, calculateTotalSalesValue, searchByKeyword]);
 
 
 
@@ -519,7 +519,7 @@ const SalesPage = () => {
                   onChange={handleFromDateChange}
                   dateFormat="MM-dd-yyyy"
                   placeholderText="From"
-                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
+                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
                 />
                 <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
               </div>
@@ -529,7 +529,7 @@ const SalesPage = () => {
                   onChange={handleToDateChange}
                   dateFormat="MM-dd-yyyy"
                   placeholderText="To"
-                   className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
+                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
                 />
                 <FaCalendar className="absolute top-3 right-2  text-gray-400 pointer-events-none" />
               </div>
@@ -559,7 +559,7 @@ const SalesPage = () => {
             </div>
 
             <table className="w-full table-auto" >
-            <thead className="sticky top-0 bg-white z-10">
+              <thead className="sticky top-0 bg-white z-10">
                 <tr>
                   <th className="border">S/n</th>
                   <th className="border">Prod. Names</th>
@@ -653,20 +653,20 @@ const SalesPage = () => {
                     </ul>
                   </td>
                   <td colSpan="2">
-  <strong>
-    {Object.keys(salesBySalesperson).length > 1 ? "Sales Persons:" : "Sales Person:"}
-  </strong>
-  <ul>
-    {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
-      const sales = Number(totalSales);
-      return (
-        <li key={index}>
-          {salesperson}: ₦{isNaN(sales) ? "0.00" : sales.toFixed(2)}
-        </li>
-      );
-    })}
-  </ul>
-</td>
+                    <strong>
+                      {Object.keys(salesBySalesperson).length > 1 ? "Sales Persons:" : "Sales Person:"}
+                    </strong>
+                    <ul>
+                      {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
+                        const sales = Number(totalSales);
+                        return (
+                          <li key={index}>
+                            {salesperson}: ₦{isNaN(sales) ? "0.00" : sales.toFixed(2)}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </td>
 
                 </tr>
 
@@ -697,8 +697,9 @@ const SalesPage = () => {
 };
 
 const renderStatCard = (title, value, color) => (
-  
-    <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
+
+  <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
+    
     <div className="text-sm">{title}</div>
     <div className="text-2xl font-bold">{value}</div>
   </div>

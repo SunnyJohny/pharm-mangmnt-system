@@ -472,6 +472,7 @@ const InventoryPage = () => {
             <h2 className="text-2xl font-bold">Inventory</h2>
           </div>
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
+            
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
             {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'green')}
 
