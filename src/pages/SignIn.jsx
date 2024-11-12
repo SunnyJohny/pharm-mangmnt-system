@@ -8,7 +8,7 @@ import { useMyContext } from '../Context/MyContext';
 import { doc, getDoc } from "firebase/firestore";
 
 export default function SignIn() {
-  const { state, setState, updateSelectedCompany, fetchCompanies } = useMyContext();
+  const { state, setState, updateSelectedCompany } = useMyContext();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -19,12 +19,16 @@ export default function SignIn() {
   const { email, password, companyName, companyId } = formData;
   const navigate = useNavigate();
 
-  // Fetch companies on component mount
+
   useEffect(() => {
-    if (state.companies.length === 0) {
-      fetchCompanies();
-    }
-  }, [fetchCompanies, state.companies.length]);
+    // Prevent back navigation by redirecting to the home page
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = () => {
+      navigate("/", { replace: true }); // Redirects to the home page
+    };
+  }, [navigate]);
+  
+ 
 
   function onChange(e) {
     const { id, value } = e.target;
@@ -108,14 +112,16 @@ export default function SignIn() {
   
   return (
     <section>
-      <h1 className="text-3xl text-center mt-6 font-bold">Sign In</h1>
+      <div className="flex items-center justify-between mt-6">
+    <button
+      onClick={handleReload}
+      className="p-2 bg-gray-200 rounded ml-2"
+    >
+      Reload
+    </button>
     
-  <button
-  onClick={handleReload}
-  className="p-2 mt-2 bg-gray-200 rounded"
->
-  Reload
-</button>
+    <h1 className="text-3xl font-bold text-center flex-1">Sign In</h1>
+  </div>
       <div className="flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto">
         <div className="md:w-[67%] lg:w-[50%] mb-12 md:mb-6">
           <img

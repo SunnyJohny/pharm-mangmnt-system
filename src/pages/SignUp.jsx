@@ -194,7 +194,7 @@ export default function SignUp() {
           <h1 className="text-xl font-bold">USERS</h1>
         </div>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="p-2 bg-gray-200 rounded"
         >
           Back

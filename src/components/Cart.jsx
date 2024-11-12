@@ -78,6 +78,38 @@ const Cart = () => {
 
   const { cart } = state;
   const overallTotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const numberToWords = (num) => {
+    const a = [
+      "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+      "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"
+    ];
+    const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  
+    const convertWholeNumber = (num) => {
+      if (num < 20) return a[num];
+      if (num < 100) return b[Math.floor(num / 10)] + " " + a[num % 10];
+      if (num < 1000) return a[Math.floor(num / 100)] + " Hundred " + convertWholeNumber(num % 100);
+      if (num < 1000000) return convertWholeNumber(Math.floor(num / 1000)) + " Thousand " + convertWholeNumber(num % 1000);
+  
+      return "Amount too large";
+    };
+  
+    // Split the number into whole and decimal (kobo) parts
+    const [wholePart, koboPart] = num.toString().split('.');
+  
+    // Convert the whole part
+    const wholePartWords = convertWholeNumber(Number(wholePart));
+  
+    // Convert the kobo part if it exists
+    let koboWords = '';
+    if (koboPart) {
+      koboWords = `and ${convertWholeNumber(Number(koboPart))} Kobo`;
+    }
+  
+    return `${wholePartWords} Naira ${koboWords}`.trim();
+  };
+  
+  
 
   const handleClearItems = () => {
     clearCart();
@@ -118,6 +150,9 @@ const Cart = () => {
     const receiptNumber = Math.floor(Math.random() * 1000000);
     const transactionDateTime = new Date().toLocaleString();
     setIsProcessing(true);
+    
+    const totalInWords = numberToWords(overallTotal); // Convert total to words
+  
     const salesDoc = {
       saleId: `sale_${receiptNumber}`,
       date: transactionDateTime,
@@ -141,15 +176,15 @@ const Cart = () => {
         name: state.user?.name || 'default_staff_name',
       },
     };
-
+  
     try {
       const docRef = await addDoc(collection(db, `companies/${selectedCompanyId}/sales`), salesDoc);
       console.log('Receipt added to Firestore with ID:', docRef.id);
-
+  
       await Promise.all(cart.map(async (item) => {
         await updateProductSale(item.id, item.quantity);
       }));
-
+  
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
         <html>
@@ -191,18 +226,22 @@ const Cart = () => {
         </table>
         <hr>
         <p style="text-align: center; font-weight: bold; margin-right: 12px;">
-          Total: ₦ ${overallTotal}
+          Total: ₦ ${overallTotal.toFixed(2)}
+        </p>
+        <p style="text-align: center; font-style: italic;">
+          Amount in Words: ${totalInWords} 
         </p>
         <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
         <hr>
         <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
         <hr>
-      </div>
-      <p style="text-align: center;">Software Developer: <strong>PixelForge Technologies</strong></p>
-      <p style="text-align: center;">Contact: <strong>08030611606, 08026511244.</strong></p>
-      </body>
-      </html>
+        </div>
+        <p style="text-align: center;">Software Developer: <strong>PixelForge Technologies</strong></p>
+        <p style="text-align: center;">Contact: <strong>08030611606, 08026511244.</strong></p>
+        </body>
+        </html>
       `);
+      
       toast.success('Sale added successfully!');
       printWindow.document.close();
       printWindow.print();
@@ -210,10 +249,10 @@ const Cart = () => {
       console.error('Error adding receipt to Firestore:', error);
       toast.error('Error processing sale. Please try again.');
     } finally {
-      setIsProcessing(false); // Reset processing state
+      setIsProcessing(false);
     }
   };
-
+  
   return (
     // <div className="bg-gray-200 p-2 w-full md:w-1/4 max-h-[400px] overflow-y-auto">
     <div className="bg-gray-200 p-2 w-1/4">

@@ -8,22 +8,21 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const CompanySignUp = () => {
   const [showPassword, setShowPassword] = useState(false); 
-  const { updateSelectedCompany, selectedCompany } = useMyContext(); // Accessing selected company from context
+  const { updateSelectedCompany, selectedCompany } = useMyContext();
   const navigate = useNavigate();
 
-  // Form data state
   const [formData, setFormData] = useState({
     companyName: "",
     email: "",
     password: "",
     address: "", 
+    phoneNumber: "", 
   });
 
-  const [companyUpdated, setCompanyUpdated] = useState(false); // Track company update status
+  const [companyUpdated, setCompanyUpdated] = useState(false);
 
-  const { companyName, email, password, address } = formData;
+  const { companyName, email, password, address, phoneNumber } = formData;
 
-  // Handling form input changes
   const onChange = (e) => {
     setFormData({
       ...formData,
@@ -31,7 +30,6 @@ const CompanySignUp = () => {
     });
   };
 
-  // Sign up handler
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
@@ -39,44 +37,52 @@ const CompanySignUp = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Saving company data in Firestore
       await setDoc(doc(db, "companies", user.uid), {
         companyName,
         email,
         address,
+        phoneNumber
       });
 
-      // Update the selected company in context and set status to updated
       updateSelectedCompany(companyName, user.uid);
-      setCompanyUpdated(true);  // Set flag to true once company is updated
+      setCompanyUpdated(true);
 
       toast.success("Sign up was successful");
-       // Redirect to sign-up page after registration
-       navigate("/sign-up");
+      navigate("/sign-up");
     } catch (error) {
       toast.error("Something went wrong with the registration");
     }
   };
 
-  // Effect to handle redirection after company is updated
   useEffect(() => {
     if (companyUpdated && selectedCompany) {
-      // Ensure selected company has updated before navigating
       navigate("/sign-up");
     }
   }, [companyUpdated, selectedCompany, navigate]);
 
-  // Toggle password visibility
   const toggleShowPassword = () => {
     setShowPassword((prevState) => !prevState);
   };
 
+  const handleClose = () => {
+    navigate("/ ");
+  };
+
   return (
     <section className="flex justify-center items-center h-screen px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md relative">
+        
+        {/* Close Icon */}
+        <button 
+          onClick={handleClose}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        
         <h1 className="text-3xl text-center mt-6 font-bold">Company Sign Up</h1>
         <form onSubmit={handleSignUp} className="mt-8">
-          {/* Company Name Input */}
           <input
             type="text"
             id="companyName"
@@ -86,7 +92,6 @@ const CompanySignUp = () => {
             className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
           />
 
-          {/* Email Input */}
           <input
             type="email"
             id="email"
@@ -96,7 +101,6 @@ const CompanySignUp = () => {
             className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
           />
 
-          {/* Password Input */}
           <div className="relative mb-6">
             <input
               type={showPassword ? "text" : "password"}
@@ -115,7 +119,6 @@ const CompanySignUp = () => {
             </button>
           </div>
 
-          {/* Address Input */}
           <input
             type="text"
             id="address"
@@ -124,8 +127,15 @@ const CompanySignUp = () => {
             placeholder="Company Address"
             className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
           />
+          <input
+            type="text"
+            id="phoneNumber"
+            value={phoneNumber}
+            onChange={onChange}
+            placeholder="Company Phone Number"
+            className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+          />
 
-          {/* Submit Button */}
           <button
             className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800"
             type="submit"
