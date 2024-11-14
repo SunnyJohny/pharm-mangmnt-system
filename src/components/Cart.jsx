@@ -147,111 +147,113 @@ const Cart = () => {
   };
 
   const handlePrintReceipt = async () => {
-    const receiptNumber = Math.floor(Math.random() * 1000000);
+    const receiptNumber = Math.floor(Math.random() * 1000000); // Generate a unique receipt number
     const transactionDateTime = new Date().toLocaleString();
     setIsProcessing(true);
-    
+
     const totalInWords = numberToWords(overallTotal); // Convert total to words
-  
+
     const salesDoc = {
-      saleId: `sale_${receiptNumber}`,
-      date: transactionDateTime,
-      customer: {
-        name: 'Customer Name',
-        email: 'customer@example.com',
-      },
-      products: cart.map((item) => ({
-        productId: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        Amount: item.price * item.quantity,
-        costPrice: item.costPrice * item.quantity,
-      })),
-      totalAmount: overallTotal,
-      payment: {
-        method: selectedPaymentMethod,
-      },
-      staff: {
-        staffId: state.user?.id || 'default_staff_id',
-        name: state.user?.name || 'default_staff_name',
-      },
+        saleId: `sale_${receiptNumber}`,
+        // receiptNumber: receiptNumber,  // Add receiptNumber to Firestore document
+        date: transactionDateTime,
+        customer: {
+            name: 'Customer Name',
+            email: 'customer@example.com',
+        },
+        products: cart.map((item) => ({
+            productId: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            Amount: item.price * item.quantity,
+            costPrice: item.costPrice * item.quantity,
+        })),
+        totalAmount: overallTotal,
+        payment: {
+            method: selectedPaymentMethod,
+        },
+        staff: {
+            staffId: state.user?.id || 'default_staff_id',
+            name: state.user?.name || 'default_staff_name',
+        },
     };
-  
+
     try {
-      const docRef = await addDoc(collection(db, `companies/${selectedCompanyId}/sales`), salesDoc);
-      console.log('Receipt added to Firestore with ID:', docRef.id);
-  
-      await Promise.all(cart.map(async (item) => {
-        await updateProductSale(item.id, item.quantity);
-      }));
-  
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write(`
-        <html>
-        <head>
-        <style>
-        @media print {
-          body {
-            white-space: nowrap;
-          }
-        }
-        </style>
-        </head>
-        <body>
-        <div style="text-align: center;">
-        <h2>${state.selectedCompanyName}</h2>
-        <p>Address:${state.selectedCompanyAddress}</p>
-        <p>Phone: ${state.selectedCompanyPhoneNumber}</p>
-        <p>Email: ${state.selectedCompanyEmail}</p>
-        <p>Attendant: ${state.user.name}</p>
-        <hr>
-        <h3>Receipt No.: ${receiptNumber}</h3>
-        <p>Date/Time: ${transactionDateTime}</p>
-        <hr>
-        <table style="width: 100%; text-align: left;">
-          <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Price ( ₦ )</th>
-            <th>Total</th>
-          </tr>
-          ${cart.map((item, index) => `
-            <tr key=${index}>
-              <td>${item.name || 'N/A'}</td>
-              <td>${item.quantity || 'N/A'}</td>
-              <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
-              <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
-            </tr>
-          `).join('')}
-        </table>
-        <hr>
-        <p style="text-align: center; font-weight: bold; margin-right: 12px;">
-          Total: ₦ ${overallTotal.toFixed(2)}
-        </p>
-        <p style="text-align: center; font-style: italic;">
-          Amount in Words: ${totalInWords} 
-        </p>
-        <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
-        <hr>
-        <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
-        <hr>
-        </div>
-        <p style="text-align: center;">Software Developer: <strong>PixelForge Technologies</strong></p>
-        <p style="text-align: center;">Contact: <strong>08030611606, 08026511244.</strong></p>
-        </body>
-        </html>
-      `);
-      
-      toast.success('Sale added successfully!');
-      printWindow.document.close();
-      printWindow.print();
+        const docRef = await addDoc(collection(db, `companies/${selectedCompanyId}/sales`), salesDoc);
+        console.log('Receipt added to Firestore with ID:', docRef.id);
+
+        await Promise.all(cart.map(async (item) => {
+            await updateProductSale(item.id, item.quantity);
+        }));
+        toast.success('Sale added successfully!');
+       
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+            <head>
+            <style>
+            @media print {
+                body {
+                    white-space: nowrap;
+                }
+            }
+            </style>
+            </head>
+            <body>
+            <div style="text-align: center;">
+            <h2>${state.selectedCompanyName}</h2>
+            <p>Address:${state.selectedCompanyAddress}</p>
+            <p>Phone: ${state.selectedCompanyPhoneNumber}</p>
+            <p>Email: ${state.selectedCompanyEmail}</p>
+            <p>Attendant: ${state.user.name}</p>
+            <hr>
+            <h3>Receipt No.: ${receiptNumber}</h3> <!-- Display receipt number on the receipt -->
+            <p>Date/Time: ${transactionDateTime}</p>
+            <hr>
+            <table style="width: 100%; text-align: left;">
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price ( ₦ )</th>
+                    <th>Total</th>
+                </tr>
+                ${cart.map((item, index) => `
+                    <tr key=${index}>
+                        <td>${item.name || 'N/A'}</td>
+                        <td>${item.quantity || 'N/A'}</td>
+                        <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
+                        <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
+                    </tr>
+                `).join('')}
+            </table>
+            <hr>
+            <p style="text-align: center; font-weight: bold; margin-right: 12px;">
+                Total: ₦ ${overallTotal.toFixed(2)}
+            </p>
+            <p style="text-align: center; font-style: italic;">
+                Amount in Words: ${totalInWords} 
+            </p>
+            <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
+            <hr>
+            <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
+            <hr>
+            </div>
+            <p style="text-align: center;">Software Developer: <strong>PixelForge Technologies</strong></p>
+            <p style="text-align: center;">Contact: <strong>08030611606, 08026511244.</strong></p>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.print();
     } catch (error) {
-      console.error('Error adding receipt to Firestore:', error);
-      toast.error('Error processing sale. Please try again.');
+        console.error('Error adding receipt to Firestore:', error);
+        toast.error('Error processing sale. Please try again.');
     } finally {
-      setIsProcessing(false);
+        setIsProcessing(false);
     }
-  };
+};
+
   
   return (
     // <div className="bg-gray-200 p-2 w-full md:w-1/4 max-h-[400px] overflow-y-auto">

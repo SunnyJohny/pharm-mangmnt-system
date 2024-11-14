@@ -60,16 +60,17 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
   }
 
   const {
-    id,
+    // id,
     customer: { name: customerName },
     date,
     totalAmount,
+    saleId,
     staff: { name: staffName },
     products,
     payment: { method: paymentMethod }
   } = selectedSale;
 
-  const receiptNumber = id || 'N/A';
+  const TransactionReceiptNumber = saleId || 'N/A';
   const transactionDateTime = date || 'N/A';
   const overallTotal = totalAmount || 0;
   const totalInWords = convertNumberToWords(overallTotal); // Convert the total amount to words
@@ -100,7 +101,7 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
           <p className="text-center">Customer: {customerName}</p>
 
           <hr className="my-4" />
-          <h3 className="text-xl text-center mb-2">Receipt No.: {receiptNumber}</h3>
+          <h3 className="text-xl text-center mb-2">Receipt No.: {TransactionReceiptNumber}</h3>
           <p className="text-center">Date/Time: {transactionDateTime}</p>
           <hr className="my-4" />
           <div className="overflow-x-auto">
