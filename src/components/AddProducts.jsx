@@ -9,7 +9,7 @@ import { useMyContext } from '../Context/MyContext';
 const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
   const { state } = useMyContext();
   const { selectedCompanyId } = state;
-  
+
   const navigate = useNavigate();
   const [isNewProduct, setIsNewProduct] = useState(true);
   const [product, setProduct] = useState({
@@ -22,9 +22,10 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     price: 0.00,
     description: "",
     expiryDate: "", // New expiry date field
-    existingProduct: "", 
+    existingProduct: "",
     quantityRestocked: 0,
   });
+  const [isProcessing, setIsProcessing] = useState(false); // New state for tracking processing
   const [isScanMode, setIsScanMode] = useState(false); // track whether in scan or manual mode
 
   const [existingProductNames, setExistingProductNames] = useState([]);
@@ -100,8 +101,8 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           costPrice: newProduct.costPrice,
           price: newProduct.price,
           description: newProduct.description,
-           expiryDate: newProduct.expiryDate, // Store expiry date
-           serialNumber: newProduct.serialNumber, // Store expiry date
+          expiryDate: newProduct.expiryDate, // Store expiry date
+          serialNumber: newProduct.serialNumber, // Store expiry date
           quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }],
           dateAdded: Timestamp.now()
         });
@@ -115,9 +116,12 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           price: 0.00,
           description: "",
           expiryDate: "",
-          serialNumber:"",
+          serialNumber: "",
         });
-        toast.success('Product added successfully!');
+        // Display a success toast at the top
+        toast.success('Product added successfully!', {
+          position: toast.POSITION.TOP_CENTER, // Adjust position as needed (e.g., TOP_LEFT, TOP_RIGHT)
+        });
 
       } else {
         const { existingProduct, quantityRestocked } = newProduct;
@@ -138,8 +142,11 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Prevent multiple submissions
+    if (isProcessing) return;
 
     try {
+      setIsProcessing(true); // Set processing to true
       if (isNewProduct) {
         if (
           !product.name ||
@@ -151,11 +158,13 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           !product.serialNumber
         ) {
           toast.error("Please fill in all required fields.");
+          setIsProcessing(false); // Set processing to false
           return;
         }
       } else {
         if (!product.existingProduct || product.quantityRestocked === null || isNaN(product.quantityRestocked)) {
           toast.error("Please fill in all required fields with valid values.");
+          setIsProcessing(false);
           return;
         }
       }
@@ -173,9 +182,11 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
         }
         onAddProduct(product);
       }
+      setIsProcessing(false); // Reset processing state
     } catch (error) {
       console.error("Error handling form submission:", error.message);
       toast.error("Error handling form submission. Please try again.");
+      setIsProcessing(false); // Reset processing state
     }
   };
 
@@ -185,7 +196,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
-           
+
 
 
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -261,44 +272,44 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       required
                     />
                   </div>
-                   {/* Mode selection */}
-            <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Serial Input Mode</label>
-                <div className="flex items-center">
-                  <label className="mr-4">
+                  {/* Mode selection */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Serial Input Mode</label>
+                    <div className="flex items-center">
+                      <label className="mr-4">
+                        <input
+                          type="radio"
+                          value="manual"
+                          checked={!isScanMode}
+                          onChange={handleModeChange}
+                        />
+                        <span className="ml-2">Manual Entry</span>
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          value="scan"
+                          checked={isScanMode}
+                          onChange={handleModeChange}
+                        />
+                        <span className="ml-2">Scan Mode</span>
+                      </label>
+                    </div>
+                  </div>
+                  {/* Serial Number Input */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Product Serial No</label>
                     <input
-                      type="radio"
-                      value="manual"
-                      checked={!isScanMode}
-                      onChange={handleModeChange}
+                      type="text"
+                      name="serialNumber"
+                      value={product.serialNumber}
+                      onChange={handleInputChange}
+                      className="border rounded-md w-full p-2"
+                      placeholder="Enter or scan serial number"
+                      autoFocus={!isScanMode} // autofocus only in if its not  scan mode
+                      readOnly={isScanMode && product.serialNumber} // optional: make readonly in scan mode after scan
                     />
-                    <span className="ml-2">Manual Entry</span>
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      value="scan"
-                      checked={isScanMode}
-                      onChange={handleModeChange}
-                    />
-                    <span className="ml-2">Scan Mode</span>
-                  </label>
-                </div>
-              </div>
-                {/* Serial Number Input */}
-                <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Product Serial No</label>
-                <input
-                  type="text"
-                  name="serialNumber"
-                  value={product.serialNumber}
-                  onChange={handleInputChange}
-                  className="border rounded-md w-full p-2"
-                  placeholder="Enter or scan serial number"
-                  autoFocus={isScanMode} // autofocus only in scan mode
-                  readOnly={!isScanMode && product.serialNumber} // optional: make readonly in scan mode after scan
-                />
-              </div>
+                  </div>
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Supplier Details</label>
                     <input
@@ -321,7 +332,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       required
                     />
                   </div>
-                  <div className="mb-4">
+                  {/* <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Products Serial No</label>
                     <input
                       type="number"
@@ -331,7 +342,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       className="border rounded-md w-full p-2"
                       required
                     />
-                  </div>
+                  </div> */}
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Cost of Goods Supplied</label>
                     <input
@@ -355,7 +366,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       required
                     />
                   </div>
-                 
+
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Sales Price</label>
                     <input
@@ -380,21 +391,27 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                     ></textarea>
                   </div>
                   <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Expiry Date</label>
-                <input
-                  type="date"
-                  name="expiryDate"
-                  value={product.expiryDate}
-                  onChange={handleInputChange}
-                  className="border rounded-md w-full p-2"
-                  required
-                />
-              </div>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Expiry Date</label>
+                    <input
+                      type="date"
+                      name="expiryDate"
+                      value={product.expiryDate}
+                      onChange={handleInputChange}
+                      className="border rounded-md w-full p-2"
+                      required
+                    />
+                  </div>
                 </>
               )}
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                {isNewProduct ? "Add Product" : "Update Product"}
+              <button
+                type="submit"
+                className={`w-full px-4 py-2 mt-4 text-white rounded ${isProcessing ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500"
+                  }`}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : isNewProduct ? "Add Product" : "Update Product"}
               </button>
+
             </form>
           </div>
         </div>

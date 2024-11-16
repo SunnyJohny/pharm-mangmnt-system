@@ -90,7 +90,7 @@ const InventoryPage = () => {
 
 
 
-  const calculateTotals = () => {
+  const calculateTotals = () => { 
     let totalQtyRestocked = 0;
     let totalTotalBal = 0;
     let totalQtySold = 0;
@@ -98,7 +98,9 @@ const InventoryPage = () => {
     let totalCostPrice = 0;
     let totalSalesPrice = 0;
     let totalItemValue = 0;
-
+    let totalCostValue = 0; // New variable for the total cost value
+    let totalSalesPriceValue = 0; // New variable for the total sales price value
+    
     filteredItems.forEach((item) => {
       const qtyRestocked = state.productTotals.get(item.name) || 0;
       const totalBal = state.productTotals.get(item.name) || 0;
@@ -107,7 +109,9 @@ const InventoryPage = () => {
       const costPrice = Number(item.costPrice);
       const salesPrice = Number(item.price);
       const itemValue = salesPrice * qtyBalance;
-
+      const costValue = costPrice * qtyRestocked; // Cost value for this item
+      const salesPriceValue = salesPrice * qtySold; // Total sales price value for this item
+  
       totalQtyRestocked += qtyRestocked;
       totalTotalBal += totalBal;
       totalQtySold += qtySold;
@@ -115,8 +119,10 @@ const InventoryPage = () => {
       totalCostPrice += costPrice;
       totalSalesPrice += salesPrice;
       totalItemValue += itemValue;
+      totalCostValue += costValue; // Add to totalCostValue
+      totalSalesPriceValue += salesPriceValue; // Add to totalSalesPriceValue
     });
-
+  
     return {
       totalQtyRestocked,
       totalTotalBal,
@@ -125,9 +131,11 @@ const InventoryPage = () => {
       totalCostPrice,
       totalSalesPrice,
       totalItemValue,
+      totalCostValue, // Include in returned totals
+      totalSalesPriceValue, // Include in returned totals
     };
   };
-
+  
   // Call the calculateTotals function to get totals
   const {
     totalQtyRestocked,
@@ -137,7 +145,10 @@ const InventoryPage = () => {
     totalCostPrice,
     totalSalesPrice,
     totalItemValue,
+    totalCostValue, // Ensure you include this in the destructuring
+    totalSalesPriceValue, // Include in destructuring
   } = calculateTotals();
+  
 
   // Define searchItems outside of the component
 
@@ -464,7 +475,7 @@ const InventoryPage = () => {
 
   return (
     // <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
-     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
       {/* <div className="flex-grow flex flex-col justify-between"> */}
       <div className="flex-none">
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
@@ -472,18 +483,18 @@ const InventoryPage = () => {
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
-        <button
-  onClick={handleReload}
-  className="p-2 bg-gray-200 rounded"
->
-  Reload
-</button>
+          <button
+            onClick={handleReload}
+            className="p-2 bg-gray-200 rounded"
+          >
+            Reload
+          </button>
           <div className="flex justify-center">
-            
+
             <h2 className="text-2xl font-bold">Inventory</h2>
           </div>
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
-            
+
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
             {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'green')}
 
@@ -497,15 +508,15 @@ const InventoryPage = () => {
             {renderStatCard('All Categories', '2', 'gray')}
           </div>
         </div>
-        
+
 
         <div className="mb-4">
 
           <p><strong>Inventory by Dates:</strong></p>
 
 
-    
-  
+
+
           <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
 
             <div className="flex items-center space-x-2">
@@ -598,41 +609,48 @@ const InventoryPage = () => {
                   <th className="border">M.Unit</th>
                   <th className="border">Exp.Date</th>
                   <th className="border">Products S/N</th>
-                  <th className="border">Cost Price</th>
-                  <th className="border">Sales Price</th>
+                  <th className="border">Unit Cost</th>
+                  <th className="border">Total Cost</th>
+                  <th className="border">Unit S/Price</th>
+                  <th className="border">Total S/Price</th>
                   <th className="border">Item Value</th>
                   <th className="border">
-                    {state.user && state.user.role === 'admin' ? (
-                      <>Action</>
-                    ) : null}
+                    {state.user && state.user.role === "admin" ? <>Action</> : null}
                   </th>
                 </tr>
               </thead>
 
               <tbody>
                 {itemsToDisplay.map((item) => {
-                  const totalRemaining = (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0);
+                  const totalRemaining =
+                    (state.productTotals.get(item.name) || 0) -
+                    (state.productTotalsMap.get(item.name) || 0);
 
                   return (
                     <tr
                       key={item.id}
                       onClick={() => handleRowClick(item.id)}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: "pointer" }}
                       title="Click To View Details & Adjusted Fields"
                     >
                       <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
                       <td className="border">{item.name}</td>
                       <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-                      <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? '...' : '')}</td>
+                      <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? "..." : "")}</td>
                       <td className="border">{state.productTotals.get(item.name) || 0}</td>
                       <td className="border">{state.productTotals.get(item.name) || 0}</td>
                       <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-                      <td className={`border ${totalRemaining === 0 ? 'bg-red-500 text-white' : totalRemaining < 5 ? 'bg-yellow-500' : ''}`}>
+                      <td
+                        className={`border ${totalRemaining === 0
+                          ? "bg-red-500 text-white"
+                          : totalRemaining < 5
+                            ? "bg-yellow-500"
+                            : ""
+                          }`}
+                      >
                         {totalRemaining}
                       </td>
                       <td className="border">Piece</td>
-
-                      {/* Conditionally render the expiry date cell only if totalRemaining is greater than 0 */}
                       {totalRemaining > 0 ? (
                         <td className={`border ${getExpiryColor(item.expiryDate)}`}>
                           {item.expiryDate ? (
@@ -644,27 +662,33 @@ const InventoryPage = () => {
                       ) : (
                         <td className="border">N/A</td>
                       )}
-
                       <td className="border">{item.serialNumber}</td>
-
                       <td className="border">{Number(item.costPrice).toFixed(2)}</td>
+                      <td className="border">
+                        {((item.costPrice || 0) * (state.productTotals.get(item.name) || 0)).toFixed(2)}
+                      </td>
                       <td className="border">{Number(item.price).toFixed(2)}</td>
                       <td className="border">
-                        {(item.price * totalRemaining).toFixed(2)}
+                        {((item.price || 0) * (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
                       </td>
+                      <td className="border">{(item.price * totalRemaining).toFixed(2)}</td>
                       <td className="border">
-                        {state.user && state.user.role === 'admin' ? (
+                        {state.user && state.user.role === "admin" ? (
                           <>
                             <FontAwesomeIcon
                               icon={faEdit}
                               className="no-print"
-                              style={{ cursor: 'pointer', marginRight: '8px', color: 'blue' }}
+                              style={{
+                                cursor: "pointer",
+                                marginRight: "8px",
+                                color: "blue",
+                              }}
                               onClick={(e) => handleEditClick(item.id, e)}
                             />
                             <FontAwesomeIcon
                               icon={faTrash}
                               className="no-print"
-                              style={{ cursor: 'pointer', color: 'red' }}
+                              style={{ cursor: "pointer", color: "red" }}
                             />
                           </>
                         ) : null}
@@ -674,25 +698,31 @@ const InventoryPage = () => {
                 })}
               </tbody>
 
-
               <tfoot>
-                <tr>
-                  <td className="border"></td>
-                  <td className="border"></td>
-                  <td className="border"></td>
-                  <td className="border font-bold"><strong>Total:</strong></td>
-                  <td className="border font-bold">{totalQtyRestocked}</td>
-                  <td className="border font-bold">{totalTotalBal}</td>
-                  <td className="border font-bold">{totalQtySold}</td>
-                  <td className="border font-bold">{totalQtyBalance}</td>
-                  <td className="border"></td>
-                  <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
-                  <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
-                  <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
-                  <td className="border"></td>
-                </tr>
-              </tfoot>
+  <tr>
+    <td className="border text-center font-bold" colSpan="4">
+      Total:
+    </td>
+    <td className="border font-bold">{totalQtyRestocked}</td>
+    <td className="border font-bold">{totalTotalBal}</td>
+    <td className="border font-bold">{totalQtySold}</td>
+    <td className="border font-bold">{totalQtyBalance}</td>
+    <td className="border"></td>
+    <td className="border"></td>
+    <td className="border"></td>
+    <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
+    <td className="border font-bold">₦{totalCostValue.toFixed(2)}</td>
+   
+    <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
+    <td className="border font-bold">₦{totalSalesPriceValue.toFixed(2)}</td>
+    <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
+    <td className="border"></td>
+  </tr>
+</tfoot>
+
+
             </table>
+
 
           </div>
 

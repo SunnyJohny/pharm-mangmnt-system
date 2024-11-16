@@ -37,11 +37,15 @@ const CompanySignUp = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      // Generate registration date
+      const registrationDate = new Date().toISOString(); // ISO format (e.g., 2024-11-12T12:00:00Z)
+
       await setDoc(doc(db, "companies", user.uid), {
         companyName,
         email,
         address,
-        phoneNumber
+        phoneNumber,
+        registrationDate, // Add the registration date field
       });
 
       updateSelectedCompany(companyName, user.uid);
