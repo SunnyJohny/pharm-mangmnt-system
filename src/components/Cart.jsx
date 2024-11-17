@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMyContext } from '../Context/MyContext';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
-import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { db } from '../firebase';
 
 const CartItem = ({ id, name, price, quantity }) => {
   const { increaseQuantity, decreaseQuantity, removeFromCart } = useMyContext();
@@ -37,37 +38,152 @@ const CartItem = ({ id, name, price, quantity }) => {
   );
 };
 
-const OverallTotal = ({ total, onClearItems, onPrintReceipt, selectedPaymentMethod, isProcessing, setSelectedPaymentMethod }) => (
+
+
+
+
+const OverallTotal = ({
+  total,
+  onClearItems,
+  onPrintReceipt,
+  selectedPaymentMethod,
+  isProcessing,
+  setSelectedPaymentMethod,
+}) => {
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState("");
+  const [newCustomer, setNewCustomer] = useState("");
+  const { state } = useMyContext();
+  const { selectedCompanyId } = state;
+
+  // Fetch customers from Firestore
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const customerSnapshot = await getDocs(
+          collection(db, `companies/${selectedCompanyId}/customers`)
+        );
+        const customerList = customerSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCustomers(customerList);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
   
+    if (selectedCompanyId) {
+      fetchCustomers();
+    }
+  }, [selectedCompanyId]); // Trigger the fetch whenever selectedCompanyId changes
   
-  <div className="flex flex-col mt-4 items-end">
-    <p className="text-lg font-bold mb-2 whitespace-nowrap">Total: ₦{total}</p>
-    <select
-      id="paymentMethod"
-      className="bg-white border border-gray-300 mb-8 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500"
-      value={selectedPaymentMethod}
-      onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-    >
-      <option value="Cash">Cash</option>
-      <option value="Credit">Credit</option>
-      <option value="Cheque">Cheque</option>
-      <option value="POS">POS</option>
-      <option value="App Transfer">Transfer</option>
-    </select>
-    <div className="flex gap-4">
-    <button
-        className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap"
-        onClick={onPrintReceipt}
-        disabled={isProcessing} // Disable button when processing
+
+  // Handle adding new customer
+  const handleAddNewCustomer = async () => {
+    if (newCustomer.trim() === "") {
+      alert("Customer name cannot be empty.");
+      return;
+    }
+  
+    try {
+      const newCustomerRef = await addDoc(
+        collection(db, `companies/${selectedCompanyId}/customers`), // Add to the correct company
+        {
+          name: newCustomer.trim(),
+          createdAt: new Date().toISOString(),
+        }
+      );
+      setCustomers((prev) => [
+        ...prev,
+        { id: newCustomerRef.id, name: newCustomer.trim() },
+      ]);
+      setSelectedCustomer(newCustomerRef.id); // Set the new customer as selected
+      setNewCustomer(""); // Clear the input
+    } catch (error) {
+      console.error("Error adding new customer:", error);
+    }
+  };
+  
+
+  return (
+    <div className="flex flex-col mt-4 items-end">
+      <p className="text-lg font-bold mb-2 whitespace-nowrap">
+        Total: ₦{total}
+      </p>
+      {/* Payment Method Dropdown */}
+      <select
+        id="paymentMethod"
+        className="bg-white border border-gray-300 mb-4 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500"
+        value={selectedPaymentMethod}
+        onChange={(e) => setSelectedPaymentMethod(e.target.value)}
       >
-        {isProcessing ? 'Processing...' : 'Print Receipt'} {/* Show loading state */}
-      </button>
-      <button className="bg-red-500 text-white px-8 py-2 rounded-md overflow-hidden whitespace-nowrap" onClick={onClearItems}>
-        Clear
-      </button>
+        <option value="Cash">Cash</option>
+        <option value="Credit">Credit</option>
+        <option value="Cheque">Cheque</option>
+        <option value="POS">POS</option>
+        <option value="App Transfer">Transfer</option>
+      </select>
+
+      {/* Customer Dropdown */}
+      <div className="w-full flex flex-col mb-8">
+        <label htmlFor="customer" className="text-gray-700 font-semibold mb-2">
+          Customer
+        </label>
+        <select
+          id="customer"
+          className="bg-white border border-gray-300 rounded-md py-2 px-4 mb-2 focus:outline-none focus:border-blue-500"
+          value={selectedCustomer}
+          onChange={(e) => setSelectedCustomer(e.target.value)}
+        >
+          <option value="">Select Customer</option>
+          {customers.map((customer) => (
+            <option key={customer.id} value={customer.id}>
+              {customer.name}
+            </option>
+          ))}
+        </select>
+
+        {/* Add New Customer Input */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Add New Customer"
+            value={newCustomer}
+            onChange={(e) => setNewCustomer(e.target.value)}
+            className="flex-1 bg-white border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500"
+          />
+          <button
+            onClick={handleAddNewCustomer}
+            className="bg-green-600 text-white px-4 py-2 rounded shadow-md hover:bg-green-700 transition duration-150 ease-in-out"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-4">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer overflow-hidden whitespace-nowrap"
+          onClick={onPrintReceipt}
+          disabled={isProcessing} // Disable button when processing
+        >
+          {isProcessing ? "Processing..." : "Print Receipt"} {/* Show loading state */}
+        </button>
+        <button
+          className="bg-red-500 text-white px-8 py-2 rounded-md overflow-hidden whitespace-nowrap"
+          onClick={onClearItems}
+        >
+          Clear
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+
+
 
 
 const Cart = () => {
