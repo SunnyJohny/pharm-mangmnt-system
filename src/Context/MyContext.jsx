@@ -786,20 +786,54 @@ useEffect(() => {
 
   const addToCart = (productId) => {
     const productToAdd = state.products.find((product) => product.id === productId);
-
+  
     if (productToAdd) {
+      let productName = productToAdd.name;
+      let productPrice = productToAdd.price;
+  
+      // Check if the selected company is "Hybrid Pharmacy" or "Gowland"
+      if (state.selectedCompanyName === 'Hybrid Pharmacy' || state.selectedCompanyName === 'Gowland') {
+        // Prompt for a custom name
+        const customName = prompt(`Enter the name for ${productToAdd.name}:`, productToAdd.name);
+  
+        // Validate and update the name
+        if (customName !== null && customName.trim() !== '') {
+          productName = customName.trim();
+        }
+  
+        // Prompt for a custom price
+        const customPrice = prompt(`Enter the price for ${productToAdd.name}:`, productToAdd.price);
+  
+        // Validate and update the price
+        if (customPrice !== null && !isNaN(parseFloat(customPrice))) {
+          productPrice = parseFloat(customPrice);
+        } else {
+          alert('Invalid price entered. Using the default price.');
+        }
+      }
+  
       const existingCartItem = state.cart.find((item) => item.id === productId);
+  
       if (existingCartItem) {
+        // Update the quantity for the existing item
         const updatedCart = state.cart.map((item) =>
-          item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === productId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
         setState({ ...state, cart: updatedCart });
       } else {
-        const updatedCart = [...state.cart, { ...productToAdd, quantity: 1 }];
+        // Add the new product to the cart with the modified name and price
+        const updatedCart = [
+          ...state.cart,
+          { ...productToAdd, name: productName, price: productPrice, quantity: 1 },
+        ];
         setState({ ...state, cart: updatedCart });
       }
     }
   };
+  
+  
 
   const removeFromCart = (productId) => {
     const updatedCart = state.cart.filter((item) => item.id !== productId);

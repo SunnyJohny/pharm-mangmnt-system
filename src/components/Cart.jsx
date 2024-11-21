@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useMyContext } from '../Context/MyContext';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
-import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDoc, Timestamp, doc, updateDoc, arrayUnion} from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { db } from '../firebase';
+// import { db } from '../firebase';
 
 const CartItem = ({ id, name, price, quantity }) => {
   const { increaseQuantity, decreaseQuantity, removeFromCart } = useMyContext();
@@ -47,63 +47,64 @@ const OverallTotal = ({
   onClearItems,
   onPrintReceipt,
   selectedPaymentMethod,
+  // setSelectedCustomer,
   isProcessing,
   setSelectedPaymentMethod,
 }) => {
-  const [customers, setCustomers] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [newCustomer, setNewCustomer] = useState("");
-  const { state } = useMyContext();
-  const { selectedCompanyId } = state;
+  // const [customers, setCustomers] = useState([]);
+  // const [selectedCustomer, setSelectedCustomer] = useState("");
+  // const [newCustomer, setNewCustomer] = useState("");
+  // const { state } = useMyContext();
+  // const { selectedCompanyId } = state;
 
   // Fetch customers from Firestore
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const customerSnapshot = await getDocs(
-          collection(db, `companies/${selectedCompanyId}/customers`)
-        );
-        const customerList = customerSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCustomers(customerList);
-      } catch (error) {
-        console.error("Error fetching customers:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchCustomers = async () => {
+  //     try {
+  //       const customerSnapshot = await getDocs(
+  //         collection(db, `companies/${selectedCompanyId}/customers`)
+  //       );
+  //       const customerList = customerSnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setCustomers(customerList);
+  //     } catch (error) {
+  //       console.error("Error fetching customers:", error);
+  //     }
+  //   };
   
-    if (selectedCompanyId) {
-      fetchCustomers();
-    }
-  }, [selectedCompanyId]); // Trigger the fetch whenever selectedCompanyId changes
+  //   if (selectedCompanyId) {
+  //     fetchCustomers();
+  //   }
+  // }, [selectedCompanyId]); // Trigger the fetch whenever selectedCompanyId changes
   
 
   // Handle adding new customer
-  const handleAddNewCustomer = async () => {
-    if (newCustomer.trim() === "") {
-      alert("Customer name cannot be empty.");
-      return;
-    }
+  // const handleAddNewCustomer = async () => {
+  //   if (newCustomer.trim() === "") {
+  //     alert("Customer name cannot be empty.");
+  //     return;
+  //   }
   
-    try {
-      const newCustomerRef = await addDoc(
-        collection(db, `companies/${selectedCompanyId}/customers`), // Add to the correct company
-        {
-          name: newCustomer.trim(),
-          createdAt: new Date().toISOString(),
-        }
-      );
-      setCustomers((prev) => [
-        ...prev,
-        { id: newCustomerRef.id, name: newCustomer.trim() },
-      ]);
-      setSelectedCustomer(newCustomerRef.id); // Set the new customer as selected
-      setNewCustomer(""); // Clear the input
-    } catch (error) {
-      console.error("Error adding new customer:", error);
-    }
-  };
+  //   try {
+  //     const newCustomerRef = await addDoc(
+  //       collection(db, `companies/${selectedCompanyId}/customers`), // Add to the correct company
+  //       {
+  //         name: newCustomer.trim(),
+  //         createdAt: new Date().toISOString(),
+  //       }
+  //     );
+  //     setCustomers((prev) => [
+  //       ...prev,
+  //       { id: newCustomerRef.id, name: newCustomer.trim() },
+  //     ]);
+  //     setSelectedCustomer(newCustomerRef.id); // Set the new customer as selected
+  //     setNewCustomer(""); // Clear the input
+  //   } catch (error) {
+  //     console.error("Error adding new customer:", error);
+  //   }
+  // };
   
 
   return (
@@ -126,7 +127,7 @@ const OverallTotal = ({
       </select>
 
       {/* Customer Dropdown */}
-      <div className="w-full flex flex-col mb-8">
+      {/* <div className="w-full flex flex-col mb-8">
         <label htmlFor="customer" className="text-gray-700 font-semibold mb-2">
           Customer
         </label>
@@ -138,13 +139,13 @@ const OverallTotal = ({
         >
           <option value="">Select Customer</option>
           {customers.map((customer) => (
-            <option key={customer.id} value={customer.id}>
+            <option key={customer.id} value={customer.name}>
               {customer.name}
             </option>
           ))}
         </select>
 
-        {/* Add New Customer Input */}
+        {/* Add New Customer Input 
         <div className="flex gap-2">
           <input
             type="text"
@@ -160,7 +161,7 @@ const OverallTotal = ({
             Add
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Action Buttons */}
       <div className="flex gap-4">
@@ -183,13 +184,11 @@ const OverallTotal = ({
 };
 
 
-
-
-
 const Cart = () => {
   const { state, clearCart } = useMyContext();
   const { selectedCompanyId } = state;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Cash");
+  const [selectedCustomer, setSelectedCustomer] = useState("john");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { cart } = state;
@@ -268,13 +267,14 @@ const Cart = () => {
     setIsProcessing(true);
 
     const totalInWords = numberToWords(overallTotal); // Convert total to words
+    
 
     const salesDoc = {
         saleId: `sale_${receiptNumber}`,
         // receiptNumber: receiptNumber,  // Add receiptNumber to Firestore document
         date: transactionDateTime,
         customer: {
-            name: 'Customer Name',
+            name: selectedCustomer,
             email: 'customer@example.com',
         },
         products: cart.map((item) => ({
@@ -350,6 +350,7 @@ const Cart = () => {
                 Amount in Words: ${totalInWords} 
             </p>
             <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
+            
             <hr>
             <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
             <hr>
@@ -400,7 +401,9 @@ const Cart = () => {
         onClearItems={handleClearItems}
         onPrintReceipt={handlePrintReceipt}
         selectedPaymentMethod={selectedPaymentMethod}
+        selectedCustomer={selectedCustomer}
         setSelectedPaymentMethod={setSelectedPaymentMethod}
+        setSelectedCustomer={setSelectedCustomer}
         isProcessing={isProcessing} // Pass processing state to OverallTotal
       />
     </div>
@@ -408,7 +411,3 @@ const Cart = () => {
 };
 
 export default Cart;
-
-
-
-
