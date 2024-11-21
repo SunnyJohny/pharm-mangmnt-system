@@ -788,30 +788,21 @@ useEffect(() => {
     const productToAdd = state.products.find((product) => product.id === productId);
   
     if (productToAdd) {
-      let productName = productToAdd.name;
-      let productPrice = productToAdd.price;
+      // Prompt for a custom name
+      const customName = prompt(`Enter the name for ${productToAdd.name}:`, productToAdd.name);
   
-      // Check if the selected company is "Hybrid Pharmacy" or "Gowland"
-      if (state.selectedCompanyName === 'Hybrid Pharmacy' || state.selectedCompanyName === 'Gowland') {
-        // Prompt for a custom name
-        const customName = prompt(`Enter the name for ${productToAdd.name}:`, productToAdd.name);
+      // Validate and update the name
+      const productName = customName && customName.trim() !== '' ? customName.trim() : productToAdd.name;
   
-        // Validate and update the name
-        if (customName !== null && customName.trim() !== '') {
-          productName = customName.trim();
-        }
+      // Prompt for a custom price
+      const customPrice = prompt(`Enter the price for ${productToAdd.name}:`, productToAdd.price);
   
-        // Prompt for a custom price
-        const customPrice = prompt(`Enter the price for ${productToAdd.name}:`, productToAdd.price);
+      // Validate and update the price
+      const productPrice = customPrice && !isNaN(parseFloat(customPrice))
+        ? parseFloat(customPrice)
+        : productToAdd.price;
   
-        // Validate and update the price
-        if (customPrice !== null && !isNaN(parseFloat(customPrice))) {
-          productPrice = parseFloat(customPrice);
-        } else {
-          alert('Invalid price entered. Using the default price.');
-        }
-      }
-  
+      // Check if the product already exists in the cart
       const existingCartItem = state.cart.find((item) => item.id === productId);
   
       if (existingCartItem) {
@@ -823,7 +814,7 @@ useEffect(() => {
         );
         setState({ ...state, cart: updatedCart });
       } else {
-        // Add the new product to the cart with the modified name and price
+        // Add the new product to the cart with the custom name and price
         const updatedCart = [
           ...state.cart,
           { ...productToAdd, name: productName, price: productPrice, quantity: 1 },
