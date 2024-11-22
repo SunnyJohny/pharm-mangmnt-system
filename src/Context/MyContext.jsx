@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc } from 'firebase/firestore';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { } from '../firebase';
 
@@ -784,7 +784,9 @@ useEffect(() => {
 
 
 
-  const addToCart = (productId) => {
+  
+
+  const addToCart = async (productId) => {
     const productToAdd = state.products.find((product) => product.id === productId);
   
     if (productToAdd) {
@@ -801,6 +803,23 @@ useEffect(() => {
       const productPrice = customPrice && !isNaN(parseFloat(customPrice))
         ? parseFloat(customPrice)
         : productToAdd.price;
+  
+      // If the name has changed, add a new document to Firestore
+      if (productName !== productToAdd.name) {
+        try {
+          const productsCollection = collection(getFirestore(), `companies/${state.selectedCompanyId}/products`);
+  
+          // Add the new product document to Firestore
+          await addDoc(productsCollection, {
+            ...productToAdd, // Include all existing product fields
+            name: productName, // Overwrite with custom name
+            price: productPrice, // Overwrite with custom price
+          });
+          console.log(`Added new product "${productName}" to Firestore.`);
+        } catch (error) {
+          console.error('Error adding new product to Firestore:', error);
+        }
+      }
   
       // Check if the product already exists in the cart
       const existingCartItem = state.cart.find((item) => item.id === productId);
