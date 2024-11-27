@@ -142,11 +142,11 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Prevent multiple submissions
-    if (isProcessing) return;
+    if (isProcessing) return; // Prevent further execution if already processing
+
+    setIsProcessing(true); // Set to true to block subsequent submissions
 
     try {
-      setIsProcessing(true); // Set processing to true
       if (isNewProduct) {
         if (
           !product.name ||
@@ -154,11 +154,11 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           !product.quantitySupplied ||
           !product.costPrice ||
           !product.description ||
-          !product.expiryDate || // Ensure expiry date is provided
+          !product.expiryDate ||
           !product.serialNumber
         ) {
           toast.error("Please fill in all required fields.");
-          setIsProcessing(false); // Set processing to false
+          setIsProcessing(false);
           return;
         }
       } else {
@@ -169,26 +169,29 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
         }
       }
 
-      if (!isNewProduct && product.price === 0) {
-        onAddProduct(product);
-      } else {
-        if (
-          !product.price ||
-          product.price === 0 ||
-          !product.description
-        ) {
-          toast.error("Please fill in all required fields.");
-          return;
-        }
-        onAddProduct(product);
-      }
-      setIsProcessing(false); // Reset processing state
+      await onAddProduct(product);
+      toast.success(isNewProduct ? "Product added successfully!" : "Product updated successfully!");
+      setProduct({
+        ...product,
+        name: "",
+        supplier: "",
+        quantitySupplied: 0,
+        costPrice: 0.00,
+        price: 0.00,
+        description: "",
+        expiryDate: "",
+        serialNumber: "",
+        quantityRestocked: 0,
+        existingProduct: "",
+      });
     } catch (error) {
       console.error("Error handling form submission:", error.message);
       toast.error("Error handling form submission. Please try again.");
-      setIsProcessing(false); // Reset processing state
+    } finally {
+      setIsProcessing(false); // Ensure processing state is reset
     }
   };
+
 
   const handleBack = () => {
     navigate("/inventory-page");
@@ -405,9 +408,9 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
               )}
               <button
                 type="submit"
-                className={`w-full px-4 py-2 mt-4 text-white rounded ${isProcessing ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500"
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isProcessing ? "opacity-50 cursor-not-allowed" : ""
                   }`}
-                disabled={isProcessing}
+                disabled={isProcessing} // Disable button during processing
               >
                 {isProcessing ? "Processing..." : isNewProduct ? "Add Product" : "Update Product"}
               </button>
