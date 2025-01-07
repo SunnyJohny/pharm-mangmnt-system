@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 // import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DatePicker from 'react-datepicker';
@@ -19,6 +19,7 @@ const ProfitAndLoss = () => {
   // const [itemsPerPage] = useState(100);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
+  const navigate = useNavigate();
 
   const [totalSalesValue, setTotalSalesValue] = useState(0); // Added state for total sales
 
@@ -362,7 +363,9 @@ const ProfitAndLoss = () => {
   }
 };
 
-
+const handleBack = () => {
+  navigate("/inventory-page");
+};
   const profitAndLossData = {
     revenue: totalSalesValue,
     costOfGoodsSold: totalCOGS,
@@ -462,7 +465,7 @@ const ProfitAndLoss = () => {
 
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <button className="text-blue-500 cursor-pointer" onClick={() => window.history.back()}>
+            <button className="text-blue-500 cursor-pointer" onClick={handleBack} >
               Back
             </button>
           </div>

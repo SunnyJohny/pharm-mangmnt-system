@@ -125,7 +125,9 @@ const SalesPage = () => {
     }
   };
 
-
+  const handleReload = () => {
+    window.location.reload();
+  }
   // useEffect(() => {
   //   console.log('Filtered sales:', filteredSales);
   // }, [filteredSales]);
@@ -444,6 +446,13 @@ const SalesPage = () => {
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
           <div className="flex items-center justify-between mb-2">
+          <button
+      onClick={handleReload}
+      className="p-2 bg-gray-200 rounded ml-2"
+    >
+      Reload
+    
+    </button>
             <div className="flex-grow text-center">
               <h2 className="text-2xl font-bold">Sales</h2>
             </div>

@@ -1,26 +1,15 @@
 import { useEffect } from "react";
-// import {  useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 // import { getAuth, onAuthStateChanged } from "firebase/auth";
 // import DateTimeDisplay from "./DateTimeDisplay";
 import { useMyContext } from '../Context/MyContext';
 import mylogo from "../assets/svg/mylogo.png";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaSyncAlt } from "react-icons/fa";
 import Cart from './Cart';
 import ProductsPageSidePanel from "./ProductsPagesidePanel";
 
 export default function Header() {
   const { state, toggleSidePanel, toggleCart } = useMyContext();
-  // const [pageState, setPageState] = useState("Sign in");
-  // const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  // const location = useLocation();
-  // const navigate = useNavigate();
-  // const auth = getAuth();
-
-  // useEffect(() => {
-  //   onAuthStateChanged(auth, (user) => {
-  //     setPageState(user ? "Profile" : "Sign in");
-  //   });
-  // }, [auth]);
 
   useEffect(() => {
     console.log('Selected Company Name has changed:', state.selectedCompanyName);
@@ -47,13 +36,20 @@ export default function Header() {
           {selectedCompanyName}
         </div>
 
-        {/* Right Section: Date, Cart Icon */}
+        {/* Right Section: Date, Cart Icon, Reload Button */}
         <div className="flex items-center space-x-4">
-          {/* <DateTimeDisplay /> */}
-          
+          {/* Reload Button */}
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center justify-center text-blue-800 text-xl bg-gray-200 hover:bg-gray-300 p-2 rounded-full"
+            title="Reload"
+          >
+            <FaSyncAlt />
+          </button>
+
           {/* Cart Icon with Counter */}
-          <div onClick={() => toggleCart()} className="relative cursor-pointer ">
-            <FaShoppingCart className="text-2xl text-blue-800 mr-2" /> {/* Added padding-right */}
+          <div onClick={() => toggleCart()} className="relative cursor-pointer">
+            <FaShoppingCart className="text-2xl text-blue-800 mr-2" />
             {/* Dynamic Counter */}
             {state.cart.length > 0 && (
               <span className="absolute -top-3 -right-1 bg-red-500 text-white rounded-full h-4 w-4 flex items-center justify-center text-xs">
@@ -64,22 +60,19 @@ export default function Header() {
         </div>
       </header>
 
-    {/* Conditionally render the Cart component based on the visibility and authentication status */}
-{state.isAuthenticated && state.isCartOpen && (
-  <div className="absolute top-16 right-2 w-72 bg-white shadow-lg rounded-lg p-4">
-    <Cart />
-  </div>
-)}
+      {/* Conditionally render the Cart component based on the visibility and authentication status */}
+      {state.isAuthenticated && state.isCartOpen && (
+        <div className="absolute top-16 right-2 w-72 bg-white shadow-lg rounded-lg p-4">
+          <Cart />
+        </div>
+      )}
 
-{/* Conditionally render the ProductsPageSidePanel based on the visibility and authentication status */}
-{state.isAuthenticated && state.isSidePanelOpen && (
-  <div className="absolute top-16 left-2 w-72 bg-white shadow-lg rounded-lg p-4">
-    <ProductsPageSidePanel />
-  </div>
-)}
-
+      {/* Conditionally render the ProductsPageSidePanel based on the visibility and authentication status */}
+      {state.isAuthenticated && state.isSidePanelOpen && (
+        <div className="absolute top-16 left-2 w-72 bg-white shadow-lg rounded-lg p-4">
+          <ProductsPageSidePanel />
+        </div>
+      )}
     </div>
   );
 }
-
-

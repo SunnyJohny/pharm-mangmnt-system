@@ -117,7 +117,7 @@ export default function SignIn() {
       onClick={handleReload}
       className="p-2 bg-gray-200 rounded ml-2"
     >
-      Reload
+   
     </button>
     
     <h1 className="text-3xl font-bold text-center flex-1">Sign In</h1>

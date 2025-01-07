@@ -335,7 +335,9 @@ const BalanceSheet = () => {
   }, [isDialogOpen]);
 
   const goBack = () => {
-    navigate(-1);
+    
+      navigate("/inventory-page");
+    
   };
 
   return (
