@@ -25,25 +25,23 @@ const Tooltip = ({ text, children, productId }) => {
 const PosScreen = () => {
   const { addToCart, state } = useMyContext();
   const [searchTerm, setSearchTerm] = useState('');
-  const [ setIsIpadAndAbove] = useState(window.innerWidth < 768); // State to check screen size
-  const [role, setRole] = useState(null); // Role selection state
+  const [isIpadAndAbove, setIsIpadAndAbove] = useState(window.innerWidth >= 768); // State to check screen size
 
 
-  
+  if (isIpadAndAbove) {
+    // Do nothing
+  }
+  // Update the screen size on resize
   useEffect(() => {
     const handleResize = () => {
-      setIsIpadAndAbove(window.innerWidth < 768); // 768px is the threshold for iPad and below
+      setIsIpadAndAbove(window.innerWidth >= 768); // 768px is the threshold for iPad and above
     };
-  
-    // Call handleResize initially to set the correct value
-    handleResize();
-  
+
     window.addEventListener('resize', handleResize);
-  
+
     // Cleanup event listener on component unmount
     return () => window.removeEventListener('resize', handleResize);
-  }, [setIsIpadAndAbove]); // Include setIsIpadAndAbove as a dependency
-  
+  }, []);
 
   const filteredProducts = state.products.filter((product) =>
     product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -53,26 +51,8 @@ const PosScreen = () => {
     addToCart(productId);
   };
 
-  // Role selection modal
-  if (!role) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gray-100">
-        <h2 className="text-2xl font-bold mb-6">Select Your Role</h2>
-        <button
-          onClick={() => setRole('salesRep')}
-          className="p-4 bg-blue-500 text-white rounded-md mb-4"
-        >
-          Sales Representative
-        </button>
-        <button
-          onClick={() => setRole('cashier')}
-          className="p-4 bg-green-500 text-white rounded-md"
-        >
-          Cashier
-        </button>
-      </div>
-    );
-  }
+  // Get role from state.user.role
+  const role = state.user?.role;
 
   return (
     <div className="flex h-screen">

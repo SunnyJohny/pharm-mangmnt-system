@@ -133,7 +133,8 @@ const CashiersCart = () => {
         <p>Address:${state.selectedCompanyAddress}</p>
         <p>Phone: ${state.selectedCompanyPhoneNumber}</p>
         <p>Email: ${state.selectedCompanyEmail}</p>
-        <p>Attendant: ${user.name}</p>
+        <p>Ordered By: ${orderToProcess.createdBy}</p>
+        <p>Cashier: ${user.name}</p>
         <hr>
         <h3>Receipt No.: ${receiptNumber}</h3>
         <p>Date/Time: ${transactionDateTime}</p>
