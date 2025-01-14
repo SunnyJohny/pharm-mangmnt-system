@@ -39,7 +39,7 @@ export const CartItem = ({ id, name, price, quantity }) => {
 const OverallTotal = ({ total, onClearItems, onPrintReceipt, onPlaceOrder, selectedPaymentMethod, setSelectedPaymentMethod, isProcessing, userRole }) => (
   <div className="flex flex-col items-end mt-4">
     <p className="text-lg font-bold mb-2">Total: ₦{total}</p>
-    <select
+    {/* <select
       className="w-full sm:w-auto bg-white border border-gray-300 mb-4 rounded-md py-2 px-4 focus:outline-none focus:border-blue-500"
       value={selectedPaymentMethod}
       onChange={(e) => setSelectedPaymentMethod(e.target.value)}
@@ -49,7 +49,7 @@ const OverallTotal = ({ total, onClearItems, onPrintReceipt, onPlaceOrder, selec
       <option value="Cheque">Cheque</option>
       <option value="POS">POS</option>
       <option value="App Transfer">Transfer</option>
-    </select>
+    </select> */}
 
     <div className="flex flex-wrap gap-4 justify-center sm:justify-end">
       <button
@@ -72,7 +72,7 @@ const OverallTotal = ({ total, onClearItems, onPrintReceipt, onPlaceOrder, selec
 const Cart = () => {
   const { state, clearCart } = useMyContext();
   const { selectedCompanyId } = state;
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Cash");
+  // const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Cash");
   // const [selectedCustomer, setSelectedCustomer] = useState("john");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -162,7 +162,7 @@ const Cart = () => {
         })),
         totalAmount: overallTotal,
         payment: {
-            method: selectedPaymentMethod,
+            // method: selectedPaymentMethod,
         },
         staff: {
             staffId: state.user?.id || 'default_staff_id',
@@ -225,7 +225,7 @@ const Cart = () => {
             <p style="text-align: center; font-style: italic;">
                 Amount in Words: ${totalInWords} 
             </p>
-            <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
+            <p style="text-align: center;">Payment Method: <strong></strong></p>
             
             <hr>
             <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
@@ -271,7 +271,7 @@ const Cart = () => {
         price: item.price,
       })),
       totalAmount: overallTotal,
-      paymentMethod: selectedPaymentMethod,
+      // paymentMethod: selectedPaymentMethod,
     };
   
     try {
@@ -310,8 +310,8 @@ const Cart = () => {
         onClearItems={clearCart}
         onPrintReceipt={handlePrintReceipt}
         onPlaceOrder={handlePlaceOrder}
-        selectedPaymentMethod={selectedPaymentMethod}
-        setSelectedPaymentMethod={setSelectedPaymentMethod}
+        // selectedPaymentMethod={selectedPaymentMethod}
+        // setSelectedPaymentMethod={setSelectedPaymentMethod}
         isProcessing={isProcessing}
         userRole={state.user?.role || "cashier"}
       />
