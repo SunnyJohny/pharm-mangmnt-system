@@ -14,6 +14,7 @@ export const MyContextProvider = ({ children }) => {
   const initialState = {
     products: [],
     sales: [],
+    orders: [],
     expenses: [],
     taxes: [],
     cart: [],
@@ -57,21 +58,22 @@ export const MyContextProvider = ({ children }) => {
     });
   };
 
-  // Toggle functions for Cart and Side Panel
   const toggleCart = () => {
+    console.log('Cart toggled');
     setState((prevState) => ({
       ...prevState,
-      isCartOpen: !prevState.isCartOpen
+      isCartOpen: !prevState.isCartOpen,
     }));
   };
-
+  
   const toggleSidePanel = () => {
+    console.log('Side panel toggled');
     setState((prevState) => ({
       ...prevState,
-      isSidePanelOpen: !prevState.isSidePanelOpen
+      isSidePanelOpen: !prevState.isSidePanelOpen,
     }));
   };
-
+  
 
   const searchByKeyword = (items, keyword) => {
     console.log('Searching with keyword:', keyword); // Log the keyword
@@ -269,7 +271,7 @@ export const MyContextProvider = ({ children }) => {
   }, [fetchLiabilities]); // Add fetchLiabilities as a dependency
 
 
-
+console.log('order from state',state.orders);
 
     // Your component state and other hooks here...
   
@@ -718,6 +720,35 @@ useEffect(() => {
   }, [state.selectedCompanyId]);
   
   
+
+
+const fetchOrdersData = async (companyId) => {
+  const db = getFirestore();
+  const ordersCollection = collection(db, `companies/${companyId}/orders`);
+  const ordersSnapshot = await getDocs(ordersCollection);
+  const ordersData = ordersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return ordersData;
+};
+
+useEffect(() => {
+  const fetchOrders = async () => {
+    if (!state.selectedCompanyId) {
+      console.warn("No company selected");
+      return;
+    }
+
+    try {
+      const ordersData = await fetchOrdersData(state.selectedCompanyId);
+      setState((prevState) => ({ ...prevState, orders: ordersData }));
+      console.log("order...", ordersData);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
+  fetchOrders();
+}, [state.selectedCompanyId]);
+
 
   useEffect(() => {
     const filterProducts = async () => {

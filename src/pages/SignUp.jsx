@@ -271,6 +271,7 @@ export default function SignUp() {
                     >
                       <option value="">Select Role</option>
                       <option value="sales rep">Sales Representative</option>
+                      <option value="cashier">Cashier</option>
                       <option value="admin">Admin</option>
                       <option value="accountant">Accountant</option>
                       <option value="manager">Manager</option>

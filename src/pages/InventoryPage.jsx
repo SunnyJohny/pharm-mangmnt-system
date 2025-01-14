@@ -472,32 +472,32 @@ const InventoryPage = () => {
   const handleReload = () => {
     window.location.reload();
   };
-
   return (
-    // <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
-    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-      {/* <div className="flex-grow flex flex-col justify-between"> */}
+    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
       <div className="flex-none">
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
       </div>
-
-      <div className="ml-8 flex-1">
+  
+      <div className="flex-1">
         <div className="mb-8 p-2">
-          <button
-            onClick={handleReload}
-            className="p-2 bg-gray-200 rounded"
-          >
-            Reload
-          </button>
-          <div className="flex justify-center">
-
-            <h2 className="text-2xl font-bold">Inventory</h2>
+          <div className="flex items-center justify-between mb-2">
+            <button
+              onClick={handleReload}
+              className="p-2 bg-gray-200 rounded"
+            >
+              Reload
+            </button>
+            <div className="flex-grow text-center">
+              <h2 className="text-2xl font-bold">Inventory</h2>
+            </div>
+            <button className="text-blue-500 cursor-pointer pr-24" onClick={() => window.history.back()}>
+              Back
+            </button>
           </div>
+  
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
-
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
             {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'green')}
-
             {renderStatCard(
               'Out Of Stock',
               filteredItems.filter(
@@ -508,17 +508,11 @@ const InventoryPage = () => {
             {renderStatCard('All Categories', '2', 'gray')}
           </div>
         </div>
-
-
+  
         <div className="mb-4">
-
           <p><strong>Inventory by Dates:</strong></p>
-
-
-
-
+  
           <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
-
             <div className="flex items-center space-x-2">
               <div>
                 <select
@@ -526,7 +520,7 @@ const InventoryPage = () => {
                   value={selectedDateOption}
                   onChange={handleDateOptionChange}
                   className="border border-gray-300 rounded-md p-2 pl-4"
-                  style={{ width: '150px' }} // Set the width to 150px (adjust as needed)
+                  style={{ width: '150px' }}
                 >
                   <option value="All">All</option>
                   <option value="Today">Today</option>
@@ -534,7 +528,6 @@ const InventoryPage = () => {
                   <option value="This Week - Date">This Week - Date</option>
                   <option value="This Month">This Month</option>
                   <option value="Last Month to Date">This Month to Date</option>
-
                   <option value="This Fiscal Quarter">This Fiscal Quarter</option>
                   <option value="This Fiscal Quarter to Date">This Fiscal Quarter to Date</option>
                   <option value="This Fiscal Year">This Fiscal Year</option>
@@ -548,9 +541,7 @@ const InventoryPage = () => {
                   <option value="Last Fiscal Quarter">Last Fiscal Quarter</option>
                   <option value="Last Fiscal Quarter to Last Month">Last Fiscal Quarter to Last Month</option>
                 </select>
-
               </div>
-              {/* From Date Picker */}
               <div className="relative">
                 <DatePicker
                   selected={fromDate}
@@ -561,8 +552,6 @@ const InventoryPage = () => {
                 />
                 <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
-
-              {/* To Date Picker */}
               <div className="relative">
                 <DatePicker
                   selected={toDate}
@@ -573,7 +562,6 @@ const InventoryPage = () => {
                 />
                 <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
-
               <input
                 type="text"
                 className="border border-gray-300 rounded-md p-2 pr-2 w-full md:w-auto"
@@ -581,181 +569,172 @@ const InventoryPage = () => {
                 onChange={(e) => setSearchKeyword(e.target.value)}
               />
             </div>
-
-            {/* Search Input */}
-
           </div>
         </div>
-
+  
         <div className="mb-8">
           <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '200px' }} ref={tableRef}>
             <div className="mb-4 text-center">
               <h2 className="text-2xl font-bold underline">Inventory Report</h2>
-
               <p><strong>Selected Date Period:</strong> {renderSelectedDatePeriod()}</p>
               <p>Report Printed On: {getCurrentDate()}</p>
             </div>
-            <table className="w-full table-auto" id="inventory-table">
-              <thead className="sticky top-0 bg-white z-10">
-                <tr>
-                  <th className="border">S/n</th>
-                  <th className="border">Name</th>
-                  <th className="border">Date</th>
-                  <th className="border">Item ID</th>
-                  <th className="border">Qty Restocked</th>
-                  <th className="border">Total Bal</th>
-                  <th className="border">Qty Sold</th>
-                  <th className="border">Qty Balance</th>
-                  <th className="border">M.Unit</th>
-                  <th className="border">Exp.Date</th>
-                  <th className="border">Products S/N</th>
-                  <th className="border">Unit Cost</th>
-                  <th className="border">Total Cost</th>
-                  <th className="border">Unit S/Price</th>
-                  <th className="border">Total S/Price</th>
-                  <th className="border">Item Value</th>
-                  <th className="border">
-                    {state.user && state.user.role === "admin" ? <>Action</> : null}
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {itemsToDisplay.map((item) => {
-                  const totalRemaining =
-                    (state.productTotals.get(item.name) || 0) -
-                    (state.productTotalsMap.get(item.name) || 0);
-
-                  return (
-                    <tr
-                      key={item.id}
-                      onClick={() => handleRowClick(item.id)}
-                      style={{ cursor: "pointer" }}
-                      title="Click To View Details & Adjusted Fields"
-                    >
-                      <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
-                      <td className="border">{item.name}</td>
-                      <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-                      <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? "..." : "")}</td>
-                      <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                      <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                      <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-                      <td
-                        className={`border ${totalRemaining === 0
-                          ? "bg-red-500 text-white"
-                          : totalRemaining < 5
-                            ? "bg-yellow-500"
-                            : ""
-                          }`}
+            <div className="table-wrapper" style={{ overflowX: 'auto' }}>
+              <table className="w-full table-auto" id="inventory-table" style={{ minWidth: '1200px' }}>
+                <thead className="sticky top-0 bg-white z-10">
+                  <tr>
+                    <th className="border">S/n</th>
+                    <th className="border">Name</th>
+                    <th className="border">Date</th>
+                    <th className="border">Item ID</th>
+                    <th className="border">Qty Restocked</th>
+                    <th className="border">Total Bal</th>
+                    <th className="border">Qty Sold</th>
+                    <th className="border">Qty Balance</th>
+                    <th className="border">M.Unit</th>
+                    <th className="border">Exp.Date</th>
+                    <th className="border">Products S/N</th>
+                    <th className="border">Unit Cost</th>
+                    <th className="border">Total Cost</th>
+                    <th className="border">Unit S/Price</th>
+                    <th className="border">Total S/Price</th>
+                    <th className="border">Item Value</th>
+                    <th className="border">
+                      {state.user && state.user.role === "admin" ? <>Action</> : null}
+                    </th>
+                  </tr>
+                </thead>
+  
+                <tbody>
+                  {itemsToDisplay.map((item) => {
+                    const totalRemaining =
+                      (state.productTotals.get(item.name) || 0) -
+                      (state.productTotalsMap.get(item.name) || 0);
+  
+                    return (
+                      <tr
+                        key={item.id}
+                        onClick={() => handleRowClick(item.id)}
+                        style={{ cursor: "pointer" }}
+                        title="Click To View Details & Adjusted Fields"
                       >
-                        {totalRemaining}
-                      </td>
-                      <td className="border">Piece</td>
-                      {totalRemaining > 0 ? (
-                        <td className={`border ${getExpiryColor(item.expiryDate)}`}>
-                          {item.expiryDate ? (
-                            <strong>{new Date(item.expiryDate).toLocaleDateString()}</strong>
-                          ) : (
-                            "No Expiry Date"
-                          )}
+                        <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
+                        <td className="border">{item.name}</td>
+                        <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
+                        <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? "..." : "")}</td>
+                        <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                        <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                        <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
+                        <td
+                          className={`border ${totalRemaining === 0
+                            ? "bg-red-500 text-white"
+                            : totalRemaining < 5
+                              ? "bg-yellow-500"
+                              : ""
+                          }`}
+                        >
+                          {totalRemaining}
                         </td>
-                      ) : (
-                        <td className="border">N/A</td>
-                      )}
-                      <td className="border">{item.serialNumber}</td>
-                      <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-                      <td className="border">
-                        {((item.costPrice || 0) * (state.productTotals.get(item.name) || 0)).toFixed(2)}
-                      </td>
-                      <td className="border">{Number(item.price).toFixed(2)}</td>
-                      <td className="border">
-                        {((item.price || 0) * (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
-                      </td>
-                      <td className="border">{(item.price * totalRemaining).toFixed(2)}</td>
-                      <td className="border">
-                        {state.user && state.user.role === "admin" ? (
-                          <>
-                            <FontAwesomeIcon
-                              icon={faEdit}
-                              className="no-print"
-                              style={{
-                                cursor: "pointer",
-                                marginRight: "8px",
-                                color: "blue",
-                              }}
-                              onClick={(e) => handleEditClick(item.id, e)}
-                            />
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              className="no-print"
-                              style={{ cursor: "pointer", color: "red" }}
-                            />
-                          </>
-                        ) : null}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-
-              <tfoot>
-  <tr>
-    <td className="border text-center font-bold" colSpan="4">
-      Total:
-    </td>
-    <td className="border font-bold">{totalQtyRestocked}</td>
-    <td className="border font-bold">{totalTotalBal}</td>
-    <td className="border font-bold">{totalQtySold}</td>
-    <td className="border font-bold">{totalQtyBalance}</td>
-    <td className="border"></td>
-    <td className="border"></td>
-    <td className="border"></td>
-    <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
-    <td className="border font-bold">₦{totalCostValue.toFixed(2)}</td>
-   
-    <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
-    <td className="border font-bold">₦{totalSalesPriceValue.toFixed(2)}</td>
-    <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
-    <td className="border"></td>
-  </tr>
-</tfoot>
-
-
-            </table>
-
-
+                        <td className="border">Piece</td>
+                        {totalRemaining > 0 ? (
+                          <td className={`border ${getExpiryColor(item.expiryDate)}`}>
+                            {item.expiryDate ? (
+                              <strong>{new Date(item.expiryDate).toLocaleDateString()}</strong>
+                            ) : (
+                              "No Expiry Date"
+                            )}
+                          </td>
+                        ) : (
+                          <td className="border">N/A</td>
+                        )}
+                        <td className="border">{item.serialNumber}</td>
+                        <td className="border">{Number(item.costPrice).toFixed(2)}</td>
+                        <td className="border">
+                          {((item.costPrice || 0) * (state.productTotals.get(item.name) || 0)).toFixed(2)}
+                        </td>
+                        <td className="border">{Number(item.price).toFixed(2)}</td>
+                        <td className="border">
+                          {((item.price || 0) * (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
+                        </td>
+                        <td className="border">{(item.price * totalRemaining).toFixed(2)}</td>
+                        <td className="border">
+                          {state.user && state.user.role === "admin" ? (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faEdit}
+                                className="no-print"
+                                style={{
+                                  cursor: "pointer",
+                                  marginRight: "8px",
+                                  color: "blue",
+                                }}
+                                onClick={(e) => handleEditClick(item.id, e)}
+                              />
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                className="no-print"
+                                style={{ cursor: "pointer", color: "red" }}
+                              />
+                            </>
+                          ) : null}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+  
+                <tfoot>
+                  <tr>
+                    <td className="border text-center font-bold" colSpan="4">
+                      Total:
+                    </td>
+                    <td className="border font-bold">{totalQtyRestocked}</td>
+                    <td className="border font-bold">{totalTotalBal}</td>
+                    <td className="border font-bold">{totalQtySold}</td>
+                    <td className="border font-bold">{totalQtyBalance}</td>
+                    <td className="border"></td>
+                    <td className="border"></td>
+                    <td className="border"></td>
+                    <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
+                    <td className="border font-bold">₦{totalCostValue.toFixed(2)}</td>
+                    <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
+                    <td className="border font-bold">₦{totalSalesPriceValue.toFixed(2)}</td>
+                    <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
+                    <td className="border"></td>
+                  </tr>
+                </tfoot>
+              </table>
+              {renderFooter()}
+              <div className="flex justify-between mb-4">{renderPaginationButtons()}</div>
+            </div>
           </div>
-
         </div>
-
-        {renderFooter()}
-        <div className="flex justify-between mb-4">{renderPaginationButtons()}</div>
-
-
+  
+        {showEditPop && selectedProduct && (
+          <EditPopup
+            product={selectedProduct}
+            onClose={() => setShowEditPop(false)}
+            onUpdate={(updatedProduct) => {
+              // Update logic here, e.g., call a function to update the product
+              setShowEditPop(false);
+            }}
+          />
+        )}
       </div>
-
-      {showEditPop && selectedProduct && (
-        <EditPopup
-          product={selectedProduct}
-          onClose={() => setShowEditPop(false)}
-          onUpdate={(updatedProduct) => {
-            // Update logic here, e.g., call a function to update the product
-            setShowEditPop(false);
-          }}
-        />
-      )}
-    </div>
-  );
+      </div>
+    );
 };
 
+
+
 const renderStatCard = (title, value, color) => (
-  // <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
-  <div className={`flex-1 bg-${color}-500 text-white p-4 rounded-md`}>
+
+  <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
+    
     <div className="text-sm">{title}</div>
     <div className="text-2xl font-bold">{value}</div>
   </div>
 );
-
 
 
 export default InventoryPage;
