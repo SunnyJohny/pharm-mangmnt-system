@@ -40,6 +40,7 @@ const CashiersCart = () => {
   const { selectedCompanyId, user } = state;
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Cash");
+  const [selectedSalesCategory, setSelectedSalesCategory] = useState("Wholesale");
   const [isProcessing, setIsProcessing] = useState(false);
   const [pendingOrders, setPendingOrders] = useState([]);
 
@@ -78,7 +79,7 @@ const CashiersCart = () => {
     const transactionDateTime = new Date().toLocaleString();
 
     const totalInWords = numberToWords(overallTotal); // Convert total to words
-    
+
     const salesDoc = {
       saleId: `sale_${receiptNumber}`,
       date: transactionDateTime,
@@ -95,25 +96,30 @@ const CashiersCart = () => {
       })),
       totalAmount: orderToProcess.totalAmount,
       payment: {
-        method: orderToProcess.paymentMethod,
+        method: selectedPaymentMethod, // Ensure the selected payment method is used
       },
+      salesCategory: selectedSalesCategory, // Add sales category to the document
       staff: {
         staffId: user?.id || 'default_staff_id',
         name: user?.name || 'default_staff_name',
       },
     };
 
+    console.log("Selected Payment Method:", selectedPaymentMethod);
+    console.log("Selected Sales Category:", selectedSalesCategory);
+    console.log("Sales Document:", salesDoc);
+
     try {
       const docRef = await addDoc(collection(db, `companies/${selectedCompanyId}/sales`), salesDoc);
       console.log('Receipt added to Firestore with ID:', docRef.id);
 
       await Promise.all(orderToProcess.items.map((item) => updateProductSale(item.productId, item.quantity)));
-      
+
       // Update order status to "processed"
       const orderRef = doc(db, `companies/${selectedCompanyId}/orders`, orderToProcess.id);
       await updateDoc(orderRef, { status: "processed" });
       toast.success('Sale added successfully!');
-      
+
       // Print receipt
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
@@ -163,7 +169,7 @@ const CashiersCart = () => {
             Amount in Words: ${totalInWords} 
         </p>
         <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
-        
+        <p style="text-align: center;">Sales Category: <strong>${selectedSalesCategory}</strong></p>
         <hr>
         <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
         <hr>
@@ -222,23 +228,23 @@ const CashiersCart = () => {
       "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"
     ];
     const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-  
+
     const convertWholeNumber = (num) => {
       if (num < 20) return a[num];
       if (num < 100) return b[Math.floor(num / 10)] + " " + a[num % 10];
       if (num < 1000) return a[Math.floor(num / 100)] + " Hundred " + convertWholeNumber(num % 100);
       if (num < 1000000) return convertWholeNumber(Math.floor(num / 1000)) + " Thousand " + convertWholeNumber(num % 1000);
-  
+
       return "Amount too large";
     };
-  
+
     const [wholePart, koboPart] = num.toString().split('.');
     const wholePartWords = convertWholeNumber(Number(wholePart));
     let koboWords = '';
     if (koboPart) {
       koboWords = `and ${convertWholeNumber(Number(koboPart))} Kobo`;
     }
-  
+
     return `${wholePartWords} Naira ${koboWords}`.trim();
   };
 
@@ -269,8 +275,21 @@ const CashiersCart = () => {
           onChange={(e) => setSelectedPaymentMethod(e.target.value)}
         >
           <option value="Cash">Cash</option>
-          <option value="Card">Card</option>
           <option value="Transfer">Transfer</option>
+          <option value="POS">POS</option>
+        </select>
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2">Sales Category:</label>
+        <select
+          className="w-full border rounded-md p-2"
+          value={selectedSalesCategory}
+          onChange={(e) => setSelectedSalesCategory(e.target.value)}
+        >
+          <option value="Wholesale">Wholesale</option>
+          <option value="Retail">Retail</option>
+          <option value="Easy Buy">Easy Buy</option>
         </select>
       </div>
 

@@ -405,11 +405,13 @@ const SalesPage = () => {
     return acc;
   }, {});
   // Calculate total sales for each payment method
-  const paymentMethods = filteredSales.reduce((acc, sale) => {
-    const { method } = sale.payment;
-    acc[method] = (acc[method] || 0) + sale.products.reduce((total, product) => total + parseFloat(product.Amount), 0);
-    return acc;
-  }, {});
+  // Calculate total sales for each payment method
+const paymentMethods = filteredSales.reduce((acc, sale) => {
+  const method = sale.payment?.method || "Cash"; // Default to "Cash" if sale.payment or method is undefined
+  acc[method] = (acc[method] || 0) + sale.products.reduce((total, product) => total + parseFloat(product.Amount), 0);
+  return acc;
+}, {});
+
   // Function to format date as MM-DD-YYYY
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -581,7 +583,7 @@ const SalesPage = () => {
 
                   <th className="border">Total Sale</th>
                   <th className="border">Attendant Name</th>
-                  <th className="border">Payment Status</th>
+                  <th className="border">Sales Category</th>
                 </tr>
               </thead>
 
@@ -605,7 +607,8 @@ const SalesPage = () => {
                       <td className="border">{sale.id.substring(0, 5)}{sale.id.length > 5 ? '...' : ''}</td>
                       <td className="border">{sale.saleId}</td>
                       <td className="border">{sale.customer.name}</td>
-                      <td className="border">{sale.payment.method}</td>
+                      <td className="border">{sale.payment?.method || 'N/A'}</td>
+
                       {/* COGS */}
                       <td className="border">
                         {sale.products.map((product, productIndex) => (
@@ -619,7 +622,8 @@ const SalesPage = () => {
                         ))}
                       </td>
                       <td className="border">{sale.staff.name}</td>
-                      <td className="border">{sale.payment.method}</td>
+                      <td className="border">{sale?.salesCategory || 'N/A'}</td>
+
                     </tr>
                   ))}
                 {/* Additional row for totals */}
@@ -714,11 +718,6 @@ const renderStatCard = (title, value, color) => (
   </div>
 );
 export default SalesPage;
-
-
-
-
-
 
 
 

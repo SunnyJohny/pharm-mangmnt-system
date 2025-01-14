@@ -60,14 +60,14 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
   }
 
   const {
-    // id,
     customer: { name: customerName },
     date,
     totalAmount,
     saleId,
     staff: { name: staffName },
     products,
-    payment: { method: paymentMethod }
+    payment: { method: paymentMethod },
+    salesCategory,
   } = selectedSale;
 
   const TransactionReceiptNumber = saleId || 'N/A';
@@ -94,9 +94,9 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
           </h2>
 
           {/* Display the selected company address */}
-          <p className="text-center">{}</p>
-          <p className="text-center">Phone: </p>
-          <p className="text-center">Email: {}</p>
+          <p className="text-center">{selectedCompanyAddress}</p>
+          <p className="text-center">Phone: {state.selectedCompanyPhoneNumber}</p>
+          <p className="text-center">Email: {state.selectedCompanyEmail}</p>
           <p className="text-center">Attendant: {staffName}</p>
           <p className="text-center">Customer: {customerName}</p>
 
@@ -128,6 +128,7 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
           <p className="font-bold text-lg text-center mb-2">Total: ₦{overallTotal.toFixed(2)}</p>
           <p className="text-center italic">({totalInWords} Naira Only)</p> {/* Display total in words */}
           <p className="text-center">Payment Method: <strong>{paymentMethod}</strong></p>
+          <p className="text-center">Sales Category: <strong>{salesCategory}</strong></p>
           <hr className="my-4" />
           <p className="italic text-center">Thanks for your patronage. Please call again!</p>
           <hr className="my-4" />
