@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { doc, updateDoc, getFirestore, arrayUnion, addDoc, getDoc, collection, onSnapshot, Timestamp } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { useMyContext } from '../Context/MyContext';
@@ -6,8 +6,24 @@ import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
 
 const db = getFirestore();
 
-const CashiersCartItem = ({ id, name, price, quantity }) => {
+const CashiersCartItem = ({ id, name, price, quantity, pendingOrders }) => {
   const { increaseQuantity, decreaseQuantity, removeFromCart } = useMyContext();
+
+  const handleIncreaseQuantity = () => {
+    if (pendingOrders.length > 0) {
+      toast.warn("Cannot add items directly to the cart when there are pending orders.");
+      return;
+    }
+    increaseQuantity(id);
+  };
+
+  const handleDecreaseQuantity = () => {
+    if (pendingOrders.length > 0) {
+      toast.warn("Cannot modify items directly in the cart when there are pending orders.");
+      return;
+    }
+    decreaseQuantity(id);
+  };
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
@@ -18,12 +34,12 @@ const CashiersCartItem = ({ id, name, price, quantity }) => {
         <span className="text-sm text-gray-600">₦{price}</span>
         <FaMinus
           className="cursor-pointer text-sm text-gray-500 hover:text-red-500"
-          onClick={() => decreaseQuantity(id)}
+          onClick={handleDecreaseQuantity}
         />
         <p className="text-sm mx-2">{quantity}</p>
         <FaPlus
           className="cursor-pointer text-sm text-gray-500 hover:text-green-500"
-          onClick={() => increaseQuantity(id)}
+          onClick={handleIncreaseQuantity}
         />
         <p className="ml-4 text-sm">₦{price * quantity}</p>
         <FaTrash
@@ -37,12 +53,18 @@ const CashiersCartItem = ({ id, name, price, quantity }) => {
 
 const CashiersCart = () => {
   const { state, clearCart } = useMyContext();
-  const { selectedCompanyId, user } = state;
+  const { selectedCompanyId, user, cart } = state;
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Cash");
   const [selectedSalesCategory, setSelectedSalesCategory] = useState("Wholesale");
   const [isProcessing, setIsProcessing] = useState(false);
   const [pendingOrders, setPendingOrders] = useState([]);
+
+  // Flag to stop notification sound
+  const [stopNotification, setStopNotification] = useState(false);
+
+  // Use useRef for notificationSound
+  const notificationSoundRef = useRef(new Audio('/sounds/Flavour-Power-To-Win-(TrendyBeatz.com).mp3'));
 
   // Set up Firestore real-time listener to get pending orders
   useEffect(() => {
@@ -58,23 +80,44 @@ const CashiersCart = () => {
       });
       // Sort orders by date to process the earliest first
       newOrders.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      // Play notification sound if there are new pending orders and notification is not stopped
+      if (newOrders.length > pendingOrders.length && !stopNotification) {
+        notificationSoundRef.current.play().catch((error) => {
+          console.error("Error playing notification sound:", error);
+        });
+      }
+
       setPendingOrders(newOrders);
     });
 
     return () => unsubscribe();
-  }, [selectedCompanyId]);
+  }, [selectedCompanyId, pendingOrders.length, stopNotification]);
 
-  // Calculate the total amount for the first pending order
-  const overallTotal = pendingOrders.length ? pendingOrders[0].items.reduce((acc, item) => acc + item.price * item.quantity, 0) : 0;
+  // Calculate the total amount based on pendingOrders or cart items
+  const overallTotal = pendingOrders.length 
+    ? pendingOrders[0].items.reduce((acc, item) => acc + item.price * item.quantity, 0)
+    : cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handlePrintReceipt = async () => {
     if (!pendingOrders.length) {
-      toast.warn("No pending orders to process.");
-      return;
+      if (cart.length > 0) {
+        const proceed = window.confirm("No pending orders to process. Do you wish to proceed to print the items in the cart?");
+        if (!proceed) {
+          setIsProcessing(false);
+          return;
+        }
+      } else {
+        toast.warn("No pending orders or items in the cart to process.");
+        setIsProcessing(false);
+        return;
+      }
     }
 
     setIsProcessing(true);
-    const orderToProcess = pendingOrders[0];
+    setStopNotification(true); // Stop notification sound
+
+    const orderToProcess = pendingOrders.length > 0 ? pendingOrders[0] : null;
     const receiptNumber = Math.floor(Math.random() * 1000000);
     const transactionDateTime = new Date().toLocaleString();
 
@@ -84,17 +127,23 @@ const CashiersCart = () => {
       saleId: `sale_${receiptNumber}`,
       date: transactionDateTime,
       customer: {
-        name: orderToProcess.customer?.name || "Walk-in Customer",
-        email: orderToProcess.customer?.email || '',
+        name: orderToProcess?.customer?.name || "Walk-in Customer",
+        email: orderToProcess?.customer?.email || '',
       },
-      products: orderToProcess.items.map((item) => ({
+      products: orderToProcess ? orderToProcess.items.map((item) => ({
         productId: item.productId,
         name: item.name,
         quantity: item.quantity,
         Amount: item.price * item.quantity,
         costPrice: item.costPrice * item.quantity, // Assuming costPrice exists in order items
+      })) : cart.map((item) => ({
+        productId: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        Amount: item.price * item.quantity,
+        costPrice: item.costPrice * item.quantity,
       })),
-      totalAmount: orderToProcess.totalAmount,
+      totalAmount: orderToProcess ? orderToProcess.totalAmount : overallTotal,
       payment: {
         method: selectedPaymentMethod, // Ensure the selected payment method is used
       },
@@ -105,19 +154,20 @@ const CashiersCart = () => {
       },
     };
 
-    console.log("Selected Payment Method:", selectedPaymentMethod);
-    console.log("Selected Sales Category:", selectedSalesCategory);
-    console.log("Sales Document:", salesDoc);
-
     try {
       const docRef = await addDoc(collection(db, `companies/${selectedCompanyId}/sales`), salesDoc);
       console.log('Receipt added to Firestore with ID:', docRef.id);
 
-      await Promise.all(orderToProcess.items.map((item) => updateProductSale(item.productId, item.quantity)));
+      if (orderToProcess) {
+        await Promise.all(orderToProcess.items.map((item) => updateProductSale(item.productId, item.quantity)));
 
-      // Update order status to "processed"
-      const orderRef = doc(db, `companies/${selectedCompanyId}/orders`, orderToProcess.id);
-      await updateDoc(orderRef, { status: "processed" });
+        // Update order status to "processed"
+        const orderRef = doc(db, `companies/${selectedCompanyId}/orders`, orderToProcess.id);
+        await updateDoc(orderRef, { status: "processed" });
+      } else {
+        await Promise.all(cart.map((item) => updateProductSale(item.id, item.quantity)));
+      }
+
       toast.success('Sale added successfully!');
 
       // Print receipt
@@ -139,7 +189,7 @@ const CashiersCart = () => {
         <p>Address:${state.selectedCompanyAddress}</p>
         <p>Phone: ${state.selectedCompanyPhoneNumber}</p>
         <p>Email: ${state.selectedCompanyEmail}</p>
-        <p>Ordered By: ${orderToProcess.createdBy}</p>
+        <p>Ordered By: ${orderToProcess?.createdBy || user?.name}</p>
         <p>Cashier: ${user.name}</p>
         <hr>
         <h3>Receipt No.: ${receiptNumber}</h3>
@@ -152,7 +202,7 @@ const CashiersCart = () => {
                 <th>Price ( ₦ )</th>
                 <th>Total</th>
             </tr>
-            ${orderToProcess.items.map((item, index) => `
+            ${(orderToProcess ? orderToProcess.items : cart).map((item, index) => `
                 <tr key=${index}>
                     <td>${item.name || 'N/A'}</td>
                     <td>${item.quantity || 'N/A'}</td>
@@ -185,11 +235,14 @@ const CashiersCart = () => {
       printWindow.print();
       printWindow.close();
 
+      // Clear the cart after printing the receipt
+      clearCart();
     } catch (error) {
       console.error('Error adding receipt to Firestore:', error);
       toast.error('Error processing sale. Please try again.');
     } finally {
       setIsProcessing(false);
+      setStopNotification(false); // Allow notification sound again after processing
     }
   };
 
@@ -255,7 +308,16 @@ const CashiersCart = () => {
       <div className="divide-y divide-gray-300">
         {pendingOrders.length ? (
           pendingOrders[0].items.map((item) => (
-            <CashiersCartItem key={item.productId} {...item} />
+            <CashiersCartItem key={item.productId} {...item} pendingOrders={pendingOrders} />
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No pending orders</p>
+        )}
+      </div>
+      <div className="divide-y divide-gray-300">
+        {cart.length ? (
+          cart.map((item) => (
+            <CashiersCartItem key={item.id} {...item} pendingOrders={pendingOrders} />
           ))
         ) : (
           <p className="text-center text-gray-500">Cart is empty</p>

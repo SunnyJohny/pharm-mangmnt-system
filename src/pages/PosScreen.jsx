@@ -4,12 +4,21 @@ import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import { useMyContext } from '../Context/MyContext';
 import Cart from '../components/Cart';
 import CashiersCart from '../components/CashiersCart';
+import { toast } from 'react-toastify';
 
 const Tooltip = ({ text, children, productId }) => {
-  const { addToCart } = useMyContext();
+  const { addToCart, state } = useMyContext();
 
   const handleAddToCart = () => {
-    addToCart(productId);
+    // Check if the user is a cashier and if there are no pending orders
+    const isCashier = state.user?.role === 'cashier';
+    const hasPendingOrders = state.orders && state.orders.some(order => order.status === 'pending');
+
+    if ((isCashier && !hasPendingOrders) || state.user?.role === 'sales rep') {
+      addToCart(productId);
+    } else {
+      toast.warn("Cannot add items to the cart. Either you are not a cashier or there are pending orders.");
+    }
   };
 
   return (
@@ -26,12 +35,7 @@ const PosScreen = () => {
   const { addToCart, state } = useMyContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [isIpadAndAbove, setIsIpadAndAbove] = useState(window.innerWidth >= 768); // State to check screen size
-
-
-  if (isIpadAndAbove) {
-    // Do nothing
-  }
-  // Update the screen size on resize
+if (isIpadAndAbove){}
   useEffect(() => {
     const handleResize = () => {
       setIsIpadAndAbove(window.innerWidth >= 768); // 768px is the threshold for iPad and above
@@ -48,7 +52,15 @@ const PosScreen = () => {
   );
 
   const handleAddToCart = (productId) => {
-    addToCart(productId);
+    // Check if the user is a cashier and if there are no pending orders
+    const isCashier = state.user?.role === 'cashier';
+    const hasPendingOrders = state.orders && state.orders.some(order => order.status === 'pending');
+
+    if ((isCashier && !hasPendingOrders) || state.user?.role === 'sales rep') {
+      addToCart(productId);
+    } else {
+      toast.warn("Cannot add items to the cart. Either you are not a cashier or there are pending orders.");
+    }
   };
 
   // Get role from state.user.role
