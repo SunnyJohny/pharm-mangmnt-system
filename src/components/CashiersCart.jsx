@@ -119,7 +119,12 @@ const CashiersCart = () => {
 
     const orderToProcess = pendingOrders.length > 0 ? pendingOrders[0] : null;
     const receiptNumber = Math.floor(Math.random() * 1000000);
-    const transactionDateTime = new Date().toLocaleString();
+    const transactionDateTime  = new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(new Date());
+    
 
     const totalInWords = numberToWords(overallTotal); // Convert total to words
 
@@ -304,6 +309,12 @@ const CashiersCart = () => {
   return (
     <div className="w-full max-w-md mx-auto bg-white shadow-lg rounded-md p-6">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Cashier's Cart</h2>
+      <div className="grid grid-cols-4 gap-2 sm:flex sm:justify-between mb-2 text-sm sm:text-base">
+        <span className="font-bold text-center sm:text-left">Name</span>
+        <span className="font-bold text-center sm:text-left">Amount (&#x20A6;)</span>
+        <span className="font-bold text-center sm:text-left">Qty</span>
+        <span className="font-bold text-center sm:text-left">Total (&#x20A6;)</span>
+      </div>
 
       <div className="divide-y divide-gray-300">
         {pendingOrders.length ? (

@@ -111,10 +111,18 @@ if (isIpadAndAbove){}
         </div>
       </div>
 
-      {/* Right Section - Hidden on screens smaller than md */}
-      <div className="hidden md:flex">
-        {role === 'cashier' ? <CashiersCart /> : <Cart />}
-      </div>
+     {/* Right Section - Responsive */}
+{/* Cart Component with Slide-In Animation */}
+{state.user && (
+  <div
+    className={`fixed top-16 right-0 h-full w-72 bg-white shadow-lg p-4 transform transition-transform duration-300 ${
+      state.isCartOpen ? "translate-x-0" : "translate-x-full"
+    }`}
+  >
+    {state.user.role === "cashier" ? <CashiersCart /> : <Cart />}
+  </div>
+)}
+
     </div>
   );
 };

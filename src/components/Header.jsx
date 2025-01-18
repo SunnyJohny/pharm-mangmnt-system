@@ -4,6 +4,7 @@ import mylogo from "../assets/svg/mylogo.png";
 import { FaShoppingCart, FaSyncAlt } from "react-icons/fa";
 import Cart from "./Cart";
 import ProductsPageSidePanel from "./ProductsPagesidePanel";
+import CashiersCart from '../components/CashiersCart';
 
 export default function Header() {
   const { state, toggleSidePanel, toggleCart } = useMyContext();
@@ -66,16 +67,17 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Cart Component with Slide-In Animation */}
-      {state.user && (
-        <div
-          className={`fixed top-16 right-0 h-full w-72 bg-white shadow-lg p-4 transform transition-transform duration-300 ${
-            state.isCartOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <Cart />
-        </div>
-      )}
+     {/* Cart Component with Slide-In Animation */}
+{state.user && (
+  <div
+    className={`fixed top-16 right-0 h-full w-79 bg-white shadow-lg p-4 transform transition-transform duration-300 ${
+      state.isCartOpen ? "translate-x-0" : "translate-x-full"
+    }`}
+  >
+    {state.user.role === "cashier" ? <CashiersCart /> : <Cart />}
+  </div>
+)}
+
 
       {/* Side Panel with Slide-In Animation */}
       {state.user && (

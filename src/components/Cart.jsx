@@ -288,11 +288,9 @@ const Cart = () => {
   
 
   return (
-    <div className="w-2/3 sm:w-2/3 lg:w-1/2 xl:w-1/3 p-4 bg-gray-50 shadow-md rounded-md">
-      <h2 className="text-2xl font-bold mb-4 flex justify-between">
-        <span>Cart</span>
-        <span>Total</span>
-      </h2>
+    <div className=" bg-gray-50 shadow-md rounded-md">
+    <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Sales Rep's Cart</h2>
+
       <div className="grid grid-cols-4 gap-2 sm:flex sm:justify-between mb-2 text-sm sm:text-base">
         <span className="font-bold text-center sm:text-left">Name</span>
         <span className="font-bold text-center sm:text-left">Amount (&#x20A6;)</span>
