@@ -64,7 +64,7 @@ if (isIpadAndAbove){}
   };
 
   // Get role from state.user.role
-  const role = state.user?.role;
+  // const role = state.user?.role;
 
   return (
     <div className="flex h-screen">
