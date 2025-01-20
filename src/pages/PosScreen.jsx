@@ -35,17 +35,18 @@ const PosScreen = () => {
   const { addToCart, state } = useMyContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [isIpadAndAbove, setIsIpadAndAbove] = useState(window.innerWidth >= 768); // State to check screen size
-if (isIpadAndAbove){}
+
   useEffect(() => {
     const handleResize = () => {
       setIsIpadAndAbove(window.innerWidth >= 768); // 768px is the threshold for iPad and above
+      console.log('isIpadAndAbove:', isIpadAndAbove);
     };
 
     window.addEventListener('resize', handleResize);
 
     // Cleanup event listener on component unmount
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isIpadAndAbove]);
 
   const filteredProducts = state.products.filter((product) =>
     product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -63,18 +64,15 @@ if (isIpadAndAbove){}
     }
   };
 
-  // Get role from state.user.role
-  // const role = state.user?.role;
-
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-col md:flex-row h-screen">
       {/* Left Section - Hidden on screens smaller than md */}
-      <div className="hidden md:flex">
+      <div className="hidden md:flex md:w-1/4">
         <ProductsPageSidePanel />
       </div>
 
       {/* Center Section */}
-      <div className="w-full md:w-3/4 bg-gray-300 p-4 overflow-y-auto">
+      <div className="w-full  bg-gray-300 p-4 overflow-y-auto">
         {/* Product List Title */}
         <h2 className="text-3xl font-bold mb-4 text-center">Product List</h2>
 
@@ -111,17 +109,10 @@ if (isIpadAndAbove){}
         </div>
       </div>
 
-     {/* Right Section - Responsive */}
-{/* Cart Component with Slide-In Animation */}
-{state.user && (
-  <div
-    className={`fixed top-16 right-0 h-full w-72 bg-white shadow-lg p-4 transform transition-transform duration-300 ${
-      state.isCartOpen ? "translate-x-0" : "translate-x-full"
-    }`}
-  >
-    {state.user.role === "cashier" ? <CashiersCart /> : <Cart />}
-  </div>
-)}
+      {/* Right Section - Responsive */}
+<div className="hidden md:block w-full md:w-1/4 bg-white p-4 shadow-lg">
+  {state.user?.role === 'cashier' ? <CashiersCart /> : <Cart />}
+</div>
 
     </div>
   );

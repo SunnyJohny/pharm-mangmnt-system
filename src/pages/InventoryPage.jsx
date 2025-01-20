@@ -9,32 +9,22 @@ import { useMyContext } from '../Context/MyContext';
 import InventorySidePanel from '../components/InventorySidePanel';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import EditPopup from '../components/EditPopup';
-// import html2canvas from 'html2canvas';
-
-
 
 const InventoryPage = () => {
   const { state } = useMyContext();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(100);
+  const [itemsPerPage] = useState(50);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [filteredItems, setFilteredItems] = useState([]);
   const [totalStoreValue, setTotalStoreValue] = useState(0);
   const [firstRestockDates, setFirstRestockDates] = useState({});
-  // const [allPagesContent, setAllPagesContent] = useState([]);
   const [selectedDateOption, setSelectedDateOption] = useState('All');
   const [searchKeyword, setSearchKeyword] = useState('');
-
-
-
   const [showEditPop, setShowEditPop] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate();
   const tableRef = useRef(null);
-
-  // if (allPagesContent){}
-
 
   const calculateTotalStoreValue = useCallback((items) => {
     const calculatedTotalStoreValue = items.reduce(
@@ -67,7 +57,6 @@ const InventoryPage = () => {
     calculateTotalStoreValue(initialItems);
   }, [state.products, calculateTotalStoreValue]);
 
-
   const searchByDate = useCallback((items, startDate, endDate) => {
     if (!startDate && !endDate) return items;
 
@@ -83,12 +72,7 @@ const InventoryPage = () => {
       }
       return true;
     });
-  }, [firstRestockDates]); // Add the dependencies here
-
-
-
-
-
+  }, [firstRestockDates]);
 
   const calculateTotals = () => { 
     let totalQtyRestocked = 0;
@@ -149,8 +133,13 @@ const InventoryPage = () => {
     totalSalesPriceValue, // Include in destructuring
   } = calculateTotals();
   
-
-  // Define searchItems outside of the component
+  const searchInventoryByKeyword = (items, searchText) => {
+    if (!Array.isArray(items)) return [];
+    return items.filter((item) => {
+      const name = item.name || '';
+      return name.toLowerCase().includes(searchText);
+    });
+  };
 
   const searchItems = useCallback(() => {
     let searchText = searchKeyword.toLowerCase();
@@ -160,26 +149,11 @@ const InventoryPage = () => {
 
     setFilteredItems(filteredByDate);
     calculateTotalStoreValue(filteredByDate);
-  }, [searchKeyword, fromDate, searchByDate, calculateTotalStoreValue, toDate, state.products]); // Define dependencies here
+  }, [searchKeyword, fromDate, searchByDate, calculateTotalStoreValue, toDate, state.products]);
 
-  // Inside your functional component
   useEffect(() => {
-    searchItems(); // Call searchItems here
-  }, [searchItems]); // Now searchItems won't change unless its dependencies change
-
-
-
-  const searchInventoryByKeyword = (items, searchText) => {
-    if (!Array.isArray(items)) return [];
-    return items.filter((item) => {
-      const name = item.name || '';
-      return name.toLowerCase().includes(searchText);
-    });
-  };
-
-
-
-
+    searchItems();
+  }, [searchItems]);
 
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
@@ -255,7 +229,6 @@ const InventoryPage = () => {
         startDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1); // Set to previous month
         endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0); // Set to last day of previous month
         break;
-      // Add more cases as needed
       default:
         break;
     }
@@ -273,11 +246,11 @@ const InventoryPage = () => {
     setToDate(date);
     searchItems();
   };
-  // Function to format date as MM-DD-YYYY
-  const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
 
+  // Function to format date as day/month/year
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
 
   const getExpiryColor = (expiryDate) => {
     if (!expiryDate) {
@@ -325,7 +298,6 @@ const InventoryPage = () => {
     }
   };
 
-
   useEffect(() => {
     if (tableRef.current) {
       console.log('Container dimensions:', tableRef.current.offsetWidth, tableRef.current.offsetHeight);
@@ -350,8 +322,6 @@ const InventoryPage = () => {
     setSelectedProduct(productToEdit);
     setShowEditPop(true);
   };
-
-  //handle scaling of zooming from the the printers more setting
 
   const renderActionButtons = () => {
     const handlePrintInventory = async () => {
@@ -396,35 +366,6 @@ const InventoryPage = () => {
     );
   };
 
-
-  // useEffect(() => {
-  //   const capturePagesContent = async () => {
-  //     const pagesContent = [];
-  //     const tableContainer = document.querySelector('.table-container');
-  //     const itemsPerPage = 100;
-
-  //     if (tableContainer) {
-  //       const totalItems = filteredItems.length;
-  //       const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-  //       for (let page = 1; page <= totalPages; page++) {
-  //         const startIndex = (page - 1) * itemsPerPage;
-  //         const endIndex = startIndex + itemsPerPage;
-  //         const itemsToDisplay = filteredItems.slice(startIndex, endIndex);
-
-  //         await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  //         const canvas = await html2canvas(tableContainer);
-  //         pagesContent.push(canvas.toDataURL('image/png'));
-  //       }
-
-  //       setAllPagesContent(pagesContent);
-  //     }
-  //   };
-
-  //   capturePagesContent();
-  // }, [filteredItems]);
-
   const renderPaginationButtons = () => {
     const handlePreviousPage = () => {
       setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
@@ -435,26 +376,22 @@ const InventoryPage = () => {
     };
 
     return (
-      <div className="flex justify-between items-center w-full max-w-3xl mx-auto m-2">
-        <div className="flex-1 flex justify-start">
-          <button
-            className={`px-3 py-1.5 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-              }`}
-            onClick={handlePreviousPage}
-          >
-            Previous
-          </button>
-        </div>
-        <div className="flex-1 flex justify-center">{renderActionButtons()}</div>
-        <div className="flex-1 flex justify-end">
-          <button
-            className={`px-3 py-1.5 ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-              } rounded-md`}
-            onClick={handleNextPage}
-          >
-            Next
-          </button>
-        </div>
+      <div className="flex justify-between items-center w-1/2 max-w-lg mx-auto mt-4">
+        <button
+          className={`px-3 py-1.5 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+            }`}
+          onClick={handlePreviousPage}
+        >
+          Previous
+        </button>
+        {renderActionButtons()}
+        <button
+          className={`px-3 py-1.5 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
+            }`}
+          onClick={handleNextPage}
+        >
+          Next
+        </button>
       </div>
     );
   };
@@ -469,11 +406,13 @@ const InventoryPage = () => {
       </div>
     );
   };
+
   const handleReload = () => {
     window.location.reload();
   };
+
   return (
-    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
+    <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 px-2 md:px-0">
       <div className="flex-none">
         {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
       </div>
@@ -487,6 +426,7 @@ const InventoryPage = () => {
             >
               Reload
             </button>
+            
             <div className="flex-grow text-center">
               <h2 className="text-2xl font-bold">Inventory</h2>
             </div>
@@ -494,7 +434,7 @@ const InventoryPage = () => {
               Back
             </button>
           </div>
-  
+
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
             {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'green')}
@@ -508,47 +448,54 @@ const InventoryPage = () => {
             {renderStatCard('All Categories', '2', 'gray')}
           </div>
         </div>
-  
+
         <div className="mb-4">
           <p><strong>Inventory by Dates:</strong></p>
-  
+
           <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
+            <div>
+              <label
+                htmlFor="dateOption"
+                className="text-lg"
+                style={{ marginRight: '16px' }}
+              >
+                Dates
+              </label>
+              <select
+                id="dateOption"
+                value={selectedDateOption}
+                onChange={handleDateOptionChange}
+                className="border border-gray-300 rounded-md p-2 pl-4"
+                style={{ width: '150px' }}
+              >
+                <option value="All">All</option>
+                <option value="Today">Today</option>
+                <option value="This Week">This Week</option>
+                <option value="This Week - Date">This Week - Date</option>
+                <option value="This Month">This Month</option>
+                <option value="Last Month to Date">This Month to Date</option>
+                <option value="This Fiscal Quarter">This Fiscal Quarter</option>
+                <option value="This Fiscal Quarter to Date">This Fiscal Quarter to Date</option>
+                <option value="This Fiscal Year">This Fiscal Year</option>
+                <option value="This Fiscal Year to Last Month">This Fiscal Year to Last Month</option>
+                <option value="This Fiscal Year to Date">This Fiscal Year to Date</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="Last Week">Last Week</option>
+                <option value="Last Week to Date">Last Week to Date</option>
+                <option value="Last Month">Last Month</option>
+                <option value="Last Month to Date">Last Month to Date</option>
+                <option value="Last Fiscal Quarter">Last Fiscal Quarter</option>
+                <option value="Last Fiscal Quarter to Last Month">Last Fiscal Quarter to Last Month</option>
+              </select>
+            </div>
             <div className="flex items-center space-x-2">
-              <div>
-                <select
-                  id="dateOption"
-                  value={selectedDateOption}
-                  onChange={handleDateOptionChange}
-                  className="border border-gray-300 rounded-md p-2 pl-4"
-                  style={{ width: '150px' }}
-                >
-                  <option value="All">All</option>
-                  <option value="Today">Today</option>
-                  <option value="This Week">This Week</option>
-                  <option value="This Week - Date">This Week - Date</option>
-                  <option value="This Month">This Month</option>
-                  <option value="Last Month to Date">This Month to Date</option>
-                  <option value="This Fiscal Quarter">This Fiscal Quarter</option>
-                  <option value="This Fiscal Quarter to Date">This Fiscal Quarter to Date</option>
-                  <option value="This Fiscal Year">This Fiscal Year</option>
-                  <option value="This Fiscal Year to Last Month">This Fiscal Year to Last Month</option>
-                  <option value="This Fiscal Year to Date">This Fiscal Year to Date</option>
-                  <option value="Yesterday">Yesterday</option>
-                  <option value="Last Week">Last Week</option>
-                  <option value="Last Week to Date">Last Week to Date</option>
-                  <option value="Last Month">Last Month</option>
-                  <option value="Last Month to Date">Last Month to Date</option>
-                  <option value="Last Fiscal Quarter">Last Fiscal Quarter</option>
-                  <option value="Last Fiscal Quarter to Last Month">Last Fiscal Quarter to Last Month</option>
-                </select>
-              </div>
               <div className="relative">
                 <DatePicker
                   selected={fromDate}
                   onChange={handleFromDateChange}
-                  dateFormat="MM-dd-yyyy"
+                  dateFormat="dd/MM/yyyy" // Changed to day/month/year format
                   placeholderText="From"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
+                  className="border border-gray-300 rounded-md p-2 pl-4 cursor-pointer w-full md:w-auto"
                 />
                 <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
@@ -556,160 +503,160 @@ const InventoryPage = () => {
                 <DatePicker
                   selected={toDate}
                   onChange={handleToDateChange}
-                  dateFormat="MM-dd-yyyy"
+                  dateFormat="dd/MM/yyyy" // Changed to day/month/year format
                   placeholderText="To"
-                  className="border border-gray-300 rounded-md p-2 pl-2 cursor-pointer w-full md:w-auto"
+                  className="border border-gray-300 rounded-md p-2 pl-4 cursor-pointer w-full md:w-auto"
                 />
                 <FaCalendar className="absolute top-3 right-2 text-gray-400 pointer-events-none" />
               </div>
-              <input
-                type="text"
-                className="border border-gray-300 rounded-md p-2 pr-2 w-full md:w-auto"
-                placeholder="Search Product by Name"
-                onChange={(e) => setSearchKeyword(e.target.value)}
-              />
             </div>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-md p-2"
+              placeholder="Search Product by Name"
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              style={{ marginLeft: 'auto', marginRight: '16px' }}
+            />
           </div>
         </div>
-  
+
         <div className="mb-8">
-          <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '200px' }} ref={tableRef}>
+          <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '300px' }} ref={tableRef}>
             <div className="mb-4 text-center">
               <h2 className="text-2xl font-bold underline">Inventory Report</h2>
               <p><strong>Selected Date Period:</strong> {renderSelectedDatePeriod()}</p>
               <p>Report Printed On: {getCurrentDate()}</p>
             </div>
-            <div className="table-wrapper" style={{ overflowX: 'auto' }}>
-              <table className="w-full table-auto" id="inventory-table" style={{ minWidth: '1200px' }}>
-                <thead className="sticky top-0 bg-white z-10">
-                  <tr>
-                    <th className="border">S/n</th>
-                    <th className="border">Name</th>
-                    <th className="border">Date</th>
-                    <th className="border">Item ID</th>
-                    <th className="border">Qty Restocked</th>
-                    <th className="border">Total Bal</th>
-                    <th className="border">Qty Sold</th>
-                    <th className="border">Qty Balance</th>
-                    <th className="border">M.Unit</th>
-                    <th className="border">Exp.Date</th>
-                    <th className="border">Products S/N</th>
-                    <th className="border">Unit Cost</th>
-                    <th className="border">Total Cost</th>
-                    <th className="border">Unit S/Price</th>
-                    <th className="border">Total S/Price</th>
-                    <th className="border">Item Value</th>
-                    <th className="border">
-                      {state.user && state.user.role === "admin" ? <>Action</> : null}
-                    </th>
-                  </tr>
-                </thead>
-  
-                <tbody>
-                  {itemsToDisplay.map((item) => {
-                    const totalRemaining =
-                      (state.productTotals.get(item.name) || 0) -
-                      (state.productTotalsMap.get(item.name) || 0);
-  
-                    return (
-                      <tr
-                        key={item.id}
-                        onClick={() => handleRowClick(item.id)}
-                        style={{ cursor: "pointer" }}
-                        title="Click To View Details & Adjusted Fields"
+
+            <table className="w-full table-auto">
+              <thead className="sticky top-0 bg-white z-10">
+                <tr>
+                  <th className="border">S/n</th>
+                  <th className="border">Name</th>
+                  <th className="border">Date</th>
+                  <th className="border">Item ID</th>
+                  <th className="border">Qty Restocked</th>
+                  <th className="border">Total Bal</th>
+                  <th className="border">Qty Sold</th>
+                  <th className="border">Qty Balance</th>
+                  <th className="border">M.Unit</th>
+                  <th className="border">Exp.Date</th>
+                  <th className="border">Products S/N</th>
+                  <th className="border">Unit Cost</th>
+                  <th className="border">Total Cost</th>
+                  <th className="border">Unit S/Price</th>
+                  <th className="border">Total S/Price</th>
+                  <th className="border">Item Value</th>
+                  <th className="border">
+                    {state.user && state.user.role === "admin" ? <>Action</> : null}
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {itemsToDisplay.map((item) => {
+                  const totalRemaining =
+                    (state.productTotals.get(item.name) || 0) -
+                    (state.productTotalsMap.get(item.name) || 0);
+
+                  return (
+                    <tr
+                      key={item.id}
+                      onClick={() => handleRowClick(item.id)}
+                      style={{ cursor: "pointer" }}
+                      title="Click To View Details & Adjusted Fields"
+                    >
+                      <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
+                      <td className="border">{item.name}</td>
+                      <td className="border">{firstRestockDates[item.name] ? formatDate(firstRestockDates[item.name]) : 'N/A'}</td>
+                      <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? "..." : "")}</td>
+                      <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                      <td className="border">{state.productTotals.get(item.name) || 0}</td>
+                      <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
+                      <td
+                        className={`border ${totalRemaining === 0
+                          ? "bg-red-500 text-white"
+                          : totalRemaining < 5
+                            ? "bg-yellow-500"
+                            : ""
+                        }`}
                       >
-                        <td className="border">{generateSn(itemsToDisplay.indexOf(item))}</td>
-                        <td className="border">{item.name}</td>
-                        <td className="border">{firstRestockDates[item.name]?.toLocaleDateString()}</td>
-                        <td className="border">{item.id.slice(0, 3) + (item.id.length > 3 ? "..." : "")}</td>
-                        <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                        <td className="border">{state.productTotals.get(item.name) || 0}</td>
-                        <td className="border">{state.productTotalsMap.get(item.name) || 0}</td>
-                        <td
-                          className={`border ${totalRemaining === 0
-                            ? "bg-red-500 text-white"
-                            : totalRemaining < 5
-                              ? "bg-yellow-500"
-                              : ""
-                          }`}
-                        >
-                          {totalRemaining}
+                        {totalRemaining}
+                      </td>
+                      <td className="border">Piece</td>
+                      {totalRemaining > 0 ? (
+                        <td className={`border ${getExpiryColor(item.expiryDate)}`}>
+                          {item.expiryDate ? (
+                            <strong>{formatDate(new Date(item.expiryDate))}</strong>
+                          ) : (
+                            "No Expiry Date"
+                          )}
                         </td>
-                        <td className="border">Piece</td>
-                        {totalRemaining > 0 ? (
-                          <td className={`border ${getExpiryColor(item.expiryDate)}`}>
-                            {item.expiryDate ? (
-                              <strong>{new Date(item.expiryDate).toLocaleDateString()}</strong>
-                            ) : (
-                              "No Expiry Date"
-                            )}
-                          </td>
-                        ) : (
-                          <td className="border">N/A</td>
-                        )}
-                        <td className="border">{item.serialNumber}</td>
-                        <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-                        <td className="border">
-                          {((item.costPrice || 0) * (state.productTotals.get(item.name) || 0)).toFixed(2)}
-                        </td>
-                        <td className="border">{Number(item.price).toFixed(2)}</td>
-                        <td className="border">
-                          {((item.price || 0) * (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
-                        </td>
-                        <td className="border">{(item.price * totalRemaining).toFixed(2)}</td>
-                        <td className="border">
-                          {state.user && state.user.role === "admin" ? (
-                            <>
-                              <FontAwesomeIcon
-                                icon={faEdit}
-                                className="no-print"
-                                style={{
-                                  cursor: "pointer",
-                                  marginRight: "8px",
-                                  color: "blue",
-                                }}
-                                onClick={(e) => handleEditClick(item.id, e)}
-                              />
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                className="no-print"
-                                style={{ cursor: "pointer", color: "red" }}
-                              />
-                            </>
-                          ) : null}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-  
-                <tfoot>
-                  <tr>
-                    <td className="border text-center font-bold" colSpan="4">
-                      Total:
-                    </td>
-                    <td className="border font-bold">{totalQtyRestocked}</td>
-                    <td className="border font-bold">{totalTotalBal}</td>
-                    <td className="border font-bold">{totalQtySold}</td>
-                    <td className="border font-bold">{totalQtyBalance}</td>
-                    <td className="border"></td>
-                    <td className="border"></td>
-                    <td className="border"></td>
-                    <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
-                    <td className="border font-bold">₦{totalCostValue.toFixed(2)}</td>
-                    <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
-                    <td className="border font-bold">₦{totalSalesPriceValue.toFixed(2)}</td>
-                    <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
-                    <td className="border"></td>
-                  </tr>
-                </tfoot>
-              </table>
-              {renderFooter()}
-              <div className="flex justify-between mb-4">{renderPaginationButtons()}</div>
-            </div>
+                      ) : (
+                        <td className="border">N/A</td>
+                      )}
+                      <td className="border">{item.serialNumber}</td>
+                      <td className="border">{Number(item.costPrice).toFixed(2)}</td>
+                      <td className="border">
+                        {((item.costPrice || 0) * (state.productTotals.get(item.name) || 0)).toFixed(2)}
+                      </td>
+                      <td className="border">{Number(item.price).toFixed(2)}</td>
+                      <td className="border">
+                        {((item.price || 0) * (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
+                      </td>
+                      <td className="border">{(item.price * totalRemaining).toFixed(2)}</td>
+                      <td className="border">
+                        {state.user && state.user.role === "admin" ? (
+                          <>
+                            <FontAwesomeIcon
+                              icon={faEdit}
+                              className="no-print"
+                              style={{
+                                cursor: "pointer",
+                                marginRight: "8px",
+                                color: "blue",
+                              }}
+                              onClick={(e) => handleEditClick(item.id, e)}
+                            />
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              className="no-print"
+                              style={{ cursor: "pointer", color: "red" }}
+                            />
+                          </>
+                        ) : null}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+
+              <tfoot>
+                <tr>
+                  <td className="border text-center font-bold" colSpan="4">
+                    Total:
+                  </td>
+                  <td className="border font-bold">{totalQtyRestocked}</td>
+                  <td className="border font-bold">{totalTotalBal}</td>
+                  <td className="border font-bold">{totalQtySold}</td>
+                  <td className="border font-bold">{totalQtyBalance}</td>
+                  <td className="border"></td>
+                  <td className="border"></td>
+                  <td className="border"></td>
+                  <td className="border font-bold">₦{totalCostPrice.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalCostValue.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalSalesPriceValue.toFixed(2)}</td>
+                  <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
+                  <td className="border"></td>
+                </tr>
+              </tfoot>
+            </table>
+            {renderFooter()}
+            <div className="flex justify-between mb-4">{renderPaginationButtons()}</div>
           </div>
         </div>
-  
+
         {showEditPop && selectedProduct && (
           <EditPopup
             product={selectedProduct}
@@ -721,20 +668,15 @@ const InventoryPage = () => {
           />
         )}
       </div>
-      </div>
-    );
+    </div>
+  );
 };
 
-
-
 const renderStatCard = (title, value, color) => (
-
   <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
-    
     <div className="text-sm">{title}</div>
     <div className="text-2xl font-bold">{value}</div>
   </div>
 );
-
 
 export default InventoryPage;

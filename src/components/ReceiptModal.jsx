@@ -71,7 +71,10 @@ const ReceiptModal = ({ saleInfo, onClose }) => {
   } = selectedSale;
 
   const TransactionReceiptNumber = saleId || 'N/A';
-  const transactionDateTime = date || 'N/A';
+  
+  // Format the transaction date to day/month/year
+  const transactionDateTime = date ? new Date(date).toLocaleDateString('en-GB') : 'N/A';
+  
   const overallTotal = totalAmount || 0;
   const totalInWords = convertNumberToWords(overallTotal); // Convert the total amount to words
 

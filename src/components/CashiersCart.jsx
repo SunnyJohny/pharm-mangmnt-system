@@ -119,11 +119,7 @@ const CashiersCart = () => {
 
     const orderToProcess = pendingOrders.length > 0 ? pendingOrders[0] : null;
     const receiptNumber = Math.floor(Math.random() * 1000000);
-    const transactionDateTime  = new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(new Date());
+    const transactionDateTime = new Date().toLocaleString();
     
 
     const totalInWords = numberToWords(overallTotal); // Convert total to words
@@ -176,6 +172,17 @@ const CashiersCart = () => {
       toast.success('Sale added successfully!');
 
       // Print receipt
+      const formatDate = (date) => {
+        return new Date(date).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        });
+      };
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
         <html>
@@ -198,7 +205,7 @@ const CashiersCart = () => {
         <p>Cashier: ${user.name}</p>
         <hr>
         <h3>Receipt No.: ${receiptNumber}</h3>
-        <p>Date/Time: ${transactionDateTime}</p>
+        <p>Date/Time: ${formatDate(transactionDateTime)}</p>
         <hr>
         <table style="width: 100%; text-align: left;">
             <tr>
