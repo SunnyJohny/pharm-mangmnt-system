@@ -99,165 +99,178 @@ const CashiersCart = () => {
     ? pendingOrders[0].items.reduce((acc, item) => acc + item.price * item.quantity, 0)
     : cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const handlePrintReceipt = async () => {
-    if (!pendingOrders.length) {
-      if (cart.length > 0) {
-        const proceed = window.confirm("No pending orders to process. Do you wish to proceed to print the items in the cart?");
-        if (!proceed) {
+    const handlePrintReceipt = async () => {
+      if (!pendingOrders.length) {
+        if (cart.length > 0) {
+          const proceed = window.confirm("No pending orders to process. Do you wish to proceed to print the items in the cart?");
+          if (!proceed) {
+            setIsProcessing(false);
+            return;
+          }
+        } else {
+          toast.warn("No pending orders or items in the cart to process.");
           setIsProcessing(false);
           return;
         }
-      } else {
-        toast.warn("No pending orders or items in the cart to process.");
-        setIsProcessing(false);
-        return;
       }
-    }
-
-    setIsProcessing(true);
-    setStopNotification(true); // Stop notification sound
-
-    const orderToProcess = pendingOrders.length > 0 ? pendingOrders[0] : null;
-    const receiptNumber = Math.floor(Math.random() * 1000000);
-    const transactionDateTime = new Date().toLocaleString();
-    
-
-    const totalInWords = numberToWords(overallTotal); // Convert total to words
-
-    const salesDoc = {
-      saleId: `sale_${receiptNumber}`,
-      date: transactionDateTime,
-      customer: {
-        name: orderToProcess?.customer?.name || "Walk-in Customer",
-        email: orderToProcess?.customer?.email || '',
-      },
-      products: orderToProcess ? orderToProcess.items.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        quantity: item.quantity,
-        Amount: item.price * item.quantity,
-        costPrice: item.costPrice * item.quantity, // Assuming costPrice exists in order items
-      })) : cart.map((item) => ({
-        productId: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        Amount: item.price * item.quantity,
-        costPrice: item.costPrice * item.quantity,
-      })),
-      totalAmount: orderToProcess ? orderToProcess.totalAmount : overallTotal,
-      payment: {
-        method: selectedPaymentMethod, // Ensure the selected payment method is used
-      },
-      salesCategory: selectedSalesCategory, // Add sales category to the document
-      staff: {
-        staffId: user?.id || 'default_staff_id',
-        name: user?.name || 'default_staff_name',
-      },
-    };
-
-    try {
-      const docRef = await addDoc(collection(db, `companies/${selectedCompanyId}/sales`), salesDoc);
-      console.log('Receipt added to Firestore with ID:', docRef.id);
-
-      if (orderToProcess) {
-        await Promise.all(orderToProcess.items.map((item) => updateProductSale(item.productId, item.quantity)));
-
-        // Update order status to "processed"
-        const orderRef = doc(db, `companies/${selectedCompanyId}/orders`, orderToProcess.id);
-        await updateDoc(orderRef, { status: "processed" });
-      } else {
-        await Promise.all(cart.map((item) => updateProductSale(item.id, item.quantity)));
-      }
-
-      toast.success('Sale added successfully!');
-
-      // Print receipt
-      const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        });
+  
+      setIsProcessing(true);
+      setStopNotification(true); // Stop notification sound
+  
+      const orderToProcess = pendingOrders.length > 0 ? pendingOrders[0] : null;
+      const receiptNumber = Math.floor(Math.random() * 1000000);
+      const transactionDateTime = new Date().toLocaleString();
+      
+  
+      const totalInWords = numberToWords(overallTotal); // Convert total to words
+  
+      const salesDoc = {
+        saleId: `sale_${receiptNumber}`,
+        date: transactionDateTime,
+        customer: {
+          name: orderToProcess?.customer?.name || "Walk-in Customer",
+          email: orderToProcess?.customer?.email || '',
+        },
+        products: orderToProcess ? orderToProcess.items.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          quantity: item.quantity,
+          Amount: item.price * item.quantity,
+          costPrice: item.costPrice * item.quantity, // Assuming costPrice exists in order items
+        })) : cart.map((item) => ({
+          productId: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          Amount: item.price * item.quantity,
+          costPrice: item.costPrice * item.quantity,
+        })),
+        totalAmount: orderToProcess ? orderToProcess.totalAmount : overallTotal,
+        payment: {
+          method: selectedPaymentMethod, // Ensure the selected payment method is used
+        },
+        salesCategory: selectedSalesCategory, // Add sales category to the document
+        staff: {
+          staffId: user?.id || 'default_staff_id',
+          name: user?.name || 'default_staff_name',
+        },
       };
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write(`
-        <html>
-        <head>
-        <style>
-        @media print {
-          body {
-            white-space: nowrap;
-          }
+  
+      try {
+        const docRef = await addDoc(collection(db, `companies/${selectedCompanyId}/sales`), salesDoc);
+        console.log('Receipt added to Firestore with ID:', docRef.id);
+  
+        if (orderToProcess) {
+          await Promise.all(orderToProcess.items.map((item) => updateProductSale(item.productId, item.quantity)));
+  
+          // Update order status to "processed"
+          const orderRef = doc(db, `companies/${selectedCompanyId}/orders`, orderToProcess.id);
+          await updateDoc(orderRef, { status: "processed" });
+        } else {
+          await Promise.all(cart.map((item) => updateProductSale(item.id, item.quantity)));
         }
-        </style>
-        </head>
-        <body>
-        <div style="text-align: center;">
-        <h2>${state.selectedCompanyName}</h2>
-        <p>Address:${state.selectedCompanyAddress}</p>
-        <p>Phone: ${state.selectedCompanyPhoneNumber}</p>
-        <p>Email: ${state.selectedCompanyEmail}</p>
-        <p>Ordered By: ${orderToProcess?.createdBy || user?.name}</p>
-        <p>Cashier: ${user.name}</p>
-        <hr>
-        <h3>Receipt No.: ${receiptNumber}</h3>
-        <p>Date/Time: ${formatDate(transactionDateTime)}</p>
-        <hr>
-        <table style="width: 100%; text-align: left;">
-            <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Price ( ₦ )</th>
-                <th>Total</th>
-            </tr>
-            ${(orderToProcess ? orderToProcess.items : cart).map((item, index) => `
-                <tr key=${index}>
-                    <td>${item.name || 'N/A'}</td>
-                    <td>${item.quantity || 'N/A'}</td>
-                    <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
-                    <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
-                </tr>
-            `).join('')}
-        </table>
-        <hr>
-        <p style="text-align: center; font-weight: bold; margin-right: 12px;">
-            Total: ₦ ${overallTotal.toFixed(2)}
-        </p>
-        <p style="text-align: center; font-style: italic;">
-            Amount in Words: ${totalInWords} 
-        </p>
-        <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
-        <p style="text-align: center;">Sales Category: <strong>${selectedSalesCategory}</strong></p>
-        <hr>
-        <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
-        <hr>
-        </div>
-        <p style="text-align: center;">Software Developer: <strong>PixelForge Technologies</strong></p>
-        <p style="text-align: center;">Contact: <strong>08030611606, 08026511244.</strong></p>
-        </body>
-        </html>
-      `);
-
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-
-      // Clear the cart after printing the receipt
-      clearCart();
-    } catch (error) {
-      console.error('Error adding receipt to Firestore:', error);
-      toast.error('Error processing sale. Please try again.');
-    } finally {
-      setIsProcessing(false);
-      setStopNotification(false); // Allow notification sound again after processing
-    }
-  };
-
+  
+        toast.success('Sale added successfully!');
+  
+        // Prepare receipt content
+        const formatDate = (date) => {
+          return new Date(date).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          });
+        };
+  
+        const printContent = `
+          <div style="text-align: center;">
+            <h2>${state.selectedCompanyName}</h2>
+            <p>Address: ${state.selectedCompanyAddress}</p>
+            <p>Phone: ${state.selectedCompanyPhoneNumber}</p>
+            <p>Email: ${state.selectedCompanyEmail}</p>
+            <p>Ordered By: ${orderToProcess?.createdBy || user?.name}</p>
+            <p>Cashier: ${user.name}</p>
+            <hr>
+            <h3>Receipt No.: ${receiptNumber}</h3>
+            <p>Date/Time: ${formatDate(transactionDateTime)}</p>
+            <hr>
+            <table style="width: 100%; text-align: left;">
+              <tr>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Price ( ₦ )</th>
+                  <th>Total</th>
+              </tr>
+              ${(orderToProcess ? orderToProcess.items : cart).map((item, index) => `
+                  <tr key=${index}>
+                      <td>${item.name || 'N/A'}</td>
+                      <td>${item.quantity || 'N/A'}</td>
+                      <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
+                      <td>${(Number(item.price) && Number(item.quantity)) ? (Number(item.price) * Number(item.quantity)).toFixed(2) : 'N/A'}</td>
+                  </tr>
+              `).join('')}
+            </table>
+            <hr>
+            <p style="text-align: center; font-weight: bold; margin-right: 12px;">
+              Total: ₦ ${overallTotal.toFixed(2)}
+            </p>
+            <p style="text-align: center; font-style: italic;">
+              Amount in Words: ${totalInWords} 
+            </p>
+            <p style="text-align: center;">Payment Method: <strong>${selectedPaymentMethod}</strong></p>
+            <p style="text-align: center;">Sales Category: <strong>${selectedSalesCategory}</strong></p>
+            <hr>
+            <p style="font-style: italic; text-align: center;">Thanks for your patronage. Please call again!</p>
+            <hr>
+            <p style="text-align: center;">Software Developer: <strong>PixelForge Technologies</strong></p>
+            <p style="text-align: center;">Contact: <strong>08030611606, 08026511244.</strong></p>
+          </div>
+        `;
+  
+        // Inject print content into a hidden iframe
+        const printFrame = document.createElement('iframe');
+        printFrame.style.position = 'absolute';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = 'none';
+        document.body.appendChild(printFrame);
+  
+        const printDocument = printFrame.contentWindow.document;
+        printDocument.open();
+        printDocument.write(`
+          <html>
+          <head>
+          <style>
+          @media print {
+            body {
+              white-space: nowrap;
+            }
+          }
+          </style>
+          </head>
+          <body>${printContent}</body>
+          </html>
+        `);
+        printDocument.close();
+  
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+  
+        // Remove the iframe after printing
+        document.body.removeChild(printFrame);
+  
+        // Clear the cart after printing the receipt
+        clearCart();
+      } catch (error) {
+        console.error('Error adding receipt to Firestore:', error);
+        toast.error('Error processing sale. Please try again.');
+      } finally {
+        setIsProcessing(false);
+        setStopNotification(false); // Allow notification sound again after processing
+      }
+    };
   const updateProductSale = async (productId, quantitySold) => {
     try {
       const productRef = doc(db, `companies/${selectedCompanyId}/products`, productId);
