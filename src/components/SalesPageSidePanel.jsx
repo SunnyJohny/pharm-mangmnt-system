@@ -5,7 +5,7 @@ import {
   FaListAlt,
   FaChartBar,
   FaReceipt,
-
+  FaPlus,
   FaSignOutAlt,
   FaMoneyBillWave,
   FaUserCircle,
@@ -66,6 +66,14 @@ const SalesPageSidePanel = () => {
           <FaChartBar className="text-xl" />
           <p className="ml-2">Goods Purchases</p>
         </Link>
+         <Link
+                  to="/add-product"
+                  className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
+                  onClick={handleLinkClick}
+                >
+                  <FaPlus className="text-xl" />
+                  <p className="ml-2">Add Product</p>
+                </Link>
 
         {/* New Link for "Add Tax" */}
         <Link

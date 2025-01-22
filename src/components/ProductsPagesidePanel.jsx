@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaProductHunt, FaBoxes, FaChartBar, FaReceipt, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaProductHunt, FaBoxes, FaPlus, FaChartBar, FaReceipt,  FaCog, FaSignOutAlt } from 'react-icons/fa';
 import UserInformation from './User';
 import { useMyContext } from '../Context/MyContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -56,14 +56,22 @@ const ProductsPageSidePanel = () => {
           <FaReceipt className="text-xl" />
           <p className="ml-2">Invoice/Receipt</p>
         </Link>
-        <Link
+        {/* <Link
           to=""
           className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
           onClick={handleLinkClick}
         >
           <FaUser className="text-xl" />
           <p className="ml-2">User Profile</p>
-        </Link>
+        </Link> */}
+          <Link
+                          to="/add-product"
+                          className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
+                          onClick={handleLinkClick}
+                        >
+                          <FaPlus className="text-xl" />
+                          <p className="ml-2">Add Product</p>
+                        </Link>
         <Link
           to=""
           className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
