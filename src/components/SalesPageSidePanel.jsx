@@ -5,7 +5,7 @@ import {
   FaListAlt,
   FaChartBar,
   FaReceipt,
-  FaCog,
+
   FaSignOutAlt,
   FaMoneyBillWave,
   FaUserCircle,
