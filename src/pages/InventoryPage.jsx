@@ -74,7 +74,7 @@ const InventoryPage = () => {
     });
   }, [firstRestockDates]);
 
-  const calculateTotals = () => { 
+  const calculateTotals = () => {
     let totalQtyRestocked = 0;
     let totalTotalBal = 0;
     let totalQtySold = 0;
@@ -84,7 +84,7 @@ const InventoryPage = () => {
     let totalItemValue = 0;
     let totalCostValue = 0; // New variable for the total cost value
     let totalSalesPriceValue = 0; // New variable for the total sales price value
-    
+
     filteredItems.forEach((item) => {
       const qtyRestocked = state.productTotals.get(item.name) || 0;
       const totalBal = state.productTotals.get(item.name) || 0;
@@ -95,7 +95,7 @@ const InventoryPage = () => {
       const itemValue = salesPrice * qtyBalance;
       const costValue = costPrice * qtyRestocked; // Cost value for this item
       const salesPriceValue = salesPrice * qtySold; // Total sales price value for this item
-  
+
       totalQtyRestocked += qtyRestocked;
       totalTotalBal += totalBal;
       totalQtySold += qtySold;
@@ -106,7 +106,7 @@ const InventoryPage = () => {
       totalCostValue += costValue; // Add to totalCostValue
       totalSalesPriceValue += salesPriceValue; // Add to totalSalesPriceValue
     });
-  
+
     return {
       totalQtyRestocked,
       totalTotalBal,
@@ -119,7 +119,7 @@ const InventoryPage = () => {
       totalSalesPriceValue, // Include in returned totals
     };
   };
-  
+
   // Call the calculateTotals function to get totals
   const {
     totalQtyRestocked,
@@ -132,7 +132,7 @@ const InventoryPage = () => {
     totalCostValue, // Ensure you include this in the destructuring
     totalSalesPriceValue, // Include in destructuring
   } = calculateTotals();
-  
+
   const searchInventoryByKeyword = (items, searchText) => {
     if (!Array.isArray(items)) return [];
     return items.filter((item) => {
@@ -378,22 +378,21 @@ const InventoryPage = () => {
     return (
       <div className="flex justify-between items-center w-1/2 max-w-lg mx-auto mt-4">
         <button
-          className={`px-3 py-1.5 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
+          className={`px-3 py-1.5 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'} mr-2`}
           onClick={handlePreviousPage}
         >
           Previous
         </button>
         {renderActionButtons()}
         <button
-          className={`px-3 py-1.5 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'
-            }`}
+          className={`px-3 py-1.5 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'} ml-2`}
           onClick={handleNextPage}
         >
           Next
         </button>
       </div>
     );
+    
   };
 
   const renderFooter = () => {
@@ -413,11 +412,18 @@ const InventoryPage = () => {
 
   return (
     <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 px-2 md:px-0">
-      <div className="flex-none">
-        {state.user && state.user.role === 'admin' ? <InventorySidePanel /> : <ProductsPageSidePanel />}
-      </div>
-  
-      <div className="flex-1">
+     <div
+  className="flex-none hidden lg:block w-full max-h-screen overflow-y-auto"
+>
+  {state.user && state.user.role === "admin" ? (
+    <InventorySidePanel />
+  ) : (
+    <ProductsPageSidePanel />
+  )}
+</div>
+
+
+      <div >
         <div className="mb-8 p-2">
           <div className="flex items-center justify-between mb-2">
             <button
@@ -426,7 +432,7 @@ const InventoryPage = () => {
             >
               Reload
             </button>
-            
+
             <div className="flex-grow text-center">
               <h2 className="text-2xl font-bold">Inventory</h2>
             </div>
@@ -434,6 +440,7 @@ const InventoryPage = () => {
               Back
             </button>
           </div>
+
 
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
@@ -453,6 +460,7 @@ const InventoryPage = () => {
           <p><strong>Inventory by Dates:</strong></p>
 
           <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
+
             <div>
               <label
                 htmlFor="dateOption"
@@ -521,7 +529,7 @@ const InventoryPage = () => {
         </div>
 
         <div className="mb-8">
-          <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '300px' }} ref={tableRef}>
+          <div className="table-container overflow-x-auto overflow-y-auto" style={{ maxHeight: '300px' }} id="sales-table" ref={tableRef}>
             <div className="mb-4 text-center">
               <h2 className="text-2xl font-bold underline">Inventory Report</h2>
               <p><strong>Selected Date Period:</strong> {renderSelectedDatePeriod()}</p>
@@ -579,7 +587,7 @@ const InventoryPage = () => {
                           : totalRemaining < 5
                             ? "bg-yellow-500"
                             : ""
-                        }`}
+                          }`}
                       >
                         {totalRemaining}
                       </td>

@@ -278,9 +278,12 @@ const SalesPage = () => {
 
   return (
     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
-      <div className="flex-none">
-        {state.user && state.user.role === 'admin' ? <SalesPageSidePanel /> : <ProductsPageSidePanel />}
-      </div>
+      <div
+  className="flex-none hidden lg:block"
+>
+  {state.user && state.user.role === 'admin' ? <SalesPageSidePanel /> : <ProductsPageSidePanel />}
+</div>
+
 
       <div className="ml-8 flex-1">
         <div className="mb-8 p-2">
