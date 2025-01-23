@@ -413,7 +413,7 @@ const InventoryPage = () => {
   return (
     <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 px-2 md:px-0">
      <div
-  className="flex-none hidden lg:block w-full max-h-screen overflow-y-auto"
+  className="flex-none hidden lg:block  max-h-screen overflow-y-auto"
 >
   {state.user && state.user.role === "admin" ? (
     <InventorySidePanel />
