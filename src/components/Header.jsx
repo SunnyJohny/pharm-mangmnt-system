@@ -5,7 +5,6 @@ import { FaShoppingCart, FaSyncAlt } from "react-icons/fa";
 import Cart from "./Cart";
 import ProductsPageSidePanel from "./ProductsPagesidePanel";
 import CashiersCart from '../components/CashiersCart';
-
 import SalesPageSidePanel from "./SalesPageSidePanel";
 
 export default function Header() {
@@ -17,13 +16,28 @@ export default function Header() {
 
   const selectedCompanyName = state.selectedCompanyName || "";
 
+  // Helper function to check if the screen size is small
+  const isSmallScreen = () => window.innerWidth < 768; // Tailwind `sm` breakpoint
+
+  const handleToggleSidePanel = () => {
+    if (isSmallScreen() && state.user) {
+      toggleSidePanel();
+    }
+  };
+
+  const handleToggleCart = () => {
+    if (isSmallScreen() && state.user) {
+      toggleCart();
+    }
+  };
+
   return (
     <div className="bg-white border-b shadow-sm sticky top-0 z-40">
       <header className="flex justify-between items-center px-2 max-w-6xl mx-auto">
         {/* Left Section: Logo */}
         <div className="flex items-center mt-2">
           <div
-            onClick={() => toggleSidePanel()}
+            onClick={handleToggleSidePanel}
             className="flex items-center justify-center pb-2 cursor-pointer"
           >
             <img
@@ -57,7 +71,7 @@ export default function Header() {
           </button>
 
           {/* Cart Icon with Counter */}
-          <div onClick={() => toggleCart()} className="relative cursor-pointer">
+          <div onClick={handleToggleCart} className="relative cursor-pointer">
             <FaShoppingCart className="text-2xl text-blue-800 mr-2" />
             {/* Dynamic Counter */}
             {state.cart.length > 0 && (
@@ -101,4 +115,3 @@ export default function Header() {
     </div>
   );
 }
-
