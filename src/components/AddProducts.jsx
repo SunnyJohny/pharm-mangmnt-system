@@ -13,15 +13,15 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
   const navigate = useNavigate();
   const [isNewProduct, setIsNewProduct] = useState(true);
   const [product, setProduct] = useState({
-    serialNumber: "",
+    serialNumber: "ser", // Default value
     name: "",
-    supplier: "",
+    supplier: "sup", // Default value
     quantitySupplied: 0,
     costPrice: 0.00,
     costPerItem: 0.00,
     price: 0.00,
-    description: "",
-    expiryDate: "", // New expiry date field
+    description: "description", // Default value
+    expiryDate: "2027-01-01", // Default value, can be changed
     existingProduct: "",
     quantityRestocked: 0,
   });
@@ -62,11 +62,29 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    setProduct((prevProduct) => ({
-      ...prevProduct,
-      [name]: value,
-      costPerItem: (name === 'costPrice' && prevProduct.quantitySupplied) ? (parseFloat(value) / parseFloat(prevProduct.quantitySupplied)) : prevProduct.costPerItem,
-    }));
+    setProduct((prevProduct) => {
+      let newProduct = { ...prevProduct, [name]: value };
+
+      if (name === 'price') {
+        const costPerItem = (parseFloat(value) * 0.75).toFixed(2);
+        newProduct.costPerItem = costPerItem;
+        newProduct.costPrice = (costPerItem * prevProduct.quantitySupplied).toFixed(2);
+      }
+
+      if (name === 'quantitySupplied') {
+        newProduct.costPrice = (prevProduct.costPerItem * parseFloat(value)).toFixed(2);
+      }
+
+      if (name === 'costPerItem') {
+        newProduct.costPrice = (parseFloat(value) * prevProduct.quantitySupplied).toFixed(2);
+      }
+
+      if (name === 'costPrice' && prevProduct.quantitySupplied) {
+        newProduct.costPerItem = (parseFloat(value) / parseFloat(prevProduct.quantitySupplied)).toFixed(2);
+      }
+
+      return newProduct;
+    });
   };
 
   const updateExistingProduct = async (productId, updateData) => {
@@ -102,7 +120,7 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
           price: newProduct.price,
           description: newProduct.description,
           expiryDate: newProduct.expiryDate, // Store expiry date
-          serialNumber: newProduct.serialNumber, // Store expiry date
+          serialNumber: newProduct.serialNumber, // Store serial number
           quantityRestocked: [{ quantity: Number(newProduct.quantitySupplied), time: Timestamp.now() }],
           dateAdded: Timestamp.now()
         });
@@ -110,13 +128,13 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
         setProduct({
           ...product,
           name: "",
-          supplier: "",
+          supplier: "sup", // Reset to default value
           quantitySupplied: 0,
           costPrice: 0.00,
           price: 0.00,
-          description: "",
-          expiryDate: "",
-          serialNumber: "",
+          description: "description", // Reset to default value
+          expiryDate: "2027-01-01", // Reset to default value
+          serialNumber: "ser", // Reset to default value
         });
         // Display a success toast at the top
         toast.success('Product added successfully!', {
@@ -174,13 +192,13 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
       setProduct({
         ...product,
         name: "",
-        supplier: "",
+        supplier: "sup", // Reset to default value
         quantitySupplied: 0,
         costPrice: 0.00,
         price: 0.00,
-        description: "",
-        expiryDate: "",
-        serialNumber: "",
+        description: "description", // Reset to default value
+        expiryDate: "2027-01-01", // Reset to default value
+        serialNumber: "ser", // Reset to default value
         quantityRestocked: 0,
         existingProduct: "",
       });
@@ -192,16 +210,12 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
     }
   };
 
-
   const handleBack = () => {
     navigate("/inventory-page");
   };
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
-
-
-
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 transition-opacity">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -321,7 +335,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       value={product.supplier}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
-                      required
                     />
                   </div>
                   <div className="mb-4">
@@ -332,20 +345,8 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       value={product.quantitySupplied}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
-                      required
                     />
                   </div>
-                  {/* <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Products Serial No</label>
-                    <input
-                      type="number"
-                      name="quantitySupplied"
-                      value={product.quantitySupplied}
-                      onChange={handleInputChange}
-                      className="border rounded-md w-full p-2"
-                      required
-                    />
-                  </div> */}
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Cost of Goods Supplied</label>
                     <input
@@ -354,7 +355,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       value={product.costPrice}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
-                      required
                     />
                   </div>
 
@@ -366,7 +366,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       value={product.costPerItem}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
-                      required
                     />
                   </div>
 
@@ -378,7 +377,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       value={product.price}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
-                      required
                     />
                   </div>
 
@@ -389,7 +387,6 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       value={product.description}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
-                      required
                       rows="4"
                     ></textarea>
                   </div>
@@ -401,20 +398,17 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                       value={product.expiryDate}
                       onChange={handleInputChange}
                       className="border rounded-md w-full p-2"
-                      required
                     />
                   </div>
                 </>
               )}
               <button
                 type="submit"
-                className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isProcessing ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
                 disabled={isProcessing} // Disable button during processing
               >
                 {isProcessing ? "Processing..." : isNewProduct ? "Add Product" : "Update Product"}
               </button>
-
             </form>
           </div>
         </div>
