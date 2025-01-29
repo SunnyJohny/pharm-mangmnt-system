@@ -9,9 +9,16 @@ import { useMyContext } from '../Context/MyContext';
 import InventorySidePanel from '../components/InventorySidePanel';
 import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import EditPopup from '../components/EditPopup';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
+
+import { toast } from 'react-toastify';
+
 
 const InventoryPage = () => {
   const { state } = useMyContext();
+  const { selectedCompanyId } = state;
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(50);
   const [fromDate, setFromDate] = useState(null);
@@ -316,13 +323,59 @@ const InventoryPage = () => {
     navigate(`/product-details/${itemId}`);
   };
 
+
+  const deleteProduct = async (itemId, e) => {
+    if (e) e.stopPropagation(); // Prevent event bubbling only if 'e' exists
+  
+    try {
+      const productToDelete = filteredItems.find((product) => product.id === itemId);
+  
+      if (!productToDelete) {
+        toast.error('Product not found!');
+        return;
+      }
+  
+      const confirmDelete = window.confirm(`Are you sure you want to delete "${productToDelete.name}"?`);
+  
+      if (!confirmDelete) return;
+  
+      // Create a reference to the Firestore document
+      const productRef = doc(db, `companies/${selectedCompanyId}/products/${itemId}`);
+  
+      // Delete the document from Firestore
+      await deleteDoc(productRef);
+  
+      // Notify parent component about the deletion
+      // onDelete(itemId);
+  
+      // Show a success toast notification
+      toast.success('Product deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Error deleting product. Please try again.');
+    }
+  };
+  
+  
   const handleEditClick = (itemId, e) => {
     e.stopPropagation();
     const productToEdit = filteredItems.find((product) => product.id === itemId);
     setSelectedProduct(productToEdit);
     setShowEditPop(true);
   };
-
+  const handleDeleteClick = (itemId, e) => {
+    e.stopPropagation(); // Prevents event bubbling
+    const productToDelete = filteredItems.find((product) => product.id === itemId);
+    
+    if (productToDelete) {
+      const confirmDelete = window.confirm(`Are you sure you want to delete "${productToDelete.name}"?`);
+      if (confirmDelete) {
+        // Perform delete action (e.g., update state or call Firestore delete function)
+        deleteProduct(itemId);
+      }
+    }
+  };
+  
   const renderActionButtons = () => {
     const handlePrintInventory = async () => {
       const tableContainer = tableRef.current;
@@ -632,6 +685,8 @@ const InventoryPage = () => {
                               icon={faTrash}
                               className="no-print"
                               style={{ cursor: "pointer", color: "red" }}
+                              onClick={(e) => handleDeleteClick(item.id, e)}
+
                             />
                           </>
                         ) : null}
