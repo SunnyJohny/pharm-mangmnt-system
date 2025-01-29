@@ -56,7 +56,7 @@ export default function Header() {
 
      
            {/* Center Section: System Name */}
-           <div className="text-xl font-bold text-center text-gray-800 hidden md:block">
+           <div className="text-xl font-bold text-center text-gray-800 ">
           <span className="relative">
             <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 blur-lg opacity-50"></span>
             <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
