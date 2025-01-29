@@ -604,10 +604,12 @@ const InventoryPage = () => {
                         <td className="border">N/A</td>
                       )}
                       <td className="border">{item.serialNumber}</td>
-                      <td className="border">{Number(item.costPrice).toFixed(2)}</td>
                       <td className="border">
-                        {((item.costPrice || 0) * (state.productTotals.get(item.name) || 0)).toFixed(2)}
+                        {((item.costPrice || 0) / (state.productTotals.get(item.name) || 0)).toFixed(2)}
                       </td>
+
+                      <td className="border">{Number(item.costPrice).toFixed(2)}</td>
+
                       <td className="border">{Number(item.price).toFixed(2)}</td>
                       <td className="border">
                         {((item.price || 0) * (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
