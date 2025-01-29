@@ -15,7 +15,9 @@ const InventorySidePanel = () => {
   };
 
   const handleLinkClick = () => {
-    toggleSidePanel(); // Close the panel
+    if (state.user && window.matchMedia("(max-width: 768px)").matches) { // Check if user exists and screen is small
+      toggleSidePanel(); // Close the panel
+    }
   };
 
   return (
@@ -24,14 +26,6 @@ const InventorySidePanel = () => {
       <hr className="my-4 border-t-2 border-white" />
       {/* Links */}
       <div className="flex flex-col flex-grow ">
-        <Link
-          to="/add-product"
-          className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
-          onClick={handleLinkClick}
-        >
-          <FaPlus className="text-xl" />
-          <p className="ml-2">Add Product</p>
-        </Link>
         <Link
           to="/add-asset"
           className="flex items-center p-2 cursor-pointer hover:bg-gray-700"

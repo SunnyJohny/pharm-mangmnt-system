@@ -25,7 +25,9 @@ const SalesPageSidePanel = () => {
   };
 
   const handleLinkClick = () => {
-    toggleSidePanel(); // Close the side panel
+    if (state.user && window.matchMedia("(max-width: 768px)").matches) { // Check if user exists and screen is small
+      toggleSidePanel(); // Close the side panel
+    }
   };
 
   return (
@@ -66,15 +68,14 @@ const SalesPageSidePanel = () => {
           <FaChartBar className="text-xl" />
           <p className="ml-2">Goods Purchases</p>
         </Link>
-         <Link
-                  to="/add-product"
-                  className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
-                  onClick={handleLinkClick}
-                >
-                  <FaPlus className="text-xl" />
-                  <p className="ml-2">Add Product</p>
-                </Link>
-
+        <Link
+          to="/add-product"
+          className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
+          onClick={handleLinkClick}
+        >
+          <FaPlus className="text-xl" />
+          <p className="ml-2">Add Product</p>
+        </Link>
         {/* New Link for "Add Tax" */}
         <Link
           to="/add-tax"
@@ -125,14 +126,6 @@ const SalesPageSidePanel = () => {
           <FaUserCircle className="text-xl" />
           <p className="ml-2">Staff Profile</p>
         </Link>
-        {/* <Link
-          to="/settings"
-          onClick={handleLinkClick}
-          className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
-        >
-          <FaCog className="text-xl" />
-          <p className="ml-2">Settings</p>
-        </Link> */}
         <Link
           to="/"
           onClick={() => {
