@@ -11,7 +11,7 @@ const InventorySidePanel = () => {
   const handleLogout = () => {
     logout();
     navigate('/'); // Navigate to home page
-    toggleSidePanel(); // Close the panel
+    // toggleSidePanel(); // Close the panel
   };
 
   const handleLinkClick = () => {
