@@ -34,22 +34,38 @@ const ProductsPageSidePanel = () => {
           <FaProductHunt className="text-xl" />
           <p className="ml-2">Product Page</p>
         </Link>
-        <Link
-          to="/inventory-page"
-          className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
-          onClick={handleLinkClick}
-        >
-          <FaBoxes className="text-xl" />
-          <p className="ml-2">Inventory</p>
-        </Link>
-        <Link
-          to="/sales"
-          className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
-          onClick={handleLinkClick}
-        >
-          <FaChartBar className="text-xl" />
-          <p className="ml-2">Sales Report</p>
-        </Link>
+        {['admin', 'cashier'].includes(state.user?.role) ? (
+  <Link
+    to="/inventory-page"
+    className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
+    onClick={handleLinkClick}
+  >
+    <FaBoxes className="text-xl" />
+    <p className="ml-2">Inventory</p>
+  </Link>
+) : (
+  <div className="flex items-center p-2 text-gray-500 cursor-not-allowed">
+    <FaBoxes className="text-xl" />
+    <p className="ml-2">Locked</p>
+  </div>
+)}
+
+{['admin', 'cashier'].includes(state.user?.role) ? (
+  <Link
+    to="/sales"
+    className="flex items-center p-2 cursor-pointer hover:bg-gray-700"
+    onClick={handleLinkClick}
+  >
+    <FaChartBar className="text-xl" />
+    <p className="ml-2">Sales Report</p>
+  </Link>
+) : (
+  <div className="flex items-center p-2 text-gray-500 cursor-not-allowed">
+    <FaChartBar className="text-xl" />
+    <p className="ml-2">Locked</p>
+  </div>
+)}
+
         <Link
           to=""
           className="flex items-center p-2 cursor-pointer hover:bg-gray-700"

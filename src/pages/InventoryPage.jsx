@@ -326,28 +326,28 @@ const InventoryPage = () => {
 
   const deleteProduct = async (itemId, e) => {
     if (e) e.stopPropagation(); // Prevent event bubbling only if 'e' exists
-  
+
     try {
       const productToDelete = filteredItems.find((product) => product.id === itemId);
-  
+
       if (!productToDelete) {
         toast.error('Product not found!');
         return;
       }
-  
+
       const confirmDelete = window.confirm(`Are you sure you want to delete "${productToDelete.name}"?`);
-  
+
       if (!confirmDelete) return;
-  
+
       // Create a reference to the Firestore document
       const productRef = doc(db, `companies/${selectedCompanyId}/products/${itemId}`);
-  
+
       // Delete the document from Firestore
       await deleteDoc(productRef);
-  
+
       // Notify parent component about the deletion
       // onDelete(itemId);
-  
+
       // Show a success toast notification
       toast.success('Product deleted successfully!');
     } catch (error) {
@@ -355,8 +355,8 @@ const InventoryPage = () => {
       toast.error('Error deleting product. Please try again.');
     }
   };
-  
-  
+
+
   const handleEditClick = (itemId, e) => {
     e.stopPropagation();
     const productToEdit = filteredItems.find((product) => product.id === itemId);
@@ -366,7 +366,7 @@ const InventoryPage = () => {
   const handleDeleteClick = (itemId, e) => {
     e.stopPropagation(); // Prevents event bubbling
     const productToDelete = filteredItems.find((product) => product.id === itemId);
-    
+
     if (productToDelete) {
       const confirmDelete = window.confirm(`Are you sure you want to delete "${productToDelete.name}"?`);
       if (confirmDelete) {
@@ -375,7 +375,7 @@ const InventoryPage = () => {
       }
     }
   };
-  
+
   const renderActionButtons = () => {
     const handlePrintInventory = async () => {
       const tableContainer = tableRef.current;
@@ -445,14 +445,17 @@ const InventoryPage = () => {
         </button>
       </div>
     );
-    
+
   };
 
   const renderFooter = () => {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-center">
         <div>Total Products: {totalItems}</div>
-        <div>Total Store Value: ₦{totalStoreValue}</div>
+        <div>
+          Total Store Value: {state.user?.role === 'admin' ? `₦${totalStoreValue}` : 'XXXXXX'}
+        </div>
+
         <div>Out Of Stock: {filteredItems.filter((item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) <= 0).length}</div>
         <div>All Categories: 2</div>
       </div>
@@ -465,15 +468,15 @@ const InventoryPage = () => {
 
   return (
     <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 px-2 md:px-0">
-     <div
-  className="flex-none hidden lg:block  max-h-screen overflow-y-auto"
->
-  {state.user && state.user.role === "admin" ? (
-    <InventorySidePanel />
-  ) : (
-    <ProductsPageSidePanel />
-  )}
-</div>
+      <div
+        className="flex-none hidden lg:block  max-h-screen overflow-y-auto"
+      >
+        {state.user && state.user.role === "admin" ? (
+          <InventorySidePanel />
+        ) : (
+          <ProductsPageSidePanel />
+        )}
+      </div>
 
 
       <div >
@@ -497,7 +500,12 @@ const InventoryPage = () => {
 
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
-            {renderStatCard('Total Store Value', `₦${totalStoreValue}`, 'green')}
+            {renderStatCard(
+              'Total Store Value',
+              state.user && state.user.role === 'admin' ? `₦${totalStoreValue}` : 'XXXXXX',
+              'green'
+            )}
+
             {renderStatCard(
               'Out Of Stock',
               filteredItems.filter(
@@ -712,7 +720,10 @@ const InventoryPage = () => {
                   <td className="border font-bold">₦{totalCostValue.toFixed(2)}</td>
                   <td className="border font-bold">₦{totalSalesPrice.toFixed(2)}</td>
                   <td className="border font-bold">₦{totalSalesPriceValue.toFixed(2)}</td>
-                  <td className="border font-bold">₦{totalItemValue.toFixed(2)}</td>
+                  <td className="border font-bold">
+                    {state.user && state.user.role === 'admin' ? `₦${totalItemValue.toFixed(2)}` : 'XXXXXX'}
+                  </td>
+
                   <td className="border"></td>
                 </tr>
               </tfoot>

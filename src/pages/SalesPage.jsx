@@ -207,10 +207,10 @@ const SalesPage = () => {
   const handleDateOptionChange = (e) => {
     const selectedOption = e.target.value;
     setSelectedDateOption(selectedOption);
-  
+
     let startDate = new Date();
     let endDate = new Date();
-  
+
     switch (selectedOption) {
       case 'All':
         setFromDate(null);
@@ -271,7 +271,7 @@ const SalesPage = () => {
       default:
         break;
     }
-  
+
     setFromDate(startDate);
     setToDate(endDate);
   };
@@ -279,10 +279,10 @@ const SalesPage = () => {
   return (
     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-4 md:px-0">
       <div
-  className="flex-none hidden lg:block"
->
-  {state.user && state.user.role === 'admin' ? <SalesPageSidePanel /> : <ProductsPageSidePanel />}
-</div>
+        className="flex-none hidden lg:block"
+      >
+        {state.user && state.user.role === 'admin' ? <SalesPageSidePanel /> : <ProductsPageSidePanel />}
+      </div>
 
 
       <div className="ml-8 flex-1">
@@ -303,8 +303,20 @@ const SalesPage = () => {
           </div>
 
           <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
-            {renderStatCard('Total Revenue', `₦${totalSalesValue}`, 'blue', faChartLine)}
-            {renderStatCard('Total Sales', `₦${totalSalesValue}`, 'green', faShoppingCart)}
+            {renderStatCard(
+              'Total Revenue',
+              state.user?.role === 'admin' ? `₦${totalSalesValue}` : 'XXXXXX',
+              'blue',
+              faChartLine
+            )}
+
+            {renderStatCard(
+              'Total Sales',
+              state.user?.role === 'admin' ? `₦${totalSalesValue}` : 'XXXXXX',
+              'green',
+              faShoppingCart
+            )}
+
             {renderStatCard('Today Sales', `₦${calculateTodaySales().toFixed(2)}`, 'red', faCalendarAlt)}
             {renderStatCard('Cost Of Goods Sold', `₦${totalCOGS}`, 'gray', faBox)}
           </div>
@@ -410,117 +422,126 @@ const SalesPage = () => {
               </thead>
 
               <tbody>
-  {itemsToDisplay
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .map((sale, index) => (
-      <tr onClick={() => handleRowClick(sale)} title="Click To View Invoice" style={{ cursor: 'pointer' }} key={index}>
-        <td className="border">{generateSn(index)}</td>
-        <td className="border">
-          {sale.products.map((product, productIndex) => (
-            <div key={productIndex}>
-              {product.name}
-              {productIndex === sale.products.length - 1 ? '.' : ','}
-              {productIndex < sale.products.length - 1 && <br />}
+                {itemsToDisplay
+                  .sort((a, b) => new Date(b.date) - new Date(a.date))
+                  .map((sale, index) => (
+                    <tr onClick={() => handleRowClick(sale)} title="Click To View Invoice" style={{ cursor: 'pointer' }} key={index}>
+                      <td className="border">{generateSn(index)}</td>
+                      <td className="border">
+                        {sale.products.map((product, productIndex) => (
+                          <div key={productIndex}>
+                            {product.name}
+                            {productIndex === sale.products.length - 1 ? '.' : ','}
+                            {productIndex < sale.products.length - 1 && <br />}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="border">{parseAndFormatDate(sale.date)}</td> {/* Formatted date */}
+                      <td className="border">{sale.id.substring(0, 5)}{sale.id.length > 5 ? '...' : ''}</td>
+                      <td className="border">{sale.saleId}</td>
+                      <td className="border">{sale.customer.name}</td>
+                      <td className="border">{sale.payment?.method || 'N/A'}</td>
+                      {/* COGS */}
+                      <td className="border">
+                        {sale.products.map((product, productIndex) => (
+                          <div key={productIndex}>{product.costPrice}</div>
+                        ))}
+                      </td>
+                      {/* Total Sale */}
+                      <td className="border">
+                        {sale.products.map((product, productIndex) => (
+                          <div key={productIndex}>{product.Amount}</div>
+                        ))}
+                      </td>
+                      <td className="border">{sale.staff.name}</td>
+                      <td className="border">{sale?.salesCategory || 'N/A'}</td>
+                    </tr>
+                  ))}
+                {/* Additional row for totals */}
+                <tr>
+                  <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
+                  <td className="border"></td> {/* Empty cell for Product Names */}
+                  <td className="border"></td> {/* Empty cell for Transaction Date */}
+                  <td className="border"></td> {/* Empty cell for Transaction ID */}
+                  <td className="border"></td> {/* Empty cell for Receipt No */}
+                  <td className="border"></td> {/* Empty cell for Customer Name */}
+                  <td className="border"></td> {/* Empty cell for Payment Method */}
+                  <td className="border"><strong>₦{totalCOGS}</strong></td> {/* Total COGS */}
+                  <td className="border">
+                    <strong>{state.user?.role === 'admin' ? `₦${totalSalesValue}` : 'XXXXXX'}</strong>
+                  </td>
+
+                  <td className="border"></td> {/* Empty cell for Attendant Name */}
+                  <td className="border"></td> {/* Empty cell for Payment Status */}
+                </tr>
+              </tbody>
+
+              <tfoot>
+                <tr>
+                  <td colSpan="11" style={{ textAlign: 'center' }}>
+                    <strong><u className="underline">Sales Summary</u></strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan="9">
+                    <strong>Payment Method:</strong>
+                    <ul>
+                      {Object.entries(paymentMethods).map(([method, totalAmount], index) => {
+                        const amount = Number(totalAmount);
+                        return (
+                          <li key={index}>
+                            {method}: ₦{isNaN(amount) ? "0.00" : amount.toFixed(2)}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </td>
+                  <td colSpan="2">
+                    <strong>
+                      {Object.keys(salesBySalesperson).length > 1 ? "Sales Persons:" : "Sales Person:"}
+                    </strong>
+                    <ul>
+                      {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
+                        const sales = Number(totalSales);
+                        return (
+                          <li key={index}>
+                            {salesperson}: ₦{isNaN(sales) ? "0.00" : sales.toFixed(2)}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan="3"><strong>Total Sales Transactions:</strong> {filteredSales.length}</td>
+                  <td colSpan="3"><strong>Total Products Sold:</strong> {calculateTotalProductsSold(filteredSales)}</td>
+                  <td colSpan="3" className="whitespace-no-wrap">
+                    <strong>
+                      Total Sales Amount:
+                      <u className="underline">
+                        {state.user?.role === 'admin' ? `₦${totalSalesValue}` : 'XXXXXX'}
+                      </u>
+                    </strong>
+                  </td>
+
+                </tr>
+              </tfoot>
+            </table>
+
+            <div className="flex justify-between mb-24">
+              {renderPaginationButtons()}
             </div>
-          ))}
-        </td>
-        <td className="border">{parseAndFormatDate(sale.date)}</td> {/* Formatted date */}
-        <td className="border">{sale.id.substring(0, 5)}{sale.id.length > 5 ? '...' : ''}</td>
-        <td className="border">{sale.saleId}</td>
-        <td className="border">{sale.customer.name}</td>
-        <td className="border">{sale.payment?.method || 'N/A'}</td>
-        {/* COGS */}
-        <td className="border">
-          {sale.products.map((product, productIndex) => (
-            <div key={productIndex}>{product.costPrice}</div>
-          ))}
-        </td>
-        {/* Total Sale */}
-        <td className="border">
-          {sale.products.map((product, productIndex) => (
-            <div key={productIndex}>{product.Amount}</div>
-          ))}
-        </td>
-        <td className="border">{sale.staff.name}</td>
-        <td className="border">{sale?.salesCategory || 'N/A'}</td>
-      </tr>
-    ))}
-  {/* Additional row for totals */}
-  <tr>
-    <td className="border"><strong>Total</strong></td> {/* Empty cell for S/N */}
-    <td className="border"></td> {/* Empty cell for Product Names */}
-    <td className="border"></td> {/* Empty cell for Transaction Date */}
-    <td className="border"></td> {/* Empty cell for Transaction ID */}
-    <td className="border"></td> {/* Empty cell for Receipt No */}
-    <td className="border"></td> {/* Empty cell for Customer Name */}
-    <td className="border"></td> {/* Empty cell for Payment Method */}
-    <td className="border"><strong>₦{totalCOGS}</strong></td> {/* Total COGS */}
-    <td className="border"><strong>₦{totalSalesValue}</strong></td> {/* Total Sales */}
-    <td className="border"></td> {/* Empty cell for Attendant Name */}
-    <td className="border"></td> {/* Empty cell for Payment Status */}
-  </tr>
-</tbody>
-
-<tfoot>
-  <tr>
-    <td colSpan="11" style={{ textAlign: 'center' }}>
-      <strong><u className="underline">Sales Summary</u></strong>
-    </td>
-  </tr>
-  <tr>
-    <td colSpan="9">
-      <strong>Payment Method:</strong>
-      <ul>
-        {Object.entries(paymentMethods).map(([method, totalAmount], index) => {
-          const amount = Number(totalAmount);
-          return (
-            <li key={index}>
-              {method}: ₦{isNaN(amount) ? "0.00" : amount.toFixed(2)}
-            </li>
-          );
-        })}
-      </ul>
-    </td>
-    <td colSpan="2">
-      <strong>
-        {Object.keys(salesBySalesperson).length > 1 ? "Sales Persons:" : "Sales Person:"}
-      </strong>
-      <ul>
-        {Object.entries(salesBySalesperson).map(([salesperson, totalSales], index) => {
-          const sales = Number(totalSales);
-          return (
-            <li key={index}>
-              {salesperson}: ₦{isNaN(sales) ? "0.00" : sales.toFixed(2)}
-            </li>
-          );
-        })}
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td colSpan="3"><strong>Total Sales Transactions:</strong> {filteredSales.length}</td>
-    <td colSpan="3"><strong>Total Products Sold:</strong> {calculateTotalProductsSold(filteredSales)}</td>
-    <td colSpan="3" className="whitespace-no-wrap">
-      <strong>Total Sales Amount: <u className="underline">₦{totalSalesValue}</u></strong>
-    </td>
-  </tr>
-</tfoot>
-</table>
-
-<div className="flex justify-between mb-24">
-  {renderPaginationButtons()}
-</div>
-</div>
-</div>
-</div>
-</div>
-);
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const renderStatCard = (title, value, color) => (
-<div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
-  <div className="text-sm">{title}</div>
-  <div className="text-2xl font-bold">{value}</div>
-</div>
+  <div className={`bg-${color}-500 text-white p-4 rounded-md inline-block m-2`}>
+    <div className="text-sm">{title}</div>
+    <div className="text-2xl font-bold">{value}</div>
+  </div>
 );
 export default SalesPage;
