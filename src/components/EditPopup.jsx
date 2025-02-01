@@ -136,6 +136,10 @@ const EditPopup = ({ product, onUpdate, onClose }) => {
                 <input type="text" id="quantitySupplied" name="quantitySupplied" value={editedProduct.quantitySupplied} onChange={handleInputChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
               </div>
               <div className="mb-4">
+                <label htmlFor="quantitySold" className="block text-sm font-medium text-gray-700">Quantity Sold:</label>
+                <input type="text" id="quantitySold" name="quantitySold" value={editedProduct.quantitySold} onChange={handleInputChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+              </div>
+              <div className="mb-4">
                 <label htmlFor="costPrice" className="block text-sm font-medium text-gray-700">Cost Price:</label>
                 <input type="text" id="costPrice" name="costPrice" value={editedProduct.costPrice} onChange={handleInputChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
               </div>

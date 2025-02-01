@@ -11,7 +11,7 @@ const ProductsPageSidePanel = () => {
   const handleLogout = () => {
     logout(); // Call logoutUser method from context
     navigate('/'); // Navigate to home page
-    toggleSidePanel();
+    // toggleSidePanel();
 
   };
 
