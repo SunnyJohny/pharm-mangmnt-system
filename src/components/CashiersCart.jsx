@@ -315,7 +315,7 @@ const CashiersCart = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white shadow-lg rounded-md p-6">
+    <div className="w-full max-w-md mx-auto bg-white shadow-lg rounded-md ">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Cashier's Cart</h2>
       <div className="grid grid-cols-4 gap-2 sm:flex sm:justify-between mb-2 text-sm sm:text-base">
         <span className="font-bold text-center sm:text-left">Name</span>
@@ -374,22 +374,22 @@ const CashiersCart = () => {
         </select>
       </div>
 
-      <div className="flex justify-between mt-6">
-        <button
-          onClick={clearCart}
-          disabled={isProcessing}
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 disabled:bg-gray-300"
-        >
-          Clear Cart
-        </button>
-        <button
-          onClick={handlePrintReceipt}
-          disabled={isProcessing}
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 disabled:bg-gray-300"
-        >
-          {isProcessing ? "Processing..." : "Print Receipt"}
-        </button>
-      </div>
+      <div className="flex justify-between mt-6 space-x-4">
+  <button
+    onClick={clearCart}
+    disabled={isProcessing}
+    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 disabled:bg-gray-300"
+  >
+    Clear Cart
+  </button>
+  <button
+    onClick={handlePrintReceipt}
+    disabled={isProcessing}
+    className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 disabled:bg-gray-300"
+  >
+    {isProcessing ? "Processing..." : "Print Receipt"}
+  </button>
+</div>
     </div>
   );
 };
