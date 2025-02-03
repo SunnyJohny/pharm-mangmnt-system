@@ -11,9 +11,7 @@ import ProductsPageSidePanel from '../components/ProductsPagesidePanel';
 import EditPopup from '../components/EditPopup';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
-
 import { toast } from 'react-toastify';
-
 
 const InventoryPage = () => {
   const { state } = useMyContext();
@@ -323,7 +321,6 @@ const InventoryPage = () => {
     navigate(`/product-details/${itemId}`);
   };
 
-
   const deleteProduct = async (itemId, e) => {
     if (e) e.stopPropagation(); // Prevent event bubbling only if 'e' exists
 
@@ -355,7 +352,6 @@ const InventoryPage = () => {
       toast.error('Error deleting product. Please try again.');
     }
   };
-
 
   const handleEditClick = (itemId, e) => {
     e.stopPropagation();
@@ -429,7 +425,7 @@ const InventoryPage = () => {
     };
 
     return (
-      <div className="flex justify-between items-center w-1/2 max-w-lg mx-auto mt-4">
+      <div className="flex justify-between items-center w-full md:w-1/2 max-w-lg mx-auto mt-4">
         <button
           className={`px-3 py-1.5 rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'} mr-2`}
           onClick={handlePreviousPage}
@@ -441,11 +437,13 @@ const InventoryPage = () => {
           className={`px-3 py-1.5 rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-700' : 'bg-blue-500 text-white'} ml-2`}
           onClick={handleNextPage}
         >
+          
+
+
           Next
-        </button>
+      </button>
       </div>
     );
-
   };
 
   const renderFooter = () => {
@@ -455,7 +453,6 @@ const InventoryPage = () => {
         <div>
           Total Store Value: {state.user?.role === 'admin' ? `₦${totalStoreValue}` : 'XXXXXX'}
         </div>
-
         <div>Out Of Stock: {filteredItems.filter((item) => (state.productTotals.get(item.name) || 0) - (state.productTotalsMap.get(item.name) || 0) <= 0).length}</div>
         <div>All Categories: 2</div>
       </div>
@@ -468,9 +465,7 @@ const InventoryPage = () => {
 
   return (
     <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 px-2 md:px-0">
-      <div
-        className="flex-none hidden lg:block  max-h-screen overflow-y-auto"
-      >
+      <div className="flex-none hidden lg:block max-h-screen overflow-y-auto">
         {state.user && state.user.role === "admin" ? (
           <InventorySidePanel />
         ) : (
@@ -478,17 +473,12 @@ const InventoryPage = () => {
         )}
       </div>
 
-
-      <div >
+      <div className="flex-1">
         <div className="mb-8 p-2">
           <div className="flex items-center justify-between mb-2">
-            <button
-              onClick={handleReload}
-              className="p-2 bg-gray-200 rounded"
-            >
+            <button onClick={handleReload} className="p-2 bg-gray-200 rounded">
               Reload
             </button>
-
             <div className="flex-grow text-center">
               <h2 className="text-2xl font-bold">Inventory</h2>
             </div>
@@ -497,15 +487,13 @@ const InventoryPage = () => {
             </button>
           </div>
 
-
-          <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
             {renderStatCard('Total Products', totalItems.toString(), 'blue')}
             {renderStatCard(
               'Total Store Value',
               state.user && state.user.role === 'admin' ? `₦${totalStoreValue}` : 'XXXXXX',
               'green'
             )}
-
             {renderStatCard(
               'Out Of Stock',
               filteredItems.filter(
@@ -519,15 +507,9 @@ const InventoryPage = () => {
 
         <div className="mb-4">
           <p><strong>Inventory by Dates:</strong></p>
-
           <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
-
-            <div>
-              <label
-                htmlFor="dateOption"
-                className="text-lg"
-                style={{ marginRight: '16px' }}
-              >
+            <div className="flex items-center space-x-2">
+              <label htmlFor="dateOption" className="text-lg" style={{ marginRight: '16px' }}>
                 Dates
               </label>
               <select
@@ -581,7 +563,7 @@ const InventoryPage = () => {
             </div>
             <input
               type="text"
-              className="border border-gray-300 rounded-md p-2"
+              className="border border-gray-300 rounded-md p-2 w-full md:w-auto"
               placeholder="Search Product by Name"
               onChange={(e) => setSearchKeyword(e.target.value)}
               style={{ marginLeft: 'auto', marginRight: '16px' }}
@@ -668,9 +650,7 @@ const InventoryPage = () => {
                       <td className="border">
                         {((item.costPrice || 0) / (state.productTotals.get(item.name) || 0)).toFixed(2)}
                       </td>
-
                       <td className="border">{Number(item.costPrice).toFixed(2)}</td>
-
                       <td className="border">{Number(item.price).toFixed(2)}</td>
                       <td className="border">
                         {((item.price || 0) * (state.productTotalsMap.get(item.name) || 0)).toFixed(2)}
@@ -694,7 +674,6 @@ const InventoryPage = () => {
                               className="no-print"
                               style={{ cursor: "pointer", color: "red" }}
                               onClick={(e) => handleDeleteClick(item.id, e)}
-
                             />
                           </>
                         ) : null}
@@ -723,7 +702,6 @@ const InventoryPage = () => {
                   <td className="border font-bold">
                     {state.user && state.user.role === 'admin' ? `₦${totalItemValue.toFixed(2)}` : 'XXXXXX'}
                   </td>
-
                   <td className="border"></td>
                 </tr>
               </tfoot>

@@ -302,7 +302,7 @@ const SalesPage = () => {
             </button>
           </div>
 
-          <div className="flex flex-wrap p-2 md:space-x-4 space-y-4 md:space-y-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
             {renderStatCard(
               'Total Revenue',
               state.user?.role === 'admin' ? `₦${totalSalesValue}` : 'XXXXXX',

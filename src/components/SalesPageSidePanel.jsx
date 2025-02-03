@@ -130,7 +130,7 @@ const SalesPageSidePanel = () => {
           to="/"
           onClick={() => {
             handleLogout();
-            // toggleSidePanel();
+            toggleSidePanel();
           }}
           className="flex items-center p-2 mb-2 cursor-pointer hover:bg-gray-700"
         >
