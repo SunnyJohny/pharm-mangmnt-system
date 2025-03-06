@@ -9,6 +9,8 @@ import { useMyContext } from '../Context/MyContext';
 const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
   const { state } = useMyContext();
   const { selectedCompanyId } = state;
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   const navigate = useNavigate();
   const [isNewProduct, setIsNewProduct] = useState(true);
@@ -250,33 +252,46 @@ const AddProduct = ({ onCloseModal, fromInventoryPage, row }) => {
                 </select>
               </div>
               {!isNewProduct ? (
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">Select Existing Product</label>
-                  <select
-                    name="existingProduct"
-                    value={product.existingProduct}
-                    onChange={handleInputChange}
-                    className="border rounded-md w-full p-2"
-                    required
-                  >
-                    <option value="" disabled>Select an existing product</option>
-                    {existingProductNames.map(({ id, name }) => (
-                      <option key={id} value={id}>{name}</option>
-                    ))}
-                  </select>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Quantity Restocked</label>
-                    <input
-                      type="number"
-                      name="quantityRestocked"
-                      value={product.quantityRestocked}
-                      onChange={handleInputChange}
-                      className="border rounded-md w-full p-2"
-                      required
-                    />
-                  </div>
-                </div>
-              ) : (
+  <div className="mb-4">
+    <label className="block text-gray-700 text-sm font-bold mb-2">Select Existing Product</label>
+    
+    <input
+      type="text"
+      placeholder="Search product..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="border rounded-md w-full p-2 mb-2"
+    />
+
+    <select
+      name="existingProduct"
+      value={product.existingProduct}
+      onChange={handleInputChange}
+      className="border rounded-md w-full p-2"
+      required
+    >
+      <option value="" disabled>Select an existing product</option>
+      {existingProductNames
+        .filter(({ name }) => name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .map(({ id, name }) => (
+          <option key={id} value={id}>{name}</option>
+        ))}
+    </select>
+
+    <div className="mb-4">
+      <label className="block text-gray-700 text-sm font-bold mb-2">Quantity Restocked</label>
+      <input
+        type="number"
+        name="quantityRestocked"
+        value={product.quantityRestocked}
+        onChange={handleInputChange}
+        className="border rounded-md w-full p-2"
+        required
+      />
+    </div>
+  </div>
+) 
+ : (
                 <>
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Product Name</label>
