@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const db = getFirestore();
-
+//testing
 export const CartItem = ({ id, name, price, quantity }) => {
   const { increaseQuantity, decreaseQuantity, removeFromCart } = useMyContext();
 
