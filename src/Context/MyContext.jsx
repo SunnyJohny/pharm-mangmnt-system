@@ -278,7 +278,7 @@ export const MyContextProvider = ({ children }) => {
   const fetchShares = useCallback(async () => {
     try {
       if (!state.selectedCompanyId) {
-        console.error('No company selected');
+        // console.error('No company selected');
         return;
       }
 
@@ -291,9 +291,9 @@ export const MyContextProvider = ({ children }) => {
           ...doc.data()
         }));
         setState((prevState) => ({ ...prevState, shares: sharesData }));
-        console.log('Fetched shares:', sharesData);
+        // console.log('Fetched shares:', sharesData);
       } else {
-        console.error('No shares found!');
+        // console.error('No shares found!');
       }
     } catch (error) {
       console.error('Error fetching shares:', error.message);
@@ -345,7 +345,7 @@ export const MyContextProvider = ({ children }) => {
   const fetchAssets = useCallback(async () => {
     try {
       if (!state.selectedCompanyId) {
-        console.error('No company selected');
+        // console.error('No company selected');
         return;
       }
 
@@ -358,12 +358,12 @@ export const MyContextProvider = ({ children }) => {
           ...doc.data()
         }));
         setState((prevState) => ({ ...prevState, assets: assetsData }));
-        console.log('Fetched assets:', assetsData);
+        // console.log('Fetched assets:', assetsData);
       } else {
         console.error('No assets found!');
       }
     } catch (error) {
-      console.error('Error fetching assets:', error.message);
+      // console.error('Error fetching assets:', error.message);
     }
   }, [state.selectedCompanyId]);
 
@@ -421,7 +421,7 @@ export const MyContextProvider = ({ children }) => {
           ...doc.data(),
         }));
         setState((prevState) => ({ ...prevState, purchases: purchasesData }));
-        console.log('Fetched purchases:', purchasesData);
+        // console.log('Fetched purchases:', purchasesData);
       } else {
         console.error('No purchases found!');
       }
@@ -498,7 +498,7 @@ export const MyContextProvider = ({ children }) => {
           ...doc.data()
         }));
         setState((prevState) => ({ ...prevState, taxes: taxesData }));
-        console.log('Fetched taxes:', taxesData);
+        // console.log('Fetched taxes:', taxesData);
       } else {
         console.error('No taxes found!');
       }

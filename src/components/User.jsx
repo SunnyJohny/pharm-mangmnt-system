@@ -10,7 +10,7 @@ const UserInformation = () => {
 
   // useEffect hook to log the user in state when it changes
   useEffect(() => {
-    console.log('Updated User in State:', userName, user);
+    // console.log('Updated User in State:', userName, user);
   }, [user, userName]); // Include userName in the dependency array
 
   return (
