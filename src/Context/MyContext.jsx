@@ -59,7 +59,7 @@ export const MyContextProvider = ({ children }) => {
   };
 
   const toggleCart = () => {
-    console.log('Cart toggled');
+    // console.log('Cart toggled');
     setState((prevState) => ({
       ...prevState,
       isCartOpen: !prevState.isCartOpen,
@@ -67,7 +67,7 @@ export const MyContextProvider = ({ children }) => {
   };
 
   const toggleSidePanel = () => {
-    console.log('Side panel toggled');
+    // console.log('Side panel toggled');
     setState((prevState) => ({
       ...prevState,
       isSidePanelOpen: !prevState.isSidePanelOpen,
@@ -76,8 +76,8 @@ export const MyContextProvider = ({ children }) => {
 
 
   const searchByKeyword = (items, keyword) => {
-    console.log('Searching with keyword:', keyword); // Log the keyword
-    console.log('Items:', items); // Log the items being searched
+    // console.log('Searching with keyword:', keyword); // Log the keyword
+    // console.log('Items:', items); // Log the items being searched
 
     if (!items || !Array.isArray(items) || typeof keyword !== 'string') {
       return [];
@@ -119,9 +119,9 @@ export const MyContextProvider = ({ children }) => {
       }
 
       setState((prevState) => ({ ...prevState, companies: companiesData }));
-      console.log('Fetching companies and users...', companiesData);
+      // console.log('Fetching companies and users...', companiesData);
     } catch (error) {
-      console.error('Error fetching companies:', error.message);
+      // console.error('Error fetching companies:', error.message);
     }
   };
 
@@ -142,9 +142,9 @@ export const MyContextProvider = ({ children }) => {
         const companyEmail = companyData.email || '';  // Fetch company email
 
 
-        console.log('Selected company address:', companyAddress);  // Log company address here
-        console.log('Selected company number:', companyPhone);  // Log company phone number here
-        console.log('Selected company email:', companyEmail);  // Log company email here
+        // console.log('Selected company address:', companyAddress);  // Log company address here
+        // console.log('Selected company number:', companyPhone);  // Log company phone number here
+        // console.log('Selected company email:', companyEmail);  // Log company email here
 
         setState((prevState) => ({
           ...prevState,
@@ -156,7 +156,7 @@ export const MyContextProvider = ({ children }) => {
         }));
       }
     } catch (error) {
-      console.error('Error fetching selected company address:', error.message);
+      // console.error('Error fetching selected company address:', error.message);
     }
   };
 
@@ -226,11 +226,11 @@ export const MyContextProvider = ({ children }) => {
             ...prevState,
             user: userData
           }));
-          console.log('User is logged in:', userData);
+          // console.log('User is logged in:', userData);
         }
       } else {
         // setState((prevState) => ({ ...prevState, user: null }));
-        console.log('refreshed No user is logged in');
+        // console.log('refreshed No user is logged in');
       }
     });
 
@@ -244,7 +244,7 @@ export const MyContextProvider = ({ children }) => {
   const fetchLiabilities = useCallback(async () => {
     try {
       if (!state.selectedCompanyId) {
-        console.error('No company selected');
+        // console.error('No company selected');
         return;
       }
 
@@ -257,12 +257,12 @@ export const MyContextProvider = ({ children }) => {
           ...doc.data()
         }));
         setState((prevState) => ({ ...prevState, liabilities: liabilitiesData }));
-        console.log('Fetched liabilities:', liabilitiesData);
+        // console.log('Fetched liabilities:', liabilitiesData);
       } else {
-        console.error('No liabilities found!');
+        // console.error('No liabilities found!');
       }
     } catch (error) {
-      console.error('Error fetching liabilities:', error.message);
+      // console.error('Error fetching liabilities:', error.message);
     }
   }, [state.selectedCompanyId]);
 
@@ -271,7 +271,7 @@ export const MyContextProvider = ({ children }) => {
   }, [fetchLiabilities]); // Add fetchLiabilities as a dependency
 
 
-  console.log('order from state', state.orders);
+  // console.log('order from state', state.orders);
 
   // Your component state and other hooks here...
 
@@ -312,7 +312,7 @@ export const MyContextProvider = ({ children }) => {
   const fetchStaff = useCallback(async () => {
     try {
       if (!state.selectedCompanyId) {
-        console.error('No company selected');
+        // console.error('No company selected');
         return;
       }
 
@@ -325,12 +325,12 @@ export const MyContextProvider = ({ children }) => {
           ...doc.data()
         }));
         setState((prevState) => ({ ...prevState, users: staffData }));
-        console.log('Fetched staff:', staffData);
+        // console.log('Fetched staff:', staffData);
       } else {
-        console.error('No staff found!');
+        // console.error('No staff found!');
       }
     } catch (error) {
-      console.error('Error fetching staff:', error.message);
+      // console.error('Error fetching staff:', error.message);
     }
   }, [state.selectedCompanyId]);
 
@@ -454,7 +454,7 @@ export const MyContextProvider = ({ children }) => {
           ...doc.data()
         }));
         setState((prevState) => ({ ...prevState, expenses: expensesData }));
-        console.log('Fetched expenses:', expensesData);
+        // console.log('Fetched expenses:', expensesData);
       } else {
         console.error('No expenses found!');
       }
@@ -485,7 +485,7 @@ export const MyContextProvider = ({ children }) => {
   const fetchTaxes = useCallback(async () => {
     try {
       if (!state.selectedCompanyId) {
-        console.error('No company selected');
+        // console.error('No company selected');
         return;
       }
 
@@ -630,14 +630,14 @@ export const MyContextProvider = ({ children }) => {
             overallTotalQuantity += productTotal;
 
             // Log each product's total
-            console.log(`Product: ${name}, Total Quantity Restocked: ${productTotal}`);
+            // console.log(`Product: ${name}, Total Quantity Restocked: ${productTotal}`);
           }
         });
 
         // Log overall totals
-        console.log('Overall Total Quantity:', overallTotalQuantity);
-        console.log('Product Totals Map:', Array.from(productTotalsMap.entries()));
-        console.log('First Restocked Time Map:', Array.from(firstRestockedTimeMap.entries()));
+        // console.log('Overall Total Quantity:', overallTotalQuantity);
+        // console.log('Product Totals Map:', Array.from(productTotalsMap.entries()));
+        // console.log('First Restocked Time Map:', Array.from(firstRestockedTimeMap.entries()));
 
         setState((prevState) => ({
           ...prevState,
@@ -665,7 +665,7 @@ export const MyContextProvider = ({ children }) => {
   useEffect(() => {
     const fetchSales = async () => {
       if (!state.selectedCompanyId) {
-        console.warn('No company selected');
+        // console.warn('No company selected');
         return;
       }
 
@@ -683,7 +683,7 @@ export const MyContextProvider = ({ children }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       if (!state.selectedCompanyId) {
-        console.warn('No company selected');
+        // console.warn('No company selected');
         return;
       }
 
@@ -708,7 +708,7 @@ export const MyContextProvider = ({ children }) => {
         });
 
         // Log products to the console
-        console.log('Fetched products with total quantity sold:', products);
+        // console.log('Fetched products with total quantity sold:', products);
 
         setState((prevState) => ({ ...prevState, products }));
       } catch (error) {
@@ -740,7 +740,7 @@ export const MyContextProvider = ({ children }) => {
       try {
         const ordersData = await fetchOrdersData(state.selectedCompanyId);
         setState((prevState) => ({ ...prevState, orders: ordersData }));
-        console.log("order...", ordersData);
+        // console.log("order...", ordersData);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -783,7 +783,7 @@ export const MyContextProvider = ({ children }) => {
     signOut(auth)
       .then(() => {
         setState((prevState) => ({ ...prevState, user: null }));
-        console.log('User signed out successfully.');
+        // console.log('User signed out successfully.');
       })
       .catch((error) => {
         console.error('Error signing out:', error);
@@ -799,7 +799,7 @@ export const MyContextProvider = ({ children }) => {
         ...prevState,
         user: parsedUser,
       }));
-      console.log('User loaded from localStorage:', parsedUser);
+      // console.log('User loaded from localStorage:', parsedUser);
     }
   }, []);
 
@@ -886,7 +886,7 @@ export const MyContextProvider = ({ children }) => {
 
   const calculateTotalSalesValue = useCallback((sales) => {
     if (!sales || sales.length === 0) {
-      console.log('Sales array is empty');
+      // console.log('Sales array is empty');
       return 0;
     }
 
@@ -894,7 +894,7 @@ export const MyContextProvider = ({ children }) => {
       if (sale.products && Array.isArray(sale.products)) {
         return total + sale.products.reduce((acc, product) => acc + parseFloat(product.Amount || 0), 0);
       } else {
-        console.log('Undefined products array in sale:', sale);
+        // console.log('Undefined products array in sale:', sale);
         return total;
       }
     }, 0);
@@ -914,7 +914,7 @@ export const MyContextProvider = ({ children }) => {
           return isNaN(costPrice) ? acc : acc + costPrice;
         }, 0);
       } else {
-        console.error('Undefined or non-array products in sale:', sale);
+        // console.error('Undefined or non-array products in sale:', sale);
         return total;
       }
     }, 0);
